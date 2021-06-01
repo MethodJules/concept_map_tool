@@ -1,3 +1,6 @@
+import Vue from 'vue'
+import Vuex from 'vuex'
+
 import concepts from './modules/concepts'
 import concept_map from './modules/concept_map'
 
