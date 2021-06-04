@@ -2,16 +2,38 @@
   <b-row>
     <b-col md="2" class="buttonCol">
       <div class="tools">
-        <div class="addConcept">
-          <b-form-input placeholder="Concept Name"> </b-form-input>
-          <b-button @click="addNewConcept(concept)" variant="outline-primary">
-            Add Neu Concept
-          </b-button>
-        </div>
-        <b-button variant="outline-primary">Recommender</b-button>
+        <b-form-input
+          placeholder="Schreiben Sie hier Concept Name..."
+          v-model="conceptName"
+        >
+        </b-form-input>
+        <b-button
+          class="d-flex justify-content-between"
+          @click="addNewConcept(conceptName)"
+          variant="outline-primary"
+          :disabled="saveEnabled"
+        >
+          <span>
+            <b> {{ conceptName }} </b>
+          </span>
+          <span>
+            Hinzufügen
+            <b-icon md="2" class="align-self-end" icon="plus-circle"></b-icon>
+          </span>
+        </b-button>
+
+        <b-button variant="warning">
+          Recommender
+          <b-icon icon="person-lines-fill"></b-icon>
+        </b-button>
       </div>
       <div class="buttonGroup" v-for="(concept, i) in concepts" :key="i">
-        <b-button class="deleteButton" size="sm" variant="danger">
+        <b-button
+          class="deleteButton"
+          size="sm"
+          variant="danger"
+          @click="deleteConcept(concept)"
+        >
           <b-icon icon="trash" aria-hidden="true"></b-icon>
         </b-button>
 
@@ -20,7 +42,7 @@
         </b-button>
 
         <b-button class="addButton" size="sm" variant="success">
-          <b-icon icon="arrow-right" aria-hidden="true"></b-icon>
+          <b-icon icon="box-arrow-right" aria-hidden="true"></b-icon>
         </b-button>
       </div>
     </b-col>
@@ -30,22 +52,56 @@
 <script>
 import { mapGetters } from "vuex";
 export default {
+  data() {
+    return {
+      conceptName: "",
+    };
+  },
   computed: {
     ...mapGetters({ concepts: "getConcepts" }),
+
+    saveEnabled() {
+      let result = true;
+      this.conceptName ? (result = false) : (result = true);
+      return result;
+    },
+  },
+  methods: {
+    /**
+     * Adding concept name to database.
+     */
+    addNewConcept(conceptName) {
+      this.$store.dispatch("addConceptToDb", conceptName);
+      this.$store.dispatch("triggerLoading");
+
+      this.conceptName = null;
+    },
+    /**
+     * Deletes the concept from both state and database
+     */
+    deleteConcept(concept) {
+      this.$store.dispatch("deleteConcept", concept);
+    },
   },
 };
 </script>
 <style scoped>
+.buttonCol {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
 .tools {
   display: flex;
   justify-content: space-between;
   flex-direction: column;
   margin-bottom: 1rem;
+  height: 10rem;
 }
-.buttonCol {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
+
+.tools input,
+button {
+  width: 100%;
 }
 .buttonGroup {
   display: flex;
