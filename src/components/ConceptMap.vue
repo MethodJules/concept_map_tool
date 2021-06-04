@@ -62,6 +62,9 @@ export default {
      */
     addNewConcept(conceptName) {
       this.$store.dispatch("addConceptToDb", conceptName);
+      this.$store.dispatch("triggerLoading");
+
+      this.conceptName = null;
     },
     /**
      * Deletes the concept from both state and database

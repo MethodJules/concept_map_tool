@@ -14,7 +14,8 @@ export default new Vuex.Store({
         concept_map: {
 
         },
-        concepts: []
+        concepts: [],
+        buttonClicked: false,
 
     },
     getters,

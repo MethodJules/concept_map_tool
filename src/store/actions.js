@@ -1,5 +1,14 @@
 import axios from 'axios'
 
+
+// Loading bar 
+
+export const triggerLoading = ({ commit }) => {
+
+    commit("triggerLoading")
+
+}
+
 // Concept List Actions 
 
 /**

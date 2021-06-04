@@ -1,5 +1,11 @@
 <template>
   <div id="app">
+    <div class="loading" v-if="buttonClicked">
+      <div class="lds-ripple">
+        <div></div>
+        <div></div>
+      </div>
+    </div>
     <Header />
     <transition name="fade" mode="out-in">
       <router-view></router-view>
@@ -9,11 +15,24 @@
 
 <script>
 import Header from "./components/shared/Header.vue";
-
+import { mapGetters } from "vuex";
 export default {
+  data() {
+    return {};
+  },
   name: "App",
   components: {
     Header,
+  },
+  computed: {
+    ...mapGetters({ buttonClicked: "getButtonClicked" }),
+    isLoading() {
+      if (this.buttonClicked) {
+        return { display: "block" };
+      } else {
+        return { display: "none" };
+      }
+    },
   },
   created() {
     this.$store.dispatch("loadConceptListFromDb");
@@ -22,6 +41,7 @@ export default {
 </script>
 
 <style>
+@import "assets/loading.css";
 #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

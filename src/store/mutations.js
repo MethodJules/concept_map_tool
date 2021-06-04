@@ -1,5 +1,14 @@
 import axios from 'axios'
 
+export const triggerLoading = (state) => {
+    // Changing the value of buttonClicked in state.
+    // It triggers loading div.
+    state.buttonClicked = true;
+    setTimeout(() => {
+        state.buttonClicked = false;
+    }, 2000);
+}
+
 export const updateConcept = (state) => {
     // Concept update...
     state.push("data");
@@ -51,8 +60,3 @@ export const DELETE_CONCEPT = (state, concept) => {
     let index = state.concepts.indexOf(concept);
     state.concepts.splice(index, 1);
 }
-
-// DELETE_CONCEPT(state, concept) {
-//     let index = state.concepts.indexOf(concept);
-//     state.concepts.splice(index, 1);
-// },
