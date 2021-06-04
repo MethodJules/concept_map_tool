@@ -6,7 +6,7 @@
         </b-form-input>
         <b-button
           class="d-flex justify-content-between"
-          @click="addNewConcept(concept)"
+          @click="addNewConcept(conceptName)"
           variant="outline-primary"
         >
           <span>
@@ -24,7 +24,12 @@
         </b-button>
       </div>
       <div class="buttonGroup" v-for="(concept, i) in concepts" :key="i">
-        <b-button class="deleteButton" size="sm" variant="danger">
+        <b-button
+          class="deleteButton"
+          size="sm"
+          variant="danger"
+          @click="deleteConcept(concept)"
+        >
           <b-icon icon="trash" aria-hidden="true"></b-icon>
         </b-button>
 
@@ -50,6 +55,20 @@ export default {
   },
   computed: {
     ...mapGetters({ concepts: "getConcepts" }),
+  },
+  methods: {
+    /**
+     * Adding concept name to database.
+     */
+    addNewConcept(conceptName) {
+      this.$store.dispatch("addConceptToDb", conceptName);
+    },
+    /**
+     * Deletes the concept from both state and database
+     */
+    deleteConcept(concept) {
+      this.$store.dispatch("deleteConcept", concept);
+    },
   },
 };
 </script>
