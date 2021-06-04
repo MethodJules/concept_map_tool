@@ -45,7 +45,6 @@ export const addConceptToDb = ({ commit }, conceptName) => {
  */
 export const deleteConcept = ({ commit }, concept) => {
     // Deletes it from database
-    console.log(`das hier ist die ID von Concept  https://clr-backend.x-navi.de/jsonapi/node/concept/${concept.id}`)
     var config = {
         method: 'delete',
         url: `https://clr-backend.x-navi.de/jsonapi/node/concept/${concept.id}`,

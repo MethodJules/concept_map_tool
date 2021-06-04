@@ -2,12 +2,16 @@
   <b-row>
     <b-col md="2" class="buttonCol">
       <div class="tools">
-        <b-form-input placeholder="Concept Name" v-model="conceptName">
+        <b-form-input
+          placeholder="Schreiben Sie hier Concept Name..."
+          v-model="conceptName"
+        >
         </b-form-input>
         <b-button
           class="d-flex justify-content-between"
           @click="addNewConcept(conceptName)"
           variant="outline-primary"
+          :disabled="saveEnabled"
         >
           <span>
             <b> {{ conceptName }} </b>
@@ -55,6 +59,12 @@ export default {
   },
   computed: {
     ...mapGetters({ concepts: "getConcepts" }),
+
+    saveEnabled() {
+      let result = true;
+      this.conceptName ? (result = false) : (result = true);
+      return result;
+    },
   },
   methods: {
     /**

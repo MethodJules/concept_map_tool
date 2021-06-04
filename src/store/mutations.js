@@ -41,10 +41,10 @@ export const ADD_NEW_CONCEPT = (state, conceptName) => {
         data: data
     };
 
-    // Sending concept to state
+
     axios(config)
         .then(function (response) {
-            state.concepts.push({ name: conceptName, nid: response.data.data.attributes.drupal_internal__nid });
+            state.concepts.push({ name: conceptName, id: response.data.data.id, nid: response.data.data.attributes.drupal_internal__nid });
         })
         .catch(function (error) {
             console.log(error);
