@@ -1,5 +1,5 @@
 <template>
-  <b-row>
+  <b-row class="p-2 m-0">
     <b-col md="2" class="buttonCol">
       <div class="tools">
         <b-form-input
@@ -10,7 +10,7 @@
         <b-button
           class="d-flex justify-content-between"
           @click="addNewConcept(conceptName)"
-          variant="outline-primary"
+          variant="outline-secondary"
           :disabled="saveEnabled"
         >
           <span>
@@ -27,6 +27,9 @@
           <b-icon icon="person-lines-fill"></b-icon>
         </b-button>
       </div>
+      <span class="hint">
+        <i> Double click to change the name of a concept </i>
+      </span>
       <div class="buttonGroup" v-for="(concept, i) in concepts" :key="i">
         <b-button
           class="deleteButton"
@@ -61,7 +64,7 @@
           </div>
         </b-row>
 
-        <b-button class="addButton" size="sm" variant="success">
+        <b-button class="addButton" size="sm" variant="secondary">
           <b-icon icon="box-arrow-right" aria-hidden="true"></b-icon>
         </b-button>
       </div>
@@ -182,7 +185,9 @@ export default {
 .tools input,
 button {
   width: 100%;
+  text-align: center;
 }
+
 .buttonGroup {
   display: flex;
   justify-content: space-around;
@@ -193,16 +198,27 @@ button {
 .addButton {
   width: 15%;
 }
+.addButton {
+  background-color: #8795b0;
+}
+.addButton:hover {
+  background-color: #6b79b2;
+}
+
 .concept {
   width: 65%;
   padding: 0;
   margin: 0;
 }
 
-.concept button,
-input {
-  transition: display 300ms ease-iout 1s;
+.concept button {
+  background-color: #8795b0 !important;
+  border: none;
 }
+.concept button:hover {
+  background-color: #6b79b2 !important;
+}
+
 .inputGroup {
   display: flex;
   flex-direction: row;
@@ -214,11 +230,14 @@ input {
 .inputGroup input {
   width: 100%;
 }
-
-.show {
-  display: flex !important;
-}
 .hide {
   display: none !important;
+}
+
+.hint {
+  font-size: 0.8rem;
+  text-align: center;
+  color: rgb(226, 19, 19);
+  margin-bottom: 0.5rem;
 }
 </style>

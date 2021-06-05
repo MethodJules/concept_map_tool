@@ -38,6 +38,8 @@ export default {
 #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  /* background-color: #fefffe; */
 }
 .fade-enter {
   opacity: 0;

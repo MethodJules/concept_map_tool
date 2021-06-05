@@ -1,5 +1,5 @@
 <template>
-  <b-navbar toggleable="lg" type="dark" variant="primary" class="p-3 fs-5 mb-2">
+  <b-navbar toggleable="lg" type="dark" variant="primary" class="p-3 fs-5 menu">
     <b-navbar-brand to="/">Concept Map Tool</b-navbar-brand>
 
     <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
@@ -17,4 +17,7 @@
 export default {};
 </script>
 <style scoped>
+.menu {
+  background-color: #3949b3 !important;
+}
 </style>
