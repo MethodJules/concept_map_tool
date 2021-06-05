@@ -26,13 +26,6 @@ export default {
   },
   computed: {
     ...mapGetters({ buttonClicked: "getButtonClicked" }),
-    isLoading() {
-      if (this.buttonClicked) {
-        return { display: "block" };
-      } else {
-        return { display: "none" };
-      }
-    },
   },
   created() {
     this.$store.dispatch("loadConceptListFromDb");

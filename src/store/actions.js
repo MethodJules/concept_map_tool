@@ -66,6 +66,11 @@ export const deleteConcept = ({ commit }, concept) => {
     commit('DELETE_CONCEPT', concept);
 }
 
+export const updateConcept = ({ commit }, payload) => {
+    commit("UPDATE_CONCEPT", payload);
+
+}
+
 // Concept Map Actions
 
 

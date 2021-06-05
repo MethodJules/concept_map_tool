@@ -37,9 +37,29 @@
           <b-icon icon="trash" aria-hidden="true"></b-icon>
         </b-button>
 
-        <b-button class="concept" size="sm" variant="primary">
-          {{ concept.name }}
-        </b-button>
+        <b-row class="concept">
+          <b-button
+            class="d-flex"
+            :id="createIdForButton(concept)"
+            size="sm"
+            variant="primary"
+            @dblclick="openInput(concept, $event)"
+          >
+            {{ concept.name }}
+          </b-button>
+
+          <div :id="createIdForInput(concept)" class="inputGroup hide">
+            <b-form-input size="sm" type="text" v-model="neuConceptName">
+            </b-form-input>
+            <div class="d-flex flex-column">
+              <b-icon @click="closeInput(concept)" icon="x-square"></b-icon>
+              <b-icon
+                @click="updateConcept(neuConceptName, concept)"
+                icon="check-square"
+              ></b-icon>
+            </div>
+          </div>
+        </b-row>
 
         <b-button class="addButton" size="sm" variant="success">
           <b-icon icon="box-arrow-right" aria-hidden="true"></b-icon>
@@ -50,13 +70,39 @@
   </b-row>
 </template>
 <script>
+function toggleButtonInput(concept, e) {
+  // Select input
+  let inputId = "input_" + concept.nid;
+  let myInput = document.getElementById(inputId);
+  // select button
+  let buttonId = "button_" + concept.nid;
+  let myButton = document.getElementById(buttonId);
+
+  if (e) {
+    // hide button
+    e.target.classList.add("hide");
+    // show input
+    myInput.classList.remove("hide");
+  } else {
+    // hide input
+    myInput.classList.add("hide");
+    // show button
+    myButton.classList.remove("hide");
+  }
+}
+
 import { mapGetters } from "vuex";
 export default {
   data() {
     return {
       conceptName: "",
+      neuConceptName: "",
+      buttonClass: "",
+      inputClass: "",
+      isInputOpen: false,
     };
   },
+
   computed: {
     ...mapGetters({ concepts: "getConcepts" }),
 
@@ -81,6 +127,40 @@ export default {
      */
     deleteConcept(concept) {
       this.$store.dispatch("deleteConcept", concept);
+    },
+
+    updateConcept(neuConceptName, concept) {
+      let payload = {
+        concept,
+        neuConceptName,
+      };
+      this.$store.dispatch("updateConcept", payload);
+      this.neuConceptName = "";
+      toggleButtonInput(concept);
+      this.isInputOpen = !this.isInputOpen;
+    },
+
+    // Input Button show hide methodes
+
+    openInput(concept, e) {
+      if (!this.isInputOpen) {
+        toggleButtonInput(concept, e);
+        this.isInputOpen = !this.isInputOpen;
+      }
+    },
+
+    closeInput(concept) {
+      toggleButtonInput(concept);
+      this.neuConceptName = "";
+      this.isInputOpen = !this.isInputOpen;
+    },
+    createIdForButton(concept) {
+      let id = "button_" + concept.nid;
+      return id;
+    },
+    createIdForInput(concept) {
+      let id = "input_" + concept.nid;
+      return id;
     },
   },
 };
@@ -115,5 +195,30 @@ button {
 }
 .concept {
   width: 65%;
+  padding: 0;
+  margin: 0;
+}
+
+.concept button,
+input {
+  transition: display 300ms ease-iout 1s;
+}
+.inputGroup {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  transition: 1s ease;
+}
+.inputGroup input {
+  width: 100%;
+}
+
+.show {
+  display: flex !important;
+}
+.hide {
+  display: none !important;
 }
 </style>

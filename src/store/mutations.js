@@ -9,10 +9,50 @@ export const triggerLoading = (state) => {
     }, 2000);
 }
 
-export const updateConcept = (state) => {
-    // Concept update...
-    state.push("data");
+export const UPDATE_CONCEPT = (state, payload) => {
+    // analyze and split the payload
+    let conceptToChange = payload.concept;
+    let neuConceptName = payload.neuConceptName;
+
+    let index = state.concepts.indexOf(conceptToChange);
+    let id = conceptToChange.id;
+
+    console.log(id + " index: " + index + " name: " + neuConceptName);
+
+    // State update
+    state.concepts[index].name = neuConceptName;
+
+    // Database Update
+    var data = `{"data":{"type":"node--concept", "id": "${id}", "attributes": {"title": "${neuConceptName}"}}}`;
+
+    var config = {
+        method: 'patch',
+        url: `https://clr-backend.x-navi.de/jsonapi/node/concept/${id}`,
+        headers: {
+            'Accept': 'application/vnd.api+json',
+            'Content-Type': 'application/vnd.api+json',
+            'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+        },
+        data: data
+    };
+
+    axios(config)
+        .then(function (response) {
+            console.log(response)
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+
+    // //console.log(dailyEntry.todaydoings)
+    // var data = `{"data": {"type": "node--dailyscrum", "id": "${dailyEntry.idd}", "attributes": {"title": "${dailyEntry.title}", "field_datum": "${dailyEntry.date}", "field_gestern": "${dailyEntry.doings}" , "field_heute": "${dailyEntry.todaydoings}", "field_probleme": "${dailyEntry.problems}" }}}`;
+
+
 }
+
+
+
+
 
 
 export const SAVE_CONCEPTS = (state, concepts) => {
@@ -44,6 +84,7 @@ export const ADD_NEW_CONCEPT = (state, conceptName) => {
 
     axios(config)
         .then(function (response) {
+            // it was not adding id to state. Thats why we were having problems when we delete the concept. 
             state.concepts.push({ name: conceptName, id: response.data.data.id, nid: response.data.data.attributes.drupal_internal__nid });
         })
         .catch(function (error) {
