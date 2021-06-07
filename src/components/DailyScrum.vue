@@ -1,5 +1,8 @@
 <template>
-  <div class="row">
+  <div class="row daily-container">
+    <div>
+      <button class="btn btn-md my-button">Neuer Eintrag</button>
+    </div>
     <table class="table table-striped table-hover table-sm table-responsive">
       <thead>
         <tr class="text-light">
@@ -22,16 +25,10 @@
           <td class="text-center p-1">{{ row.todaydoings }}</td>
           <td class="text-center p-1">{{ row.problems }}</td>
           <td class="text-center p-1 buttonGroup">
-            <button
-              class="btn btn-outline-primary btn-sm"
-              @click="showUpdateRow(row)"
-            >
-              Ändern
+            <button class="btn my-button btn-sm" @click="showUpdateRow(row)">
+              <b-icon icon="pencil"></b-icon>
             </button>
-            <button
-              class="btn btn-outline-danger btn-sm"
-              @click="deleteRow(row)"
-            >
+            <button class="btn btn-danger btn-sm" @click="deleteRow(row)">
               <b-icon icon="trash"></b-icon>
             </button>
           </td>
@@ -67,8 +64,20 @@ export default {
 };
 </script>
 <style scoped>
+.row {
+  width: 100%;
+  background-color: #394173;
+  margin: 0;
+  padding: 2rem 0.5rem;
+}
+.row div:first-child {
+  margin: 0 0 1rem 0;
+  padding: 0;
+  display: flex;
+  justify-content: flex-end;
+}
 thead tr {
-  background-color: rgba(39, 50, 124);
+  background-color: rgb(39, 50, 124);
 }
 
 tbody tr {
@@ -88,17 +97,30 @@ tbody tr {
 .light {
   background-color: rgba(42, 59, 172, 0.8);
 }
-.row {
-  width: 100%;
-  background-color: #394173;
-  height: 100vh;
-  margin: 0;
-  padding: 2rem 0.5rem;
-}
+
 .buttonGroup button {
   margin-right: 1rem;
 }
 .buttonGroup button:last-child {
   margin-right: 0;
+}
+
+.my-button {
+  background-color: indigo;
+  color: white;
+  border: none;
+}
+
+.my-button:hover {
+  background-color: rgb(64, 0, 110);
+  color: white;
+}
+
+.btn-danger {
+  background-color: #bb2e3c !important;
+}
+
+.btn-danger:hover {
+  background-color: #a02c37 !important;
 }
 </style>

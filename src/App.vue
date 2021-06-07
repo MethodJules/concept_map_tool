@@ -7,9 +7,11 @@
       </div>
     </div>
     <Header />
-    <transition name="fade" mode="out-in">
-      <router-view></router-view>
-    </transition>
+    <div class="page-container">
+      <transition name="fade" mode="out-in">
+        <router-view></router-view>
+      </transition>
+    </div>
   </div>
 </template>
 
@@ -52,5 +54,10 @@ export default {
 .fade-leave-active {
   transition: opacity 0.3s ease-in-out;
   opacity: 0.05;
+}
+
+.page-container {
+  height: 92vh;
+  background-color: #394173;
 }
 </style>
