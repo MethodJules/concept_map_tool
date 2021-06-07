@@ -1,20 +1,42 @@
 <template>
-  <b-navbar toggleable="lg" type="dark" variant="primary" class="p-3 fs-5 mb-2">
-    <b-navbar-brand to="/">Concept Map Tool</b-navbar-brand>
+  <b-navbar toggleable="lg" type="dark" variant="primary" class="fs-5 menu">
+    <div>
+      <b-navbar-brand to="/">Concept Map Tool</b-navbar-brand>
+    </div>
+    <div class="menu-items">
+      <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
-    <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-
-    <b-collapse id="nav-collapse" is-nav>
-      <b-navbar-nav>
-        <b-nav-item to="/concept-map">Concept Map</b-nav-item>
-        <b-nav-item to="/comments">Comments</b-nav-item>
-        <b-nav-item to="/daily-scrum">Daily Scrum</b-nav-item>
-      </b-navbar-nav>
-    </b-collapse>
+      <b-collapse id="nav-collapse" is-nav>
+        <b-navbar-nav>
+          <b-nav-item to="/concept-map">Concept Map</b-nav-item>
+          <b-nav-item to="/comments">Comments</b-nav-item>
+          <b-nav-item to="/daily-scrum">Daily Scrum</b-nav-item>
+        </b-navbar-nav>
+      </b-collapse>
+    </div>
   </b-navbar>
 </template>
 <script>
 export default {};
 </script>
 <style scoped>
+.menu {
+  background-color: #3949b3 !important;
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 4rem;
+  height: 8vh;
+}
+.menu-items ul {
+  font-size: 1.5rem;
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+.menu-items ul li {
+  margin-right: 5rem;
+}
+.menu-items ul li:last-child {
+  margin-right: 0;
+}
 </style>

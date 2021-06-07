@@ -7,9 +7,11 @@
       </div>
     </div>
     <Header />
-    <transition name="fade" mode="out-in">
-      <router-view></router-view>
-    </transition>
+    <div class="page-container">
+      <transition name="fade" mode="out-in">
+        <router-view></router-view>
+      </transition>
+    </div>
   </div>
 </template>
 
@@ -26,16 +28,10 @@ export default {
   },
   computed: {
     ...mapGetters({ buttonClicked: "getButtonClicked" }),
-    isLoading() {
-      if (this.buttonClicked) {
-        return { display: "block" };
-      } else {
-        return { display: "none" };
-      }
-    },
   },
   created() {
     this.$store.dispatch("loadConceptListFromDb");
+    this.$store.dispatch("dailyScrum/loadDailysFromBackend");
   },
 };
 </script>
@@ -45,16 +41,23 @@ export default {
 #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  /* background-color: #fefffe; */
 }
 .fade-enter {
-  opacity: 0;
+  opacity: 0.05;
 }
 .fade-enter-active {
-  transition: opacity 0.3s ease-out;
+  transition: opacity 0.3s ease-in-out;
 }
 
 .fade-leave-active {
-  transition: opacity 0.3s ease-out;
-  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0.05;
+}
+
+.page-container {
+  height: 92vh;
+  background-color: #394173;
 }
 </style>
