@@ -19,8 +19,6 @@ const actions = {
     async loadDailysFromBackend({ commit }) {
         await axios.get('https://clr-backend.x-navi.de/jsonapi/node/dailyscrum')
             .then((response) => {
-                console.log("DAily comes...........................................");
-                console.log(response);
                 const data = response.data.data;
                 commit('SAVE_DAILYSCRUM_FEATURE', data);
             }).catch(error => {
@@ -30,7 +28,6 @@ const actions = {
     },
 
     createDaily({ commit }, dailyEntry) {
-        console.log(dailyEntry.todaydoings)
         commit('ADD_DAILY_ENTRY', dailyEntry)
 
     },
@@ -102,6 +99,7 @@ const mutations = {
             .catch(function (error) {
                 console.log(error)
             })
+
         state.rowData.push(dailyEntry);
 
     },
@@ -110,17 +108,14 @@ const mutations = {
         // State update
         let index = state.rowData.indexOf(dailyEntry);
         let id = dailyEntry.idd;
-        console.log("INDEX::::::::::::::::::::::::");
-        console.log(id);
+
         // I could not update the state here.... Lets stay here and ask julien..
 
         state.rowData.forEach(element => {
             console.log(element.idd);
             element.idd == id ? element = dailyEntry : "";
         });
-        console.log(id);
-        console.log(dailyEntry);
-        console.log(state.rowData);
+
 
         state.rowData[index] = dailyEntry;
 
@@ -137,8 +132,7 @@ const mutations = {
             },
             data: data
         };
-        console.log("URL::::::::::::::::::::::")
-        console.log(config.url);
+
 
         axios(config)
             .then(function (response) {
@@ -182,47 +176,3 @@ export default {
 }
 
 
-
-
-
-
-
-
-
-
-// const state = {
-//     rowData: [],
-// }
-
-// // brings datas from the state.
-// const getters = {
-//     getRowData(state) {
-//         // data bring
-//         return state;
-//     },
-
-// }
-
-
-// // updates states with the datas we send to it.
-// const mutations = {
-//     updateRowData(state) {
-//         // Update the data in state
-//         state.push("data")
-
-//     }
-// }
-
-
-// //
-// const actions = {
-//     // what we need at the begining?
-
-// }
-
-// export default {
-//     state,
-//     getters,
-//     mutations,
-//     actions
-// }
