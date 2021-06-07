@@ -29,6 +29,7 @@ export default {
   },
   created() {
     this.$store.dispatch("loadConceptListFromDb");
+    this.$store.dispatch("dailyScrum/loadDailysFromBackend");
   },
 };
 </script>
@@ -42,14 +43,14 @@ export default {
   /* background-color: #fefffe; */
 }
 .fade-enter {
-  opacity: 0;
+  opacity: 0.05;
 }
 .fade-enter-active {
-  transition: opacity 0.3s ease-out;
+  transition: opacity 0.3s ease-in-out;
 }
 
 .fade-leave-active {
-  transition: opacity 0.3s ease-out;
-  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0.05;
 }
 </style>
