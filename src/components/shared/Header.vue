@@ -1,7 +1,7 @@
 <template>
   <b-navbar toggleable="lg" type="dark" variant="primary" class="fs-5 menu">
     <div>
-      <b-navbar-brand to="/">Concept Map Tool</b-navbar-brand>
+      <b-navbar-brand to="/"> Concept Mapping Tool</b-navbar-brand>
     </div>
     <div class="menu-items">
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
@@ -9,6 +9,7 @@
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
           <b-nav-item to="/concept-map">Concept Map</b-nav-item>
+
           <b-nav-item to="/comments">Comments</b-nav-item>
           <b-nav-item to="/daily-scrum">Daily Scrum</b-nav-item>
         </b-navbar-nav>
@@ -38,5 +39,32 @@ export default {};
 }
 .menu-items ul li:last-child {
   margin-right: 0;
+}
+.menu-items ul li a {
+  text-decoration: none;
+  position: relative;
+}
+.menu-items ul li a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0px;
+  height: 3px;
+  background: rgb(250, 250, 250);
+  opacity: 0;
+  -webkit-transition: width 1.5s; /* Safari */
+  transition: width 1.5s;
+}
+.menu-items ul li a:hover:before {
+  opacity: 1;
+  width: 100%;
+}
+
+.menu-items ul li a {
+  color: rgb(209, 204, 204) !important;
+}
+.menu-items ul li a:hover {
+  color: rgb(250, 250, 250) !important;
 }
 </style>
