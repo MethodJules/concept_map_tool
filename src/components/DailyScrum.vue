@@ -84,7 +84,12 @@
 
               <div class="modal-buttons">
                 <div v-if="formdata.updateOrAdd === 'add'">
-                  <b-button variant="primary" size="md" @click="addItem()">
+                  <b-button
+                    variant="primary"
+                    :disabled="isFormFull"
+                    size="md"
+                    @click="addItem()"
+                  >
                     Hinzufügen
                   </b-button>
                 </div>
@@ -160,11 +165,25 @@ export default {
         idd: "",
         title: "",
       },
+      rowData: [],
     };
   },
   components: {},
   computed: {
-    ...mapGetters({ rowData: "dailyScrum/getRowData" }),
+    ...mapGetters({ getRowData: "dailyScrum/getRowData" }),
+
+    isFormFull() {
+      if (
+        this.formdata.date.length > 0 &&
+        this.formdata.doings.length > 0 &&
+        this.formdata.todaydoings.length > 0 &&
+        this.formdata.problems.length > 0 &&
+        this.formdata.title.length > 0
+      ) {
+        return false;
+      }
+      return true;
+    },
   },
 
   methods: {
@@ -194,6 +213,7 @@ export default {
       //hier wird die row aus rowdata als parameter übergeben. aus der row werden die daten an das objekt übergeben
       this.$refs["bv-modal-example"].show();
       this.formdata.date = row.date;
+
       this.formdata.doings = row.doings;
       this.formdata.todaydoings = row.todaydoings;
       this.formdata.problems = row.problems;
@@ -207,13 +227,27 @@ export default {
 
     addItem() {
       this.$store.dispatch("dailyScrum/createDaily", this.formdata);
-
       this.$refs["bv-modal-example"].hide();
     },
 
     updateRow(formdata) {
       this.$store.dispatch("dailyScrum/updateDaily", formdata);
-      // we cannot update state here. look at updateDaily methode..
+      // we update state here. but cannot update vue instance
+    },
+  },
+  created() {
+    this.rowData = this.getRowData;
+    console.log("created:");
+    console.log(this.getRowData);
+  },
+  watch: {
+    getRowData: function (newValue, oldValue) {
+      console.log("New Value old Value");
+      console.log(newValue);
+      console.log(oldValue);
+      this.rowData = newValue;
+      console.log("watcher Row Data: ");
+      console.log(this.rowData);
     },
   },
 };
