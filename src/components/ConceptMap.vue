@@ -8,9 +8,9 @@
         >
         </b-form-input>
         <b-button
-          class="d-flex justify-content-between"
+          class="d-flex justify-content-between addNewConcept"
           @click="addNewConcept(conceptName)"
-          variant="outline-secondary"
+          variant="outline-dark"
           :disabled="saveEnabled"
         >
           <span>
@@ -187,6 +187,14 @@ button {
   width: 100%;
   text-align: center;
 }
+.tools .addNewConcept {
+  color: #8795b0 !important;
+  border: 1px solid #8795b0;
+}
+.tools .addNewConcept:hover {
+  background-color: #6b79b2;
+  color: white !important;
+}
 
 .buttonGroup {
   display: flex;
@@ -237,7 +245,7 @@ button {
 .hint {
   font-size: 0.8rem;
   text-align: center;
-  color: rgb(226, 19, 19);
+  color: rgb(197, 163, 163);
   margin-bottom: 0.5rem;
 }
 </style>
