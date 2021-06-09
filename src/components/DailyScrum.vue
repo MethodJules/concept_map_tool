@@ -127,7 +127,7 @@
       </thead>
       <!-- row beinhaltet auch ID von Objekt/Content Type Instanz Ding - wird in loaddaily auch runtergeladen -->
       <tbody>
-        <tr v-for="(row, i) in rowData" :key="i" :class="striped(i)">
+        <tr v-for="(row, i) in getRowData" :key="i" :class="striped(i)">
           <td class="text-center p-1">
             {{ row.date }}
           </td>
