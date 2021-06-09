@@ -69,7 +69,7 @@
         </b-button>
       </div>
     </b-col>
-    <b-col md="10" class="border">
+    <b-col md="10" class="border mapContainer">
       <ConceptMap />
     </b-col>
   </b-row>
@@ -179,9 +179,14 @@ export default {
 <style scoped>
 .buttonCol {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   flex-direction: column;
+  height: 90vh;
 }
+.mapContainer {
+  height: 90vh;
+}
+
 .tools {
   display: flex;
   justify-content: space-between;
