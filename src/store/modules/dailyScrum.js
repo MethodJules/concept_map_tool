@@ -121,8 +121,8 @@ const mutations = {
                 index = state.rowData.indexOf(element)
             }
         });
-
-        state.rowData[index] = dailyEntry;
+        state.rowData.splice(index, 1, dailyEntry);
+        // state.rowData[index] = dailyEntry;
 
         // DB Update
         // console.log(dailyEntry.todaydoings)
