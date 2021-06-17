@@ -4,7 +4,10 @@
 ```
 npm install
 ```
-
+### Install reauired packages 
+```
+npm install --save vue-d3-network
+```
 ### Compiles and hot-reloads for development
 ```
 npm run serve
