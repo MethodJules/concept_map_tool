@@ -88,10 +88,10 @@ export default {
     },
   },
   mounted() {
-    // console.log("links and nodes");
-    // console.log(this.links);
-    // console.log("nodes");
-    // console.log(this.nodes);
+    console.log("links and nodes");
+    console.log(this.links);
+    console.log("nodes");
+    console.log(this.nodes);
     // this.$store.dispatch("conceptMap/addConceptToConceptMap", this.nodes);
     // this.$store.dispatch("conceptMap/addRelationshipToConceptMap", this.links);
   },
