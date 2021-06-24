@@ -133,9 +133,9 @@ const mutations = {
                        
                         // Response is ok. 
                         const title = response.data.data.attributes.title;
-                        const id = response.data.data.attributes.drupal_internal__nid;
+                        //const id = response.data.data.attributes.drupal_internal__nid;
                         const uuid = response.data.data.id;
-                        state.nodes.push({id: id, name: title, uuid: uuid});
+                        state.nodes.push({id: uuid, name: title, uuid: uuid});
                     })
          
             });
