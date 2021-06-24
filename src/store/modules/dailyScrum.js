@@ -19,8 +19,6 @@ const actions = {
     async loadDailysFromBackend({ commit }) {
         await axios.get('https://clr-backend.x-navi.de/jsonapi/node/dailyscrum')
             .then((response) => {
-                console.log("DAily comes...........................................");
-                console.log(response);
                 const data = response.data.data;
                 commit('SAVE_DAILYSCRUM_FEATURE', data);
             }).catch(error => {
@@ -30,7 +28,6 @@ const actions = {
     },
 
     createDaily({ commit }, dailyEntry) {
-        console.log(dailyEntry.todaydoings)
         commit('ADD_DAILY_ENTRY', dailyEntry)
 
     },
@@ -38,7 +35,6 @@ const actions = {
 
 
     deleteDaily({ commit }, dailyEntry) {
-        //console.log(`das hier ist die ID von Daily Entry ${dailyEntry.idd}`)
         var config = {
             method: 'delete',
             url: `https://clr-backend.x-navi.de/jsonapi/node/dailyscrum/${dailyEntry.idd}`,
@@ -50,9 +46,7 @@ const actions = {
             },
         };
         axios(config)
-            .then((response) => {
-                console.log(response);
-            }).catch(function (error) {
+            .catch(function (error) {
                 console.log(error);
             });
         commit('DELETE_DAILY_ENTRY', dailyEntry);
@@ -83,7 +77,12 @@ const mutations = {
 
 
     ADD_DAILY_ENTRY(state, dailyEntry) {
-        var data = `{"data": {"type": "node--dailyscrum", "attributes": {"title": "${dailyEntry.title}", "field_datum": "${dailyEntry.date}", "field_gestern": "${dailyEntry.doings}" , "field_heute": "${dailyEntry.todaydoings}", "field_probleme": "${dailyEntry.problems}" }}}`;
+        var data = `{"data": {"type": "node--dailyscrum", 
+            "attributes": {"title": "${dailyEntry.title}", 
+            "field_datum": "${dailyEntry.date}", 
+            "field_gestern": "${dailyEntry.doings}" , 
+            "field_heute": "${dailyEntry.todaydoings}", 
+            "field_probleme": "${dailyEntry.problems}" }}}`;
         var config = {
             method: 'post',
             url: 'https://clr-backend.x-navi.de/jsonapi/node/dailyscrum',
@@ -97,35 +96,36 @@ const mutations = {
 
         axios(config)
             .then(function (response) {
-                console.log(response)
+                // We need to reload the page here. When we dont do it. It overwrites on the last saved data in state.  
+                (response) ? location.reload() : "";
+
             })
             .catch(function (error) {
                 console.log(error)
+                console.log(data);
             })
+
         state.rowData.push(dailyEntry);
+
+
 
     },
 
     UPDATE_DAILY_ENTRY(state, dailyEntry) {
         // State update
-        let index = state.rowData.indexOf(dailyEntry);
+        let index;
         let id = dailyEntry.idd;
-        console.log("INDEX::::::::::::::::::::::::");
-        console.log(id);
-        // I could not update the state here.... Lets stay here and ask julien..
 
         state.rowData.forEach(element => {
-            console.log(element.idd);
-            element.idd == id ? element = dailyEntry : "";
+            if (element.idd == id) {
+                index = state.rowData.indexOf(element)
+            }
         });
-        console.log(id);
-        console.log(dailyEntry);
-        console.log(state.rowData);
-
-        state.rowData[index] = dailyEntry;
+        state.rowData.splice(index, 1, dailyEntry);
+        // state.rowData[index] = dailyEntry;
 
         // DB Update
-        //console.log(dailyEntry.todaydoings)
+        // console.log(dailyEntry.todaydoings)
         var data = `{"data": {"type": "node--dailyscrum", "id": "${dailyEntry.idd}", "attributes": {"title": "${dailyEntry.title}", "field_datum": "${dailyEntry.date}", "field_gestern": "${dailyEntry.doings}" , "field_heute": "${dailyEntry.todaydoings}", "field_probleme": "${dailyEntry.problems}" }}}`;
         var config = {
             method: 'patch',
@@ -137,8 +137,7 @@ const mutations = {
             },
             data: data
         };
-        console.log("URL::::::::::::::::::::::")
-        console.log(config.url);
+
 
         axios(config)
             .then(function (response) {
@@ -182,47 +181,3 @@ export default {
 }
 
 
-
-
-
-
-
-
-
-
-// const state = {
-//     rowData: [],
-// }
-
-// // brings datas from the state.
-// const getters = {
-//     getRowData(state) {
-//         // data bring
-//         return state;
-//     },
-
-// }
-
-
-// // updates states with the datas we send to it.
-// const mutations = {
-//     updateRowData(state) {
-//         // Update the data in state
-//         state.push("data")
-
-//     }
-// }
-
-
-// //
-// const actions = {
-//     // what we need at the begining?
-
-// }
-
-// export default {
-//     state,
-//     getters,
-//     mutations,
-//     actions
-// }

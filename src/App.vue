@@ -32,6 +32,7 @@ export default {
   created() {
     this.$store.dispatch("loadConceptListFromDb");
     this.$store.dispatch("dailyScrum/loadDailysFromBackend");
+    this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
   },
 };
 </script>
