@@ -66,35 +66,57 @@ const actions = {
 
 const mutations = {
 
-    ADD_CONCEPT_TO_CONCEPT_MAP(state, concept) {
-        console.log("Concept Map::::::::")
-        console.log(state.nodes);
-        let nodesInMap = state.nodes;
+    ADD_CONCEPT_TO_CONCEPT_MAP(state, concept) {  
+        // Adding concept to the state
+        
+        // We need to control if our concept is already in the map. 
+        // Thats why We need the variables below
+        let nodesInMap = state.nodes; 
         let isMapConsist = false;
-        console.log("TArget: ")
-        console.log(concept)
+        // If our concept is in map, this loop returns isMapConsist true
         nodesInMap.forEach(node => {
             if(node.id == concept.id) isMapConsist = true;
-            
         });
-        console.log(isMapConsist);
-        console.log(concept);
-        
+        // If concept is not in the concept map, we are adding it to the concept map. 
         if(!isMapConsist){
-
             state.nodes.push({
                 id: concept.id,
                 name: concept.name,
-                uuid: concept.id,
-                
+                uuid: concept.id,        
             })
         }
-    
+
+        // Sending concept to database 
+        var data = `{"data": {"type": "node--concept_map", 
+        "attributes": {"title": "Concept Map Test"}, 
+        "relationships": {"field_conceptmap_concepts" : {"data" : {"type": "node--concept_map", "id": "${concept.id}"} }}}}, 
+        `;
+    var config = {
+        method: 'post',
+        url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map',
+        headers: {
+            'Accept': 'application/vnd.api+json',
+            'Content-Type': 'application/vnd.api+json',
+            'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+        },
+        data: data
+    };
+    axios(config)
+    .then(function (response) {
+        // We need to reload the page here. When we dont do it. It overwrites on the last saved data in state.  
+       //  (response) ? location.reload() : "";
+        console.log(response);
+    })
+    .catch(function (error) {
+        console.log("Error: ")
+        console.log(error)
+        console.log(data);
+    })
+
     },
     
     ADD_RELATIONSHIP_TO_CONCEPT_MAP(state, relationship) {
-        console.log("Relationships:")
-        console.log(relationship);
+        // adding relationship to the state
         state.links.push({
             id: Math.random() * 1000, 
             sid: relationship[0].sid,
