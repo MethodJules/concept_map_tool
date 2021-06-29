@@ -3,6 +3,7 @@
     <b-col md="2" class="buttonCol">
       <div class="tools">
         <b-form-input
+          class="conceptName"
           placeholder="Schreiben Sie hier Concept Name..."
           v-model="conceptName"
         >
@@ -22,7 +23,7 @@
           </span>
         </b-button>
 
-        <b-button variant="warning">
+        <b-button variant="warning" class="recommender">
           Recommender
           <b-icon icon="person-lines-fill"></b-icon>
         </b-button>
@@ -64,9 +65,103 @@
           </div>
         </b-row>
 
-        <b-button class="addButton" size="sm" variant="secondary">
+        <b-button
+          :id="createIdForAddButton(concept)"
+          class="addButton"
+          size="sm"
+          variant="secondary"
+        >
           <b-icon icon="box-arrow-right" aria-hidden="true"></b-icon>
         </b-button>
+        <!-- POPOVER START-->
+
+        <b-popover
+          :target="createIdForAddButton(concept)"
+          triggers="click"
+          placement="auto"
+          container="my-container"
+          ref="popover"
+          @show="onShow"
+        >
+          <div class="popoverTitle">
+            <span> <b> Add to concept map </b> </span>
+            <b-button
+              @click="closePopover(concept)"
+              variant="secondary"
+              size="sm"
+              aria-label="Close"
+            >
+              <span>&times;</span>
+            </b-button>
+          </div>
+
+          <div>
+            <!-- User can create a new concept from here too.. -->
+            <b-form-group
+              label="New Concept"
+              label-for="popover-input-1"
+              label-cols="6"
+              :state="input1state"
+              class="mb-1"
+              description="Create new concept map"
+              invalid-feedback="This field is required"
+            >
+              <b-form-input
+                ref="input1"
+                id="popover-input-1"
+                v-model="input1"
+                :state="input1state"
+                size="sm"
+              ></b-form-input>
+            </b-form-group>
+            <!-- User choose the concept to create link with -->
+            <b-form-group
+              label="Concept"
+              label-for="popover-input-2"
+              label-cols="6"
+              :state="input2state"
+              class="mb-1"
+              description="Concept to link with"
+              invalid-feedback="This field is required"
+            >
+              <select id="popover-input-2" v-model="targetConcept">
+                <option value="" disabled selected hidden>
+                  Choose Concept...
+                </option>
+
+                <option
+                  v-for="(concept, i) in concepts"
+                  :key="i"
+                  :value="concept.name"
+                >
+                  {{ concept.name }}
+                </option>
+              </select>
+            </b-form-group>
+
+            <b-alert show class="small">
+              <strong>New Label</strong><br />
+              Source: <strong>{{ concept.name }}</strong
+              ><br />
+              Target: <strong>{{ targetConcept }}</strong>
+            </b-alert>
+            <div class="buttonGroupPopover">
+              <b-button
+                @click="closePopover(concept)"
+                size="sm"
+                variant="danger"
+                >Cancel</b-button
+              >
+              <b-button
+                @click="addConceptToConceptMap(concept, targetConcept)"
+                size="sm"
+                variant="primary"
+                >Ok</b-button
+              >
+            </div>
+          </div>
+        </b-popover>
+        <!-- POPOVER END-->
       </div>
     </b-col>
     <b-col md="10" class="border mapContainer">
@@ -108,6 +203,18 @@ export default {
       buttonClass: "",
       inputClass: "",
       isInputOpen: false,
+      // Popover datas, taken from bootstrap vue website
+      // https://bootstrap-vue.org/docs/components/popover
+      // Advanced <b-popover> usage with reactive content
+      input1: "",
+      input1state: null,
+      targetConcept: "",
+      input2state: null,
+      options: [{ text: "- Choose 1 -", value: "" }, "Red", "Green", "Blue"],
+      input1Return: "",
+      input2Return: "",
+      popoverShow: false,
+      // Popover datas, taken from bootstrap vue website
     };
   },
   components: {
@@ -121,6 +228,17 @@ export default {
       let result = true;
       this.conceptName ? (result = false) : (result = true);
       return result;
+    },
+    selectOptions() {
+      // let options = [];
+      let names = [];
+      this.concepts.forEach((concept) => {
+        names.push(concept.name);
+      });
+      console.log("éoptions.....");
+      console.log(names);
+
+      return names;
     },
   },
   methods: {
@@ -150,6 +268,64 @@ export default {
       toggleButtonInput(concept);
       this.isInputOpen = !this.isInputOpen;
     },
+    /**
+     * Adds given concept to concept map
+     */
+    addConceptToConceptMap(sourceConcept, targetConcept) {
+      let targetId;
+      let sourceId;
+      let target;
+      let relationship = [];
+
+      this.concepts.forEach((concept) => {
+        if (concept.name == targetConcept) {
+          // we are gonna sent it to relations/links
+          targetId = concept.id;
+          // we are gonna send it to the nodes
+          target = concept;
+        }
+      });
+      sourceId = sourceConcept.id;
+      relationship.push({ tid: targetId, sid: sourceId });
+
+      this.$store.dispatch("conceptMap/addConceptToConceptMap", sourceConcept);
+      this.$store.dispatch("conceptMap/addConceptToConceptMap", target);
+
+      this.$store.dispatch(
+        "conceptMap/addRelationshipToConceptMap",
+        relationship
+      );
+    },
+
+    // START! Methods for popover, taken from bootstrap vue
+    // https://bootstrap-vue.org/docs/components/popover
+    // Advanced <b-popover> usage with reactive content
+    closePopover(concept) {
+      let id = this.createIdForAddButton(concept);
+      this.$root.$emit("bv::hide::popover", id);
+    },
+    addLabel(concept) {
+      if (this.input2) {
+        console.log("Send it to the database. Wuhu...");
+
+        this.closePopover(concept);
+        // Return our popover form results
+        this.input1Return = this.input1;
+        this.input2Return = this.input2;
+      }
+    },
+    onShow() {
+      // This is called just before the popover is shown
+      // Reset our popover form variables
+      this.input1 = "";
+      this.input2 = "";
+      this.input1state = null;
+      this.input2state = null;
+      this.input1Return = "";
+      this.input2Return = "";
+    },
+
+    // END! Methods for popover, taken from bootstrap vue
 
     // Input Button show hide methodes
 
@@ -169,6 +345,14 @@ export default {
       let id = "button_" + concept.nid;
       return id;
     },
+    createIdForAddButton(concept) {
+      let id = "button_add_" + concept.nid;
+      return id;
+    },
+    // createIdForPopover(concept) {
+    //   let id = "popover_" + concept.nid;
+    //   return id;
+    // },
     createIdForInput(concept) {
       let id = "input_" + concept.nid;
       return id;
@@ -177,6 +361,33 @@ export default {
 };
 </script>
 <style scoped>
+/* Popover style start*/
+.popoverTitle {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0;
+  font-size: 1rem;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #d8d8d8;
+  border-top-left-radius: calc(0.3rem - 1px);
+  border-top-right-radius: calc(0.3rem - 1px);
+}
+
+#popover-input-2 {
+  width: 100%;
+}
+.buttonGroupPopover {
+  display: flex;
+  justify-content: flex-end;
+}
+.buttonGroupPopover button {
+  margin-left: rem;
+}
+/* Popover style end*/
+
 .buttonCol {
   display: flex;
   justify-content: flex-start;
@@ -195,8 +406,8 @@ export default {
   height: 10rem;
 }
 
-.tools input,
-button {
+.tools .conceptName,
+.recommender {
   width: 100%;
   text-align: center;
 }
