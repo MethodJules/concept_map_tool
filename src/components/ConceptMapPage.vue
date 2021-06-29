@@ -274,19 +274,22 @@ export default {
     addConceptToConceptMap(sourceConcept, targetConcept) {
       let targetId;
       let sourceId;
+      let target;
       let relationship = [];
-      console.log("Concept Map Adding");
-      console.log(sourceConcept);
-      console.log(targetConcept);
-      this.$store.dispatch("conceptMap/addConceptToConceptMap", sourceConcept);
 
       this.concepts.forEach((concept) => {
-        concept.name == targetConcept ? (targetId = concept.id) : "";
+        if (concept.name == targetConcept) {
+          // we are gonna sent it to relations/links
+          targetId = concept.id;
+          // we are gonna send it to the nodes
+          target = concept;
+        }
       });
       sourceId = sourceConcept.id;
       relationship.push({ tid: targetId, sid: sourceId });
-      console.log("Target to send");
-      console.log(relationship[0].tid);
+
+      this.$store.dispatch("conceptMap/addConceptToConceptMap", sourceConcept);
+      this.$store.dispatch("conceptMap/addConceptToConceptMap", target);
 
       this.$store.dispatch(
         "conceptMap/addRelationshipToConceptMap",

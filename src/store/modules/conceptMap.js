@@ -67,15 +67,28 @@ const actions = {
 const mutations = {
 
     ADD_CONCEPT_TO_CONCEPT_MAP(state, concept) {
-        console.log("Concept::::::::")
+        console.log("Concept Map::::::::")
+        console.log(state.nodes);
+        let nodesInMap = state.nodes;
+        let isMapConsist = false;
+        console.log("TArget: ")
+        console.log(concept)
+        nodesInMap.forEach(node => {
+            if(node.id == concept.id) isMapConsist = true;
+            
+        });
+        console.log(isMapConsist);
         console.log(concept);
         
-        state.nodes.push({
-            id: concept.id,
-            name: concept.name,
-            uuid: concept.id,
-            
-        })
+        if(!isMapConsist){
+
+            state.nodes.push({
+                id: concept.id,
+                name: concept.name,
+                uuid: concept.id,
+                
+            })
+        }
     
     },
     
