@@ -41,20 +41,6 @@ const getters = {
 
 const actions = {
 
-    //  loadConceptListFromDb({ commit }){
-    //     axios.get('https://clr-backend.x-navi.de/jsonapi/node/concept')
-    //         .then((response) => {
-    //             const data = response.data.data;
-    //             let concepts = [];
-    //             for (var i in data) {
-    //                 concepts.push({ name: data[i].attributes.title, nid: data[i].attributes.drupal_internal__nid, id: data[i].id });
-    //             }
-    //             commit("SAVE_CONCEPTS", concepts)
-    //         }).catch(error => {
-    //             throw new Error(`API ${error}`);
-    //         });
-    // },
-
     addConceptToConceptMap({commit}, concept) {
         commit('ADD_CONCEPT_TO_CONCEPT_MAP', concept)
     },
@@ -79,38 +65,32 @@ const actions = {
 }
 
 const mutations = {
-    // SAVE_CONCEPTS(state, concepts){
-    //     state.nodes = concepts;
-    // }
+
     ADD_CONCEPT_TO_CONCEPT_MAP(state, concept) {
         console.log("Concept::::::::")
         console.log(concept);
         
         state.nodes.push({
             id: concept.id,
-            name: concept.concept,
-            uuid: concept.uuid
+            name: concept.name,
+            uuid: concept.id,
+            
         })
     
     },
     
     ADD_RELATIONSHIP_TO_CONCEPT_MAP(state, relationship) {
-        console.log("REL::::::::::::::::")
+        console.log("Relationships:")
         console.log(relationship);
+        state.links.push({
+            id: Math.random() * 1000, 
+            sid: relationship[0].sid,
+            tid: relationship[0].tid,
+            _color: '#FFFFFF', 
+            name: "test" + relationship[0].sid,
+        })
         
-        relationship.forEach(el => {
-            console.log("Hello")
-            console.log(el.source);
-            console.log("Hello")
-            
-        });
-        // state.links.push({
-            
-        //     sid: relationship.source.id,
-        //     tid: relationship.target.id,
-        //     name: relationship.name,
-        //     _color: '#c93e37'
-        // })
+
     },
 
     // this makes his job. Brings concepts and relations from backend. 
@@ -142,12 +122,14 @@ const mutations = {
 
       
             //Get relationships of concept map
+       
             relationships.forEach(relationship => {
-                // console.log("relationship");
-                // console.log(relationship);
+           
               // REl is is ok.
                 axios.get(`https://clr-backend.x-navi.de/jsonapi/node/relationship/${relationship.id}`)
                     .then((response) => {
+
+                        console.log(response);
                         const label = response.data.data.attributes.title;
                         const sid = response.data.data.attributes.field_sid;
                         const tid = response.data.data.attributes.field_tid;
