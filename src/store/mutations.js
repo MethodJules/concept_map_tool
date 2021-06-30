@@ -1,5 +1,9 @@
 import axios from 'axios'
 
+/**
+ * Triggers loading bar. 
+ * @param {*} state 
+ */
 export const triggerLoading = (state) => {
     // Changing the value of buttonClicked in state.
     // It triggers loading div.
@@ -8,7 +12,11 @@ export const triggerLoading = (state) => {
         state.buttonClicked = false;
     }, 2000);
 }
-
+/**
+ * Updates the name of the concept.
+ * @param {*} state 
+ * @param {object} payload includes concept as an object and new concept name as string 
+ */
 export const UPDATE_CONCEPT = (state, payload) => {
     // analyze and split the payload
     let conceptToChange = payload.concept;
@@ -16,8 +24,6 @@ export const UPDATE_CONCEPT = (state, payload) => {
 
     let index = state.concepts.indexOf(conceptToChange);
     let id = conceptToChange.id;
-
-    console.log(id + " index: " + index + " name: " + neuConceptName);
 
     // State update
     state.concepts[index].name = neuConceptName;
@@ -43,18 +49,17 @@ export const UPDATE_CONCEPT = (state, payload) => {
         .catch(function (error) {
             console.log(error)
         })
-
-    // //console.log(dailyEntry.todaydoings)
-    // var data = `{"data": {"type": "node--dailyscrum", "id": "${dailyEntry.idd}", "attributes": {"title": "${dailyEntry.title}", "field_datum": "${dailyEntry.date}", "field_gestern": "${dailyEntry.doings}" , "field_heute": "${dailyEntry.todaydoings}", "field_probleme": "${dailyEntry.problems}" }}}`;
-
-
 }
 
 
 
 
 
-
+/**
+ * Saves concept to state. 
+ * @param {*} state 
+ * @param {object} concepts concept to save. 
+ */
 export const SAVE_CONCEPTS = (state, concepts) => {
     state.concepts = concepts;
 }
@@ -80,7 +85,6 @@ export const ADD_NEW_CONCEPT = (state, conceptName) => {
         },
         data: data
     };
-
 
     axios(config)
         .then(function (response) {

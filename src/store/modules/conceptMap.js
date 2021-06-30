@@ -1,46 +1,63 @@
 import axios from "axios"
 const state = () => ({
-
-    nodes: [],
-    links: [],
-    
-
+    nodes: [], // stores the nodes of concept map
+    links: [], // stores the links of concept map
 })
 
 const getters = {
+    /** Getter for nodes of the concept map
+     * @returns nodes 
+     */
+    getNodes(state) {
+        return state.nodes;
+    },
+    /**
+     * Getter for Links of the concept map.
+     * @returns links 
+     * 
+     */
     getLinks(state) {
         return state.links;
 
     },
-    getNodes(state) {
-        return state.nodes;
-    }
-
 }
 
 const actions = {
-
+    /**
+     * commits to add concepts to the concept map.
+     * @param {object} concept the concept that will be added to concept map 
+     */
     addConceptToConceptMap({commit}, concept) {
         commit('ADD_CONCEPT_TO_CONCEPT_MAP', concept)
     },
-
+    /**
+     * commits to delete node from concept map. 
+     * @param {object} node the node that will be deleted from concept map. 
+     * 
+     */
     deleteNodeFromConceptMap({commit}, node){
         commit('DELETE_NODE_FROM_CONCEPT_MAP', node);
     },
     /**
-     * 
-     * @param commit To reach mutation
-     * @param nodeId We send the id of the node, which we are 
+     * commits to delete the link from concept map. 
+     * @param {string} nodeId We send the id of the node, which we are 
      * going to delete each link associated with it. 
      */
     deleteLinkFromConceptMap({commit}, nodeId){
         commit("DELETE_LINK_FROM_CONCEPT_MAP", nodeId)
     },
-
+    /**
+     * commits to add links to the concept map.
+     * @param {array} relationship the link that will be added to the concept map 
+     */
     addRelationshipToConceptMap({commit}, relationship) {
         commit('ADD_RELATIONSHIP_TO_CONCEPT_MAP', relationship);
     },
-
+    /**
+     * Loads concept map from backend. 
+     * commit it to mutation to save it in state.
+     *  
+     */
     async loadConceptMapFromBackend({commit}) {
         await axios.get('https://clr-backend.x-navi.de/jsonapi/node/concept_map')
             .then((response) => {
@@ -57,7 +74,12 @@ const actions = {
 }
 
 const mutations = {
-
+    /**
+     * Adds concept to concept map,
+     * Both state and database
+     * @param {*} state 
+     * @param {object} concept concept to add concept map 
+     */
     ADD_CONCEPT_TO_CONCEPT_MAP(state, concept) {  
         // Adding concept to the state
         
@@ -95,7 +117,8 @@ const mutations = {
     };
     axios(config)
     .then(function (response) {
-        // We need to reload the page here. When we dont do it. It overwrites on the last saved data in state.  
+        // We need to reload the page here. When we dont do it. 
+        // It overwrites on the last saved data in state.  
        //  (response) ? location.reload() : "";
         console.log(response);
     })
@@ -106,7 +129,12 @@ const mutations = {
     })
 
     },
-    
+    /**
+     * Adds relationships to the concept map. 
+     * Both state and database
+     * @param {*} state 
+     * @param {array} relationship the relationship that will be added to concept map. 
+     */
     ADD_RELATIONSHIP_TO_CONCEPT_MAP(state, relationship) {
         // adding relationship to the state
         state.links.push({
@@ -119,21 +147,33 @@ const mutations = {
         
 
     },
-
+    /**
+     * Deletes node from concept map. 
+     * @param {*} state 
+     * @param {object} node the node that will be deleted from concept map 
+     */
     DELETE_NODE_FROM_CONCEPT_MAP(state, node){
         let index = state.nodes.indexOf(node);
         state.nodes.splice(index, 1);
         console.log("Hellooooo")
         console.log(state.nodes)
     },
+    /**
+     * Deletes the link from concept map. 
+     * @param {*} state 
+     * @param {String} nodeId The id of the node which the link associated with it, will be deleted. 
+     *  
+     */
     DELETE_LINK_FROM_CONCEPT_MAP(state, nodeId){
+        // Deletes the links that includes nodeId as source id (sid) in it.
         state.links.forEach(link => {
-         
+            
             if(link.sid == nodeId){
                 state.links.splice(state.links.indexOf(link), 1);      
             }            
         });
-
+        
+        // Deletes the links that includes nodeId as target id (tid) in it.
         state.links.forEach(link => {
             if(link.tid == nodeId){
                 state.links.splice(state.links.indexOf(link), 1);
@@ -142,19 +182,20 @@ const mutations = {
     },
 
 
-    // this makes his job. Brings concepts and relations from backend. 
+    /**
+     * Loads concept map to the state
+     * Loads nodes and link in the required form for vue-d3-network
+     * @param {*} state 
+     * @param {object} concept_map teh concept map that we load from database. 
+     */
     INITIALIZE_CONCEPT_MAP(state, concept_map) {
         //TODO: Hier kode rein
         //state.nodes = concept_map.nodes; //TODO: Verlinkung
         //state.links = concept_map.relationships;//TODO: Verlinkung
         concept_map.forEach(element => {
-            // lement is ok.
             const concepts = element.relationships.field_conceptmap_concepts.data;
             const relationships = element.relationships.field_conceptmap_relationships.data;
             
-         //concept and relations OK.
-      
-           
             concepts.forEach(element => {
                 // element is coming OK.
                 axios.get(`https://clr-backend.x-navi.de/jsonapi/node/concept/${element.id}`)
@@ -168,27 +209,17 @@ const mutations = {
                     })
          
             });
-
-      
             //Get relationships of concept map
-       
             relationships.forEach(relationship => {
-           
-              // REl is is ok.
                 axios.get(`https://clr-backend.x-navi.de/jsonapi/node/relationship/${relationship.id}`)
                     .then((response) => {
 
-                        console.log(response);
                         const label = response.data.data.attributes.title;
                         const sid = response.data.data.attributes.field_sid;
                         const tid = response.data.data.attributes.field_tid;
-                        // above 3 is ok too.....
                         state.links.push({sid: sid, tid: tid, _color: '#c93e37', name: label})
                     })
             })
-            
-
-
         });
     }
 
