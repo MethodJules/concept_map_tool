@@ -1,140 +1,330 @@
 <template>
-  <div>
-    <div class="buttonGroup">
-      <div>
-        <label> Node size </label>
-        <input type="range" min="1" max="100" v-model="nodeSize" />
-        {{ options.nodeSize }}
-      </div>
-      <div>
-        <label> Link width </label>
-        <input type="range" min="1" max="100" v-model="linkWidth" />
-        {{ options.linkWidth }}
-      </div>
-      <div>
-        <label> Bigger or smaller? </label>
-        <input type="range" min="0" max="10000" v-model="force" />
-        {{ options.force }}
-      </div>
-      <div>
-        <label> Font Size </label>
-        <input type="range" min="10" max="50" v-model="fontSize" />
-        {{ options.fontSize }}
-      </div>
-      <div>
-        <label> Straight Links </label>
-        <input type="checkbox" v-model="strLinks" />
-      </div>
+    <div>
+        <b-modal id="add-parent-modal" hide-footer hide-header hide-title>
+            <div class="modal-container">
+                <h5 class="modal-title">
+                    Add a parent to <strong> {{ clickedNode.name }} !</strong>
+                </h5>
+                <div class="modal-body">
+                    <p>
+                        Choose one of the below
+                        <b-button
+                            variant="danger"
+                            size="sm"
+                            @click="clearOptions()"
+                            >Clear Options</b-button
+                        >
+                    </p>
+                    <select v-model="targetConcept">
+                        <option value="" disabled selected hidden>
+                            Choose Concept...
+                        </option>
+                        <option
+                            v-for="(concept, i) in concepts"
+                            :key="i"
+                            :value="concept"
+                            :disabled="isInputFull"
+                        >
+                            {{ concept.name }}
+                        </option>
+                    </select>
+                    <label for="input-1">Or create a new one.</label>
+                    <b-input
+                        ref="input1"
+                        id="input-1"
+                        v-model="newConceptToAdd"
+                        :disabled="!isOptionFull"
+                        size="sm"
+                    ></b-input>
+                    <div class="modal-buttons">
+                        <b-button
+                            @click="removeConceptFromConceptMap(clickedNode)"
+                            variant="danger"
+                            size="sm"
+                        >
+                            Delete <strong> {{ clickedNode.name }} !</strong>
+                        </b-button>
+                        <b-button
+                            variant="primary"
+                            :disabled="isOptionOrInputFull"
+                            size="sm"
+                            @click="
+                                addConceptToConceptMap(
+                                    clickedNode,
+                                    targetConcept
+                                )
+                            "
+                            >Hinzufügen
+                        </b-button>
+                        <b-button
+                            @click="hideModal()"
+                            variant="danger"
+                            size="sm"
+                            >Close Me
+                        </b-button>
+                    </div>
+                </div>
+            </div>
+        </b-modal>
+        <div class="buttonGroup">
+            <div>
+                <label> Node size </label>
+                <input type="range" min="1" max="100" v-model="nodeSize" />
+                {{ options.nodeSize }}
+            </div>
+            <div>
+                <label> Link width </label>
+                <input type="range" min="1" max="100" v-model="linkWidth" />
+                {{ options.linkWidth }}
+            </div>
+            <div>
+                <label> Bigger or smaller? </label>
+                <input type="range" min="0" max="10000" v-model="force" />
+                {{ options.force }}
+            </div>
+            <div>
+                <label> Font Size </label>
+                <input type="range" min="10" max="50" v-model="fontSize" />
+                {{ options.fontSize }}
+            </div>
+            <div>
+                <label> Straight Links </label>
+                <input type="checkbox" v-model="strLinks" />
+            </div>
+        </div>
+        <d3-network
+            :net-nodes="nodes"
+            :net-links="links"
+            :options="options"
+            @node-click="showModal"
+            @link-click="changeColor"
+        />
     </div>
-    <d3-network
-      :net-nodes="nodes"
-      :net-links="links"
-      :options="options"
-      @node-click="changeIcon"
-      @link-click="changeColor"
-    />
-  </div>
 </template>
 <script>
+/**
+ * For more information: https://www.npmjs.com/package/vue-d3-network
+ * Or just google "vue-d3-network"
+ * A good example: https://emiliorizzo.github.io/vue-d3-network/
+ *
+ */
 import D3Network from "vue-d3-network";
 
 import { mapGetters } from "vuex";
+
 export default {
-  data() {
-    return {
-      nodeSize: 20,
-      linkWidth: 5,
-      force: 3000,
-      fontSize: 15,
-      strLinks: true,
-    };
-  },
-  components: {
-    D3Network,
-  },
-  computed: {
-    ...mapGetters({
-      links: "conceptMap/getLinks",
-      nodes: "conceptMap/getNodes",
-    }),
-
-    options() {
-      return {
-        force: this.force,
-        nodeSize: this.nodeSize,
-        nodeLabels: true,
-        linkWidth: this.linkWidth,
-        fontSize: this.fontSize,
-        strLinks: this.strLinks,
-        // size: { h: 700 },
-      };
+    data() {
+        return {
+            // variables for link options:
+            nodeSize: 20, // Link Options: arranges the size of nodes
+            linkWidth: 5, // Link Options: arranges the size of the link
+            force: 3000, // Link Options: arranges how much wide the concept map
+            fontSize: 15, // Link Options: arranges the font size of the node
+            strLinks: true, // Link Options: decide if the links are straight or curved
+            clickedNode: {}, // the node that user clicked on the concept map
+            targetConcept: "", // The concept that we are going to add to the map
+            newConceptToAdd: "", // New concept to add map and concept list
+        };
     },
-  },
-  methods: {
-    changeIcon(event, node) {
-      // We can add parent when we click to the node.
-      node = Object.assign(node, {
-        svgSym: nodeIcons.nodeIcon1,
-        svgIcon: null,
-        svgObj: null,
-      });
-      this.$set(this.nodes, node.index, node);
+    components: {
+        D3Network,
     },
-    changeColor(event, link) {
-      link = Object.assign(link, {
-        _color: "orange",
-      });
-      this.$set(this.links, link.index, link);
+    computed: {
+        // Getters for link concepts and nodes.
+        // The values taken form state.
+        ...mapGetters({
+            links: "conceptMap/getLinks",
+            nodes: "conceptMap/getNodes",
+            concepts: "getConcepts",
+        }),
+        /**
+         * It controls if option or input is full or not.
+         * We need this info in order to prevent sending an unfilled form
+         */
+        isOptionOrInputFull() {
+            if ((this.targetConcept == "") & (this.newConceptToAdd == "")) {
+                return true;
+            }
+            return false;
+        },
+        /**
+         * It controls if option is full or not
+         * We disable the input if option is full.
+         * Otherweise we send extra info to our methodes.
+         */
+        isOptionFull() {
+            if (this.targetConcept !== "") return false;
+            return true;
+        },
+        /**
+         * It controls if input is full or not
+         * We disable the options if input is full.
+         * Otherweise we send extra info to our methodes.
+         */
+        isInputFull() {
+            if (this.newConceptToAdd !== "") return true;
+            return false;
+        },
+        /**
+         * options of concept map.
+         * For more information: https://www.npmjs.com/package/vue-d3-network
+         * Or just google "vue-d3-network"
+         */
+        options() {
+            return {
+                force: this.force,
+                nodeSize: this.nodeSize,
+                nodeLabels: true,
+                linkWidth: this.linkWidth,
+                fontSize: this.fontSize,
+                strLinks: this.strLinks,
+                // size: { h: 700 },
+            };
+        },
     },
-  },
-  mounted() {
-    console.log("links");
-    console.log(this.links);
-    console.log("nodes");
-    console.log(this.nodes);
-    // this.$store.dispatch("conceptMap/addConceptToConceptMap", this.nodes);
-    // this.$store.dispatch("conceptMap/addRelationshipToConceptMap", this.links);
-  },
-};
-const nodeIcons = {
-  nodeIcon1:
-    '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="32" viewBox="0 0 24 32"><path d="M12 30c-6.626 0-12-1.793-12-4 0-1.207 0-2.527 0-4 0-0.348 0.174-0.678 0.424-1 1.338 1.723 5.99 3 11.576 3s10.238-1.277 11.576-3c0.25 0.322 0.424 0.652 0.424 1 0 1.158 0 2.387 0 4 0 2.207-5.375 4-12 4zM12 22c-6.626 0-12-1.793-12-4 0-1.208 0-2.526 0-4 0-0.212 0.080-0.418 0.188-0.622v0c0.061-0.128 0.141-0.254 0.236-0.378 1.338 1.722 5.99 3 11.576 3s10.238-1.278 11.576-3c0.096 0.124 0.176 0.25 0.236 0.378v0c0.107 0.204 0.188 0.41 0.188 0.622 0 1.158 0 2.386 0 4 0 2.207-5.375 4-12 4zM12 14c-6.626 0-12-1.792-12-4 0-0.632 0-1.3 0-2 0-0.636 0-1.296 0-2 0-2.208 5.374-4 12-4s12 1.792 12 4c0 0.624 0 1.286 0 2 0 0.612 0 1.258 0 2 0 2.208-5.375 4-12 4zM12 4c-4.418 0-8 0.894-8 2s3.582 2 8 2 8-0.894 8-2-3.582-2-8-2z"></path></svg>',
+    methods: {
+        /**
+         * Show Modal.
+         * @param node The node that user clicked
+         * It shows the modal when user clicked a node.
+         * Modal is specialized according to the node clicked,
+         */
+        showModal(event, node) {
+            this.$root.$emit("bv::show::modal", "add-parent-modal");
+            this.clickedNode = node;
+        },
+        /**
+         * Hide Modal.
+         * Hides modal when this methode is called.
+         */
+        hideModal() {
+            this.$root.$emit("bv::hide::modal", "add-parent-modal");
+        },
 
-  nodeIcon2:
-    '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"> \
-    <path d="M23.617 17.973c-0.436-0.311-0.891-0.518-1.358-0.622-0.276-0.053-0.564-0.073-0.862-0.057-0.281 0.016-0.549 0.052-0.803 \
-    0.11-0.191 0.053-0.382 0.122-0.573 0.206-0.568 0.251-1.059 0.566-1.462 0.948-0.382 0.403-0.698 0.894-0.948 1.462-0.084 0.191-0.153 0.383-0.206 0.573-0.058 0.254-0.095 0.522-0.11 0.803-0.016 0.297 0.004 0.585 0.057 0.862 0.104 0.467 0.311 0.922 0.622 1.358 0.122 0.17 0.253 0.325 0.392 0.465 0.627 0.626 1.432 0.959 2.357 1.066 0.279 0.032 0.566 0.052 0.829 0.14 0.16 0.053 0.286 0.128 0.378 0.219 0.208 0.206 0.238 0.503 0.078 0.851-0.098 0.214-0.241 0.42-0.405 0.589l-0.087 0.089c-0.123 0.122-0.2 0.2-0.22 0.22-0.098 0.099-0.191 0.192-0.283 0.286l-0.093 0.091c-0.329 0.331-0.659 0.66-0.989 0.989-0.711 0.713-1.424 1.424-2.137 2.136-0.234 0.234-0.469 0.469-0.703 0.703-0.108 0.108-0.221 0.199-0.337 0.275-0.056 0.038-0.109 0.070-0.162 0.099-0.613 0.309-1.295 0.185-1.851-0.371-0.169-0.169-0.332-0.332-0.495-0.495-0.945-0.945-1.89-1.891-2.837-2.835-0.268-0.268-0.535-0.534-0.803-0.8-0.191-0.19-0.396-0.37-0.611-0.533-0.179-0.135-0.362-0.236-0.546-0.304-0.661-0.229-1.294-0.063-1.708 0.414-0.119 0.15-0.219 0.327-0.293 0.529-0.107 0.289-0.144 0.608-0.184 0.918-0.153 1.173-0.806 2.138-1.749 2.583-0.234 0.114-0.484 0.197-0.747 0.243-0.248 0.044-0.498 0.053-0.745 0.032-0.832-0.042-1.546-0.409-2.141-1.018-0.052-0.052-0.066-0.065-0.078-0.078-0.609-0.594-0.976-1.309-1.018-2.141-0.021-0.247-0.012-0.497 0.032-0.745 0.047-0.263 0.129-0.513 0.243-0.747 0.444-0.943 1.41-1.596 2.583-1.749 0.309-0.040 0.628-0.077 0.918-0.184 0.217-0.080 0.405-0.189 0.562-0.32 0.454-0.411 0.612-1.020 0.401-1.636-0.087-0.23-0.188-0.413-0.323-0.592-0.163-0.215-0.343-0.42-0.533-0.611-0.266-0.267-0.532-0.534-0.798-0.801-0.841-0.843-1.683-1.684-2.523-2.524l-0.313-0.313c-0.163-0.163-0.327-0.327-0.477-0.477-0.575-0.575-0.698-1.257-0.389-1.869 0.029-0.053 0.061-0.105 0.096-0.158 0.078-0.12 0.169-0.233 0.277-0.341 0.234-0.234 0.468-0.469 0.703-0.703 0.712-0.713 1.423-1.426 2.136-2.137 0.329-0.33 0.658-0.661 0.989-0.989l0.091-0.092c0.093-0.093 0.187-0.185 0.281-0.278 0.025-0.025 0.103-0.103 0.225-0.226l0.089-0.087c0.168-0.164 0.375-0.306 0.589-0.405 0.348-0.16 0.645-0.13 0.851 0.078 0.092 0.091 0.166 0.217 0.219 0.377 0.087 0.263 0.108 0.55 0.14 0.829 0.107 0.925 0.44 1.73 1.066 2.357 0.14 0.14 0.295 0.271 0.465 0.393 0.436 0.311 0.891 0.518 1.358 0.623 0.276 0.053 0.564 0.073 0.862 0.057 0.281-0.016 0.549-0.053 0.803-0.11 0.191-0.053 0.382-0.122 0.573-0.206 0.568-0.251 1.059-0.566 1.462-0.948 0.382-0.403 0.697-0.894 0.948-1.462 0.084-0.191 0.153-0.383 0.206-0.573 0.057-0.254 0.095-0.522 0.11-0.803 0.016-0.297-0.004-0.585-0.057-0.862-0.104-0.467-0.311-0.922-0.623-1.358-0.122-0.17-0.252-0.325-0.393-0.465-0.627-0.626-1.432-0.959-2.357-1.066-0.279-0.032-0.566-0.053-0.829-0.14-0.16-0.053-0.286-0.128-0.377-0.219-0.208-0.206-0.238-0.503-0.078-0.851 0.098-0.214 0.241-0.42 0.405-0.589l0.087-0.089c0.123-0.122 0.2-0.2 0.22-0.22 0.098-0.099 0.191-0.192 0.283-0.286l0.092-0.091c0.329-0.331 0.659-0.66 0.989-0.989 0.711-0.713 1.424-1.424 2.137-2.136 0.234-0.234 0.469-0.469 0.703-0.703 0.108-0.108 0.221-0.199 0.337-0.275 0.056-0.038 0.109-0.070 0.162-0.099 0.613-0.309 1.295-0.185 1.851 0.371 0.169 0.169 0.332 0.332 0.495 0.495 0.945 0.945 1.89 1.891 2.837 2.835 0.268 0.268 0.535 0.534 0.802 0.8 0.191 0.19 0.396 0.37 0.611 0.533 0.179 0.135 0.362 0.236 0.546 0.304 0.661 0.229 1.294 0.063 1.708-0.414 0.119-0.15 0.219-0.327 0.293-0.529 0.107-0.289 0.144-0.608 0.184-0.917 0.153-1.173 0.806-2.138 1.749-2.583 0.234-0.114 0.484-0.196 0.747-0.243 0.248-0.044 0.498-0.053 0.745-0.032 0.832 0.042 1.546 0.409 2.141 1.018 0.052 0.052 0.066 0.065 0.078 0.078 0.609 0.594 0.976 1.309 1.018 2.141 0.021 0.247 0.012 0.497-0.032 0.745-0.047 0.263-0.129 0.513-0.243 0.747-0.444 0.943-1.41 1.596-2.583 1.749-0.309 0.040-0.628 0.077-0.918 0.184-0.217 0.080-0.405 0.189-0.562 0.32-0.454 0.411-0.612 1.020-0.401 1.636 0.087 0.23 0.188 0.413 0.323 0.592 0.163 0.215 0.343 0.42 0.533 0.611 0.266 0.267 0.532 0.534 0.798 0.801 0.946 0.948 1.892 1.893 2.837 2.838 0.163 0.163 0.327 0.327 0.477 0.477 0.575 0.575 0.698 1.257 0.389 1.869-0.029 0.053-0.061 0.105-0.096 0.158-0.078 0.12-0.169 0.233-0.277 0.341-0.234 0.234-0.468 0.469-0.703 0.703-0.712 0.713-1.423 1.426-2.136 2.137-0.329 0.33-0.658 0.661-0.989 0.989l-0.091 0.093c-0.093 0.093-0.187 0.185-0.281 0.278-0.025 0.025-0.102 0.103-0.225 0.226l-0.089 0.087c-0.168 0.164-0.375 0.306-0.589 0.405-0.348 0.16-0.645 0.13-0.851-0.078-0.092-0.091-0.166-0.218-0.219-0.378-0.087-0.263-0.108-0.55-0.14-0.829-0.107-0.925-0.44-1.73-1.066-2.357-0.14-0.14-0.295-0.272-0.465-0.393z"></path></svg>',
+        /**Clear Options.
+         * Deletes the value of the option in the modal.
+         * targetConcept stores tha values of the option in the modal
+         */
+        clearOptions() {
+            this.targetConcept = "";
+        },
 
-  nodeIcon3:
-    '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="32" viewBox="0 0 20 32"><path d="M20 14h-8l6-14-18 18h8l-6 14 18-18z"></path></svg>',
+        /**
+         * Adds given concept to concept map
+         * @param sourceConcept The source concept as an object
+         * @param targetConcept The target concept as an object
+         *
+         */
+        addConceptToConceptMap(sourceConcept, targetConcept) {
+            let relationship = [];
+            // We need to add the ids of the source and target concept to relationship array.
+
+            relationship.push({ tid: targetConcept.id, sid: sourceConcept.id });
+            // We need to send the relationship as an array
+            this.$store.dispatch(
+                "conceptMap/addRelationshipToConceptMap",
+                relationship
+            );
+
+            // We need to send the source concept as an object to this methode
+            this.$store.dispatch(
+                "conceptMap/addConceptToConceptMap",
+                sourceConcept
+            );
+            // we need to send target concept as an object to this methode
+            this.$store.dispatch(
+                "conceptMap/addConceptToConceptMap",
+                targetConcept
+            );
+        },
+        /**
+         * Remove Concept From Concept Map.
+         * @param node The node that we are going to delete from concept map.
+         * This method both deletes the concept and the link that are associated with
+         * this node.
+         */
+        removeConceptFromConceptMap(node) {
+            // Removes the node that is send to the methode
+            this.$store.dispatch("conceptMap/deleteNodeFromConceptMap", node);
+            // removes the link that associated with the node send.
+            this.$store.dispatch(
+                "conceptMap/deleteLinkFromConceptMap",
+                node.id
+            );
+        },
+        // changes the color of the link when user click to it.
+        // Can be removed....
+        changeColor(event, link) {
+            link = Object.assign(link, {
+                _color: "orange",
+            });
+            this.$set(this.links, link.index, link);
+        },
+    },
 };
 </script>
 <style scoped >
+.modal-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.modal-title {
+    border-bottom: 1px solid grey;
+}
+
+.modal-body {
+    padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.modal-body p {
+    display: flex;
+    justify-content: space-between;
+}
+.modal-body select {
+    margin-bottom: 1rem;
+}
+.modal-body label {
+    margin-bottom: 0.5rem;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+.modal-buttons button:first-child {
+    margin-right: 1rem;
+}
+
 .buttonGroup {
-  padding: 1rem;
-  display: flex;
-  float: right;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 25%;
+    padding: 1rem;
+    display: flex;
+    float: right;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 25%;
 }
 .buttonGroup div {
-  display: flex;
-  justify-content: flex-start;
+    display: flex;
+    justify-content: flex-start;
 }
 
 .buttonGroup div label {
-  width: 50%;
+    width: 50%;
 }
 
 .link-label {
-  fill: purple;
-  transform: translate(0, 0.5em);
-  font-size: 0.8em;
+    fill: purple;
+    transform: translate(0, 0.5em);
+    font-size: 0.8em;
 }
 
 .net {
-  width: 100%;
-  height: 70vh;
+    width: 100%;
+    height: 70vh;
 }
 </style>

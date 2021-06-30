@@ -1,15 +1,13 @@
 import axios from 'axios'
 
-
-// Loading bar 
-
+/**
+ * Triggers loading bar.
+ * @param {*} commit 
+ */
 export const triggerLoading = ({ commit }) => {
-
     commit("triggerLoading")
-
 }
 
-// Concept List Actions 
 
 /**
  * Loads the concepts from database and send them to mutation with commit. 
@@ -30,7 +28,7 @@ export const loadConceptListFromDb = ({ commit }) => {
         });
 }
 /**
- * 
+ * Commits to add concepts to the database. 
  * @param {commit}  
  * @param {conceptName} the concept name that we send in order to save to database 
  */
@@ -65,23 +63,12 @@ export const deleteConcept = ({ commit }, concept) => {
     // Triggers mutation
     commit('DELETE_CONCEPT', concept);
 }
-
+/**
+ * Commits to update the name of the concept.
+ * @param {*} commit 
+ * @param {object} payload includes concept as an object and new concept name as string 
+ */
 export const updateConcept = ({ commit }, payload) => {
     commit("UPDATE_CONCEPT", payload);
-
-}
-
-// Concept Map Actions
-
-
-export const getConceptsFromDB = () => {
-    axios.get('https://clr-backend.x-navi.de/jsonapi/node/concept_map')
-        .then((response) => {
-
-            const data = response.data.data;
-            console.log(data);
-        }).catch(error => {
-            throw new Error(`API ${error}`);
-        });
 
 }
