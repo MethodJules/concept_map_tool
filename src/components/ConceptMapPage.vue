@@ -153,7 +153,7 @@
                                 <option
                                     v-for="(concept, i) in concepts"
                                     :key="i"
-                                    :value="concept.name"
+                                    :value="concept"
                                 >
                                     {{ concept.name }}
                                 </option>
@@ -164,7 +164,7 @@
                             <strong>New Label</strong><br />
                             Source: <strong>{{ concept.name }}</strong
                             ><br />
-                            Target: <strong>{{ targetConcept }}</strong>
+                            Target: <strong>{{ targetConcept.name }}</strong>
                         </b-alert>
                         <div class="buttonGroupPopover">
                             <b-button
@@ -224,10 +224,8 @@ import { mapGetters } from "vuex";
 export default {
     data() {
         return {
-            conceptName: "",
-            neuConceptName: "",
-            buttonClass: "",
-            inputClass: "",
+            conceptName: "", // Name of the concept, we are using it in the input that we create new concept
+            neuConceptName: "", // new name of the concept, we are using it in the input tha tshown when we double click to the concept
             isInputOpen: false,
             // Popover datas, taken from bootstrap vue website
             // https://bootstrap-vue.org/docs/components/popover
@@ -244,7 +242,6 @@ export default {
             ],
             input1Return: "",
             input2Return: "",
-            popoverShow: false,
             // Popover datas, taken from bootstrap vue website
         };
     },
@@ -253,21 +250,27 @@ export default {
     },
 
     computed: {
+        // getter for concepts
         ...mapGetters({ concepts: "getConcepts" }),
-
+        /**
+         * Methode to enable new concept adding
+         * If something is written in the new concept input,
+         * then it makes the "hinzufügen" button enabled, vice versa...
+         *
+         */
         saveEnabled() {
             let result = true;
             this.conceptName ? (result = false) : (result = true);
             return result;
         },
+        /**
+         * returns the names for the options in popover select box.
+         */
         selectOptions() {
-            // let options = [];
             let names = [];
             this.concepts.forEach((concept) => {
                 names.push(concept.name);
             });
-            console.log("éoptions.....");
-            console.log(names);
 
             return names;
         },
@@ -288,7 +291,11 @@ export default {
         deleteConcept(concept) {
             this.$store.dispatch("deleteConcept", concept);
         },
-
+        /**
+         * Updates the name of the concept.
+         * @param neuConceptName new name of the concept
+         * @param concept the concept that we want to change its name.
+         */
         updateConcept(neuConceptName, concept) {
             let payload = {
                 concept,
@@ -301,33 +308,30 @@ export default {
         },
         /**
          * Adds given concept to concept map
+         * @param sourceConcept The source concept as an object
+         * @param targetConcept The target concept as an object
+         *
          */
         addConceptToConceptMap(sourceConcept, targetConcept) {
-            let targetId;
-            let sourceId;
-            let target;
             let relationship = [];
+            // We need to add the ids of the source and target concept to relationship array.
 
-            this.concepts.forEach((concept) => {
-                if (concept.name == targetConcept) {
-                    // we are gonna sent it to relations/links
-                    targetId = concept.id;
-                    // we are gonna send it to the nodes
-                    target = concept;
-                }
-            });
-            sourceId = sourceConcept.id;
-            relationship.push({ tid: targetId, sid: sourceId });
+            relationship.push({ tid: targetConcept.id, sid: sourceConcept.id });
+            // We need to send the relationship as an array
+            this.$store.dispatch(
+                "conceptMap/addRelationshipToConceptMap",
+                relationship
+            );
 
+            // We need to send the source concept as an object to this methode
             this.$store.dispatch(
                 "conceptMap/addConceptToConceptMap",
                 sourceConcept
             );
-            this.$store.dispatch("conceptMap/addConceptToConceptMap", target);
-
+            // we need to send target concept as an object to this methode
             this.$store.dispatch(
-                "conceptMap/addRelationshipToConceptMap",
-                relationship
+                "conceptMap/addConceptToConceptMap",
+                targetConcept
             );
         },
 
@@ -361,32 +365,47 @@ export default {
 
         // END! Methods for popover, taken from bootstrap vue
 
-        // Input Button show hide methodes
-
+        /** Opens the input.
+         * @concept the concept that we double clicked on it.
+         * @e we need to send event to toogle input.
+         * Usage: when we double click to a concept.
+         */
         openInput(concept, e) {
             if (!this.isInputOpen) {
                 toggleButtonInput(concept, e);
                 this.isInputOpen = !this.isInputOpen;
             }
         },
-
+        /** Closes the input.
+         * @concept the concept that we double clicked on it.
+         * @e we need to send event to toogle input.
+         */
         closeInput(concept) {
             toggleButtonInput(concept);
             this.neuConceptName = "";
             this.isInputOpen = !this.isInputOpen;
         },
+
+        /**
+         * We need to create some unique id for buttons to
+         * make some unique works on them.
+         */
         createIdForButton(concept) {
             let id = "button_" + concept.nid;
             return id;
         },
+        /**
+         * We need to create some unique id for buttons to
+         * make some unique works on them.
+         */
         createIdForAddButton(concept) {
             let id = "button_add_" + concept.nid;
             return id;
         },
-        // createIdForPopover(concept) {
-        //   let id = "popover_" + concept.nid;
-        //   return id;
-        // },
+        /**
+         * We need to create some unique id for inputs to
+         * make some unique works on them.
+         */
         createIdForInput(concept) {
             let id = "input_" + concept.nid;
             return id;

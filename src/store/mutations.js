@@ -101,3 +101,5 @@ export const DELETE_CONCEPT = (state, concept) => {
     let index = state.concepts.indexOf(concept);
     state.concepts.splice(index, 1);
 }
+
+

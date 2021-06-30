@@ -3,28 +3,7 @@ const state = () => ({
 
     nodes: [],
     links: [],
-    // nodes: [
-    //     { id: 1, name: "my node 1" },
-    //     { id: 2, name: "my node 2" },
-    //     { id: 3, _color: "orange" },
-    //     { id: 4 },
-    //     { id: 5 },
-    //     { id: 6 },
-    //     { id: 7 },
-    //     { id: 8 },
-    //     { id: 9 },
-    // ],
-    // links: [
-    //     { sid: 1, tid: 2, _color: "red" },
-    //     { sid: 2, tid: 8, _color: "f0f" },
-    //     { sid: 3, tid: 4, _color: "rebeccapurple" },
-    //     { sid: 4, tid: 5 },
-    //     { sid: 5, tid: 6 },
-    //     { sid: 7, tid: 8 },
-    //     { sid: 5, tid: 8 },
-    //     { sid: 3, tid: 8 },
-    //     { sid: 7, tid: 9 },
-    // ],
+    
 
 })
 
@@ -35,7 +14,7 @@ const getters = {
     },
     getNodes(state) {
         return state.nodes;
-    },
+    }
 
 }
 
@@ -43,6 +22,19 @@ const actions = {
 
     addConceptToConceptMap({commit}, concept) {
         commit('ADD_CONCEPT_TO_CONCEPT_MAP', concept)
+    },
+
+    deleteNodeFromConceptMap({commit}, node){
+        commit('DELETE_NODE_FROM_CONCEPT_MAP', node);
+    },
+    /**
+     * 
+     * @param commit To reach mutation
+     * @param nodeId We send the id of the node, which we are 
+     * going to delete each link associated with it. 
+     */
+    deleteLinkFromConceptMap({commit}, nodeId){
+        commit("DELETE_LINK_FROM_CONCEPT_MAP", nodeId)
     },
 
     addRelationshipToConceptMap({commit}, relationship) {
@@ -127,6 +119,28 @@ const mutations = {
         
 
     },
+
+    DELETE_NODE_FROM_CONCEPT_MAP(state, node){
+        let index = state.nodes.indexOf(node);
+        state.nodes.splice(index, 1);
+        console.log("Hellooooo")
+        console.log(state.nodes)
+    },
+    DELETE_LINK_FROM_CONCEPT_MAP(state, nodeId){
+        state.links.forEach(link => {
+         
+            if(link.sid == nodeId){
+                state.links.splice(state.links.indexOf(link), 1);      
+            }            
+        });
+
+        state.links.forEach(link => {
+            if(link.tid == nodeId){
+                state.links.splice(state.links.indexOf(link), 1);
+            }            
+        });
+    },
+
 
     // this makes his job. Brings concepts and relations from backend. 
     INITIALIZE_CONCEPT_MAP(state, concept_map) {
