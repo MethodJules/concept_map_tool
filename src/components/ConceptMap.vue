@@ -8,8 +8,9 @@
                 <div class="modal-body">
                     <p>
                         Choose one of the below
+
                         <b-button
-                            variant="danger"
+                            variant="secondary"
                             size="sm"
                             @click="clearOptions()"
                             >Clear Options</b-button
@@ -44,24 +45,26 @@
                         >
                             Delete <strong> {{ clickedNode.name }} !</strong>
                         </b-button>
-                        <b-button
-                            variant="primary"
-                            :disabled="isOptionOrInputFull"
-                            size="sm"
-                            @click="
-                                addConceptToConceptMap(
-                                    clickedNode,
-                                    targetConcept
-                                )
-                            "
-                            >Hinzufügen
-                        </b-button>
-                        <b-button
-                            @click="hideModal()"
-                            variant="danger"
-                            size="sm"
-                            >Close Me
-                        </b-button>
+                        <div>
+                            <b-button
+                                variant="primary"
+                                :disabled="isOptionOrInputFull"
+                                size="sm"
+                                @click="
+                                    addConceptToConceptMap(
+                                        clickedNode,
+                                        targetConcept
+                                    )
+                                "
+                                >Hinzufügen
+                            </b-button>
+                            <b-button
+                                @click="hideModal()"
+                                variant="danger"
+                                size="sm"
+                                >Close Me
+                            </b-button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -293,11 +296,12 @@ export default {
 
 .modal-buttons {
     display: flex;
-    justify-content: flex-end;
     margin-top: 1rem;
+    width: 100%;
+    justify-content: space-between;
 }
-.modal-buttons button:first-child {
-    margin-right: 1rem;
+.modal-buttons div button:first-child {
+    margin-right: 0.5rem;
 }
 
 .buttonGroup {
