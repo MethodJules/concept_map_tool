@@ -8,7 +8,6 @@ export const triggerLoading = ({ commit }) => {
     commit("triggerLoading")
 }
 
-// Concept List Actions 
 
 /**
  * Loads the concepts from database and send them to mutation with commit. 
@@ -73,20 +72,3 @@ export const updateConcept = ({ commit }, payload) => {
     commit("UPDATE_CONCEPT", payload);
 
 }
-
-// // Concept Map Actions
-
-// /**
-//  * Loads concepts from Database
-//  */
-// export const getConceptsFromDB = () => {
-//     axios.get('https://clr-backend.x-navi.de/jsonapi/node/concept_map')
-//         .then((response) => {
-
-//             const data = response.data.data;
-//             console.log(data);
-//         }).catch(error => {
-//             throw new Error(`API ${error}`);
-//         });
-
-// }
