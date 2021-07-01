@@ -6,6 +6,7 @@
                     class="tools-newConceptName"
                     placeholder="Schreiben Sie hier Concept Name..."
                     v-model="conceptName"
+                    @keydown.enter="addNewConcept(conceptName)"
                 >
                 </b-form-input>
                 <b-button
@@ -68,6 +69,10 @@
                             size="sm"
                             type="text"
                             v-model="neuConceptName"
+                            @keydown.enter="
+                                updateConcept(neuConceptName, concept)
+                            "
+                            @keydown.esc="closeInput(concept)"
                         >
                         </b-form-input>
                         <div class="concept-inputGroups-buttons">
@@ -200,6 +205,7 @@ function toggleButtonInput(concept, e) {
     // Select input
     let inputId = "input_" + concept.nid;
     let myInput = document.getElementById(inputId);
+    myInput.focus();
     // select button
     let buttonId = "button_" + concept.nid;
     let myButton = document.getElementById(buttonId);
@@ -289,6 +295,7 @@ export default {
          * Deletes the concept from both state and database
          */
         deleteConcept(concept) {
+            alert("Are you sure??");
             this.$store.dispatch("deleteConcept", concept);
         },
         /**
