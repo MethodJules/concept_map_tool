@@ -69,32 +69,6 @@
                 </div>
             </div>
         </b-modal>
-        <div class="buttonGroup">
-            <div>
-                <label> Node size </label>
-                <input type="range" min="1" max="100" v-model="nodeSize" />
-                {{ options.nodeSize }}
-            </div>
-            <div>
-                <label> Link width </label>
-                <input type="range" min="1" max="100" v-model="linkWidth" />
-                {{ options.linkWidth }}
-            </div>
-            <div>
-                <label> Bigger or smaller? </label>
-                <input type="range" min="0" max="10000" v-model="force" />
-                {{ options.force }}
-            </div>
-            <div>
-                <label> Font Size </label>
-                <input type="range" min="10" max="50" v-model="fontSize" />
-                {{ options.fontSize }}
-            </div>
-            <div>
-                <label> Straight Links </label>
-                <input type="checkbox" v-model="strLinks" />
-            </div>
-        </div>
         <d3-network
             :net-nodes="nodes"
             :net-links="links"
@@ -119,7 +93,7 @@ export default {
     data() {
         return {
             // variables for link options:
-            nodeSize: 20, // Link Options: arranges the size of nodes
+            nodeSize: 30, // Link Options: arranges the size of nodes
             linkWidth: 5, // Link Options: arranges the size of the link
             force: 3000, // Link Options: arranges how much wide the concept map
             fontSize: 15, // Link Options: arranges the font size of the node

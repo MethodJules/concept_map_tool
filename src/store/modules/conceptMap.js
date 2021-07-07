@@ -103,9 +103,9 @@ const mutations = {
         // Sending concept to database 
         var data = `{"data": {"type": "node--concept_map", 
         "attributes": {"title": "Concept Map Test"}, 
-        "relationships": {"field_conceptmap_concepts" : {"data" : {"type": "node--concept_map", "id": "${concept.id}"} }}}}, 
+        "relationships": {"field_conceptmap_concepts" : {"data" : {"type": "node--concept", "id": "${concept.id}"} }}}}, 
         `;
-    var config = {
+        var config = {
         method: 'post',
         url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map',
         headers: {
