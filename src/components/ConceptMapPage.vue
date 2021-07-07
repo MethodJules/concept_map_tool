@@ -73,6 +73,7 @@
                                 updateConcept(neuConceptName, concept)
                             "
                             @keydown.esc="closeInput(concept)"
+                            autofocus
                         >
                         </b-form-input>
                         <div class="concept-inputGroups-buttons">
