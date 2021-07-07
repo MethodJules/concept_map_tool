@@ -28,10 +28,40 @@
                     </span>
                 </b-button>
 
-                <b-button variant="warning" class="tools-recommender">
+                <b-button
+                    variant="warning"
+                    class="tools-recommender"
+                    @click="toggleRecommenderModal"
+                >
                     Recommender
                     <b-icon icon="person-lines-fill"></b-icon>
                 </b-button>
+                <b-modal
+                    ref="recommender-modal"
+                    class="recommender-modal"
+                    hide-footer
+                    hide-header
+                >
+                    <div class="recommender-modal-container">
+                        <div class="recommender-modal-header">
+                            <h3>Recommender</h3>
+                        </div>
+                        <div class="recommender-modal-content"></div>
+
+                        <p v-for="(concept, i) in concepts" :key="i">
+                            {{ concept.name }}
+                        </p>
+                        <div class="recommender-modal-footer">
+                            <b-button
+                                variant="danger"
+                                size="sm"
+                                block
+                                @click="toggleRecommenderModal"
+                                >Close Me</b-button
+                            >
+                        </div>
+                    </div>
+                </b-modal>
             </div>
             <span class="hint">
                 <i> Double click to change the name of a concept </i>
@@ -283,6 +313,15 @@ export default {
         },
     },
     methods: {
+        /**
+         * Toggle Methode.
+         * Opens and closes the recommender modal.
+         * It may be better instead writing two methode for opening and closing.
+         */
+        toggleRecommenderModal() {
+            this.$refs["recommender-modal"].toggle();
+        },
+
         /**
          * Adding concept name to database.
          */
@@ -548,4 +587,16 @@ export default {
     margin-bottom: 0.5rem;
 }
 /* Concept Buttons  */
+
+/* Recommender Modal */
+.recommender-modal-header {
+    text-align: center;
+}
+.recommender-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+.recommender-modal-container {
+    padding: 0.5rem 1rem;
+}
 </style>
