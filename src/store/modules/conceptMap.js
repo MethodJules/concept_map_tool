@@ -100,33 +100,35 @@ const mutations = {
             })
         }
 
-        // Sending concept to database 
-        var data = `{"data": {"type": "node--concept_map", 
-        "attributes": {"title": "Concept Map Test"}, 
-        "relationships": {"field_conceptmap_concepts" : {"data" : {"type": "node--concept", "id": "${concept.id}"} }}}}, 
-        `;
-        var config = {
-        method: 'post',
-        url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map',
-        headers: {
-            'Accept': 'application/vnd.api+json',
-            'Content-Type': 'application/vnd.api+json',
-            'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-        },
-        data: data
-    };
-    axios(config)
-    .then(function (response) {
-        // We need to reload the page here. When we dont do it. 
-        // It overwrites on the last saved data in state.  
-       //  (response) ? location.reload() : "";
-        console.log(response);
-    })
-    .catch(function (error) {
-        console.log("Error: ")
-        console.log(error)
-        console.log(data);
-    })
+    //     // Sending concept to database and our concept map ?? 
+    //     var data = `{"data": {"type": "node--concept_map", "id": "bd8c18f3-4f03-4787-ac85-48821fa3591f",
+         
+    //     "relationships": {"field_conceptmap_concepts" : {"data" : {"type": "node--concept", "id": "${concept.id}"} }}} 
+    //     `;
+    //     var config = {
+    //     method: 'post',
+    //     url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f',
+    //     headers: {
+    //         'Accept': 'application/vnd.api+json',
+    //         'Content-Type': 'application/vnd.api+json',
+    //         'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+    //     },
+    //     data: data
+    // };
+    // axios(config)
+    // .then(function (response) {
+    //     // We need to reload the page here. When we dont do it. 
+    //     // It overwrites on the last saved data in state.  
+    //    //  (response) ? location.reload() : "";
+    //    console.log("We have send the concept as new concept map")
+    //     console.log(response);
+   
+    // })
+    // .catch(function (error) {
+    //     console.log("Error: ")
+    //     console.log(error)
+    //     console.log(data);
+    // })
 
     },
     /**
@@ -137,14 +139,82 @@ const mutations = {
      */
     ADD_RELATIONSHIP_TO_CONCEPT_MAP(state, relationship) {
         // adding relationship to the state
+        let generatedId = Math.random() * 1000; 
         state.links.push({
-            id: Math.random() * 1000, 
+            id: generatedId, 
             sid: relationship[0].sid,
             tid: relationship[0].tid,
             _color: '#FFFFFF', 
             name: "test" + relationship[0].sid,
         })
+        let newRelationId; 
         
+    // Sending relation to the database, but we are sending only a relationship to the database
+    // We need to send this relation to the our concept map. 
+        var data = `{"data": {"type": "node--relationship", 
+        "attributes": {"title": "New Relationship", "field_sid": "${relationship[0].sid}", "field_tid": "${relationship[0].tid}" }}}
+        `;
+        var config = {
+        method: 'post',
+        url: 'https://clr-backend.x-navi.de/jsonapi/node/relationship',
+        headers: {
+            'Accept': 'application/vnd.api+json',
+            'Content-Type': 'application/vnd.api+json',
+            'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+        },
+        data: data
+    };
+    axios(config)
+    .then(function (response) {
+        console.log("We have send the relationship to the database");
+        console.log(response);
+        console.log("new relationship id: ");
+        console.log(response.data.data.id);
+        newRelationId = response.data.data.id;
+    })
+    .catch(function (error) {
+        console.log("Error: ")
+        console.log(error)
+        console.log(data);
+    })
+
+
+    // // Adding relation to the our concept map ?? 
+    //???????????????
+        // Sending concept to database and our concept map ?? 
+        var data2 = `{"data": {"type": "node--concept_map", "id": "bd8c18f3-4f03-4787-ac85-48821fa3591f",
+         
+        "relationships": {"field_conceptmap_concepts" : {"data" : {"type": "node--concept", "id": "${relationship[0].sid}"} }}, 
+        "field_conceptmap_relationships" : {"data" : {"type": "node--relationship",
+        "id": "${newRelationId}"}}
+    } 
+        `;
+        var config2 = {
+        method: 'post',
+        url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f',
+        headers: {
+            'Accept': 'application/vnd.api+json',
+            'Content-Type': 'application/vnd.api+json',
+            'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+        },
+        data: data2
+    };
+    axios(config2)
+    .then(function (response) {
+        // We need to reload the page here. When we dont do it. 
+        // It overwrites on the last saved data in state.  
+       //  (response) ? location.reload() : "";
+       console.log("We have send the concept as new concept map")
+        console.log(response);
+   
+    })
+    .catch(function (error) {
+        console.log("Error: ")
+        console.log(error)
+        console.log(data);
+    })
+
+
 
     },
     /**
