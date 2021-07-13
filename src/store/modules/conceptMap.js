@@ -152,7 +152,7 @@ const mutations = {
     
         // adding relationship to the state
         let generatedId = Math.random() * 1000; 
-        let name =  "REL" + relationship[0].sid + "&" + relationship[0].tid;
+        let name =  "REL" + relationship[0].sid + "---&---" + relationship[0].tid;
         state.links.push({
             id: generatedId, 
             sid: relationship[0].sid,
@@ -202,10 +202,10 @@ const mutations = {
     
     setTimeout(() => {
 
-// We need newRelationId to send our relationship to the our concept map. 
-// To wait the process above I have used setTimeout. But I feel that it is not
-// the proper solution. I could not make this process asyncron in another way.
-// Is it possible to make it differently?
+        // We need newRelationId to send our relationship to the our concept map. 
+        // To wait the process above I have used setTimeout. But I feel that it is not
+        // the proper solution. I could not make this process asyncron in another way.
+        // Is it possible to make it differently?
  
 
         // Sending Relationship to our concept map ?? 
@@ -317,7 +317,7 @@ const mutations = {
 axios(config)
 .then(function (response) {
  
-   console.log("Workingggg.... We have send the concept as new concept map Concept Sending")
+   console.log("CONCEPT DELETED.... We have deleted the concept from Concept Map")
     console.log(response);
 
 })
@@ -336,6 +336,7 @@ axios(config)
      */
     DELETE_LINK_FROM_CONCEPT_MAP(state, nodeId){
         // Deletes the links that includes nodeId as source id (sid) in it.
+        console.log("node id: " + nodeId);
         state.links.forEach(link => {
             
             if(link.sid == nodeId){
@@ -351,58 +352,18 @@ axios(config)
             }            
         });
 
-                // DELETE REL FROM DB
- // Deleting relation from the database, but we delete only the relationship from the database
-    // We need to delete this relation also from our concept map.
+    // DELETE REL FROM DB
+    // it gives response but it does not delete it from concept map in db !!!!
     var data = `{
-        "data": 
-        {
-            "type": "node--relationship",
-            "id": "${nodeId}", 
-           
-        }
-    }
-    `;
-    var config = {
-    method: 'delete',
-    url: 'https://clr-backend.x-navi.de/jsonapi/node/relationship',
-    headers: {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json',
-        'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-    },
-    data: data
-};
-axios(config)
-.then(function (response) {
-
-    
-    console.log("REL deleted from DB:  " + response);
-})
-.catch(function (error) {
-    console.log("REL not deleted from db Error: ")
-    console.log(error)
-})
-
-
-
-// We need newRelationId to send our relationship to the our concept map. 
-// To wait the process above I have used setTimeout. But I feel that it is not
-// the proper solution. I could not make this process asyncron in another way.
-// Is it possible to make it differently?
-
-
-    // Sending Relationship to our concept map ?? 
-    var data2 = `{
         "data": [
             {
                 "type": "node--relationship",
-                "id": "${nodeId}"                
+                "id": "${nodeId}"             
             }
         ]
     }
     `;
-    var config2 = {
+    var config = {
     method: 'delete',
     url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships',
     headers: {
@@ -410,22 +371,50 @@ axios(config)
         'Content-Type': 'application/vnd.api+json',
         'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
     },
-    data: data2
+    data: data
+    };
+    axios(config)
+    .then(function (response) {
+
+        console.log("REL deleted from CM in DB:");
+        console.log(response);
+    })
+    .catch(function (error) {
+        console.log("REL not deleted from concept map in db Error: ")
+        console.log(error)
+    })
+    // Delete relationship from relationships in db
+    // HERE it says I dont have permission to do it. <========== 
+var data2 = `{
+    "data": [
+        {
+            "type": "node--relationship",
+            "id": "${nodeId}" 
+            
+        }
+    ]
+}
+`;
+var config2 = {
+method: 'delete',
+url: 'https://clr-backend.x-navi.de/jsonapi/node/relationship',
+headers: {
+    'Accept': 'application/vnd.api+json',
+    'Content-Type': 'application/vnd.api+json',
+    'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+},
+data: data2
 };
 axios(config2)
 .then(function (response) {
-   console.log("We have deleted the RELATIONSHIP from our concept map")
-    console.log(response);
 
+console.log("REL DEL FROM relationships:");
+console.log(response);
 })
 .catch(function (error) {
-    console.log("REL deleteign from concept map ERROR: ")
-    console.log(error)
+console.log("REL NOT DELETED FROM RELATINSHIPS Error: ")
+console.log(error)
 })
-
-
-
-
     },
 
 
