@@ -152,12 +152,13 @@ const mutations = {
     
         // adding relationship to the state
         let generatedId = Math.random() * 1000; 
+        let name =  "REL" + relationship[0].sid + "&" + relationship[0].tid;
         state.links.push({
             id: generatedId, 
             sid: relationship[0].sid,
             tid: relationship[0].tid,
             _color: '#FFFFFF', 
-            name: "test" + relationship[0].sid,
+            name: name,
         })
         var newRelationId; 
         
@@ -170,7 +171,7 @@ const mutations = {
                 "type": "node--relationship", 
                 "attributes": 
                 {
-                    "title": "New Relationship", 
+                    "title": "${name}", 
                     "field_sid": "${relationship[0].sid}", 
                     "field_tid": "${relationship[0].tid}" 
                 }
