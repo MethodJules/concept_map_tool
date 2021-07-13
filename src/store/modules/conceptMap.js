@@ -50,8 +50,16 @@ const actions = {
      * commits to add links to the concept map.
      * @param {array} relationship the link that will be added to the concept map 
      */
-    addRelationshipToConceptMap({commit}, relationship) {
+    async addRelationshipToConceptMap({commit}, relationship) {
         commit('ADD_RELATIONSHIP_TO_CONCEPT_MAP', relationship);
+        
+        // this does not work. It sends id to mutation as an object. I did not understand why. 
+        // setTimeout(
+        //     () => { 
+        //         console.log("New rel ID from state "  + state.newRelId);
+        //         let id = state.newRelId;
+        //         commit('ADD_RELATIONSHIP_TO_SPECIFIC_CONCEPTMAP', id);
+        //     }, 3000 )
     },
     /**
      * Loads concept map from backend. 
@@ -100,35 +108,38 @@ const mutations = {
             })
         }
 
-    //     // Sending concept to database and our concept map ?? 
-    //     var data = `{"data": {"type": "node--concept_map", "id": "bd8c18f3-4f03-4787-ac85-48821fa3591f",
-         
-    //     "relationships": {"field_conceptmap_concepts" : {"data" : {"type": "node--concept", "id": "${concept.id}"} }}} 
-    //     `;
-    //     var config = {
-    //     method: 'post',
-    //     url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f',
-    //     headers: {
-    //         'Accept': 'application/vnd.api+json',
-    //         'Content-Type': 'application/vnd.api+json',
-    //         'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-    //     },
-    //     data: data
-    // };
-    // axios(config)
-    // .then(function (response) {
-    //     // We need to reload the page here. When we dont do it. 
-    //     // It overwrites on the last saved data in state.  
-    //    //  (response) ? location.reload() : "";
-    //    console.log("We have send the concept as new concept map")
+        // Sending concept to database and our concept map ?? 
+        // It is now working. We send the concept to the conept map. 
+        var data = `{"data": [ 
+                {
+                    "type": "node--concept", 
+                    "id": "${concept.id}"
+                }
+            ]
+        }
+    
+        `;
+        var config = {
+        method: 'post',
+        url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_concepts',
+        headers: {
+            'Accept': 'application/vnd.api+json',
+            'Content-Type': 'application/vnd.api+json',
+            'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+        },
+        data: data
+    };
+    axios(config)
+    .then(function () {
+     
+    //    console.log("Workingggg.... We have send the concept as new concept map Concept Sending")
     //     console.log(response);
    
-    // })
-    // .catch(function (error) {
-    //     console.log("Error: ")
-    //     console.log(error)
-    //     console.log(data);
-    // })
+    })
+    .catch(function (error) {
+        console.log("Concept Sending Error: ")
+        console.log(error)
+    })
 
     },
     /**
@@ -138,6 +149,7 @@ const mutations = {
      * @param {array} relationship the relationship that will be added to concept map. 
      */
     ADD_RELATIONSHIP_TO_CONCEPT_MAP(state, relationship) {
+    
         // adding relationship to the state
         let generatedId = Math.random() * 1000; 
         state.links.push({
@@ -147,12 +159,23 @@ const mutations = {
             _color: '#FFFFFF', 
             name: "test" + relationship[0].sid,
         })
-        let newRelationId; 
+        var newRelationId; 
         
     // Sending relation to the database, but we are sending only a relationship to the database
-    // We need to send this relation to the our concept map. 
-        var data = `{"data": {"type": "node--relationship", 
-        "attributes": {"title": "New Relationship", "field_sid": "${relationship[0].sid}", "field_tid": "${relationship[0].tid}" }}}
+    // We need to send this relation to the our concept map.
+    // We do it in setTimeout. Because we need the id of the new relationship.  
+        var data = `{
+            "data": 
+            {
+                "type": "node--relationship", 
+                "attributes": 
+                {
+                    "title": "New Relationship", 
+                    "field_sid": "${relationship[0].sid}", 
+                    "field_tid": "${relationship[0].tid}" 
+                }
+            }
+        }
         `;
         var config = {
         method: 'post',
@@ -166,32 +189,37 @@ const mutations = {
     };
     axios(config)
     .then(function (response) {
-        console.log("We have send the relationship to the database");
-        console.log(response);
-        console.log("new relationship id: ");
-        console.log(response.data.data.id);
+    
         newRelationId = response.data.data.id;
+        console.log("NEW REL ID in then: " + newRelationId);
     })
     .catch(function (error) {
         console.log("Error: ")
         console.log(error)
-        console.log(data);
     })
 
+    
+    setTimeout(() => {
 
-    // // Adding relation to the our concept map ?? 
-    //???????????????
-        // Sending concept to database and our concept map ?? 
-        var data2 = `{"data": {"type": "node--concept_map", "id": "bd8c18f3-4f03-4787-ac85-48821fa3591f",
-         
-        "relationships": {"field_conceptmap_concepts" : {"data" : {"type": "node--concept", "id": "${relationship[0].sid}"} }}, 
-        "field_conceptmap_relationships" : {"data" : {"type": "node--relationship",
-        "id": "${newRelationId}"}}
-    } 
+// We need newRelationId to send our relationship to the our concept map. 
+// To wait the process above I have used setTimeout. But I feel that it is not
+// the proper solution. I could not make this process asyncron in another way.
+// Is it possible to make it differently?
+ 
+
+        // Sending Relationship to our concept map ?? 
+        var data2 = `{
+            "data": [
+                {
+                    "type": "node--relationship",
+                    "id": "${newRelationId}"                
+                }
+            ]
+        }
         `;
         var config2 = {
         method: 'post',
-        url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f',
+        url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships',
         headers: {
             'Accept': 'application/vnd.api+json',
             'Content-Type': 'application/vnd.api+json',
@@ -201,22 +229,59 @@ const mutations = {
     };
     axios(config2)
     .then(function (response) {
-        // We need to reload the page here. When we dont do it. 
-        // It overwrites on the last saved data in state.  
-       //  (response) ? location.reload() : "";
-       console.log("We have send the concept as new concept map")
+       console.log("We have send the RELATIONSHIP to our concept map")
         console.log(response);
    
     })
     .catch(function (error) {
-        console.log("Error: ")
+        console.log("REL SENDING ERROR: ")
         console.log(error)
-        console.log(data);
     })
 
-
+    }, 3000);
 
     },
+
+    // OUT OF USE. JUST  KEEPING IT TO ASK QUESTION ABOUT IT
+    // I have tried to call this mutation with settimeout in action addRelationshipToConceptMap but
+    // it takes newRelationId as an object. I dont understand why. Thats why we are not using it. 
+    // We have done the delay in add_relationship_to_conceptmap with set time out. 
+    // 
+    // ADD_RELATIONSHIP_TO_SPECIFIC_CONCEPTMAP(newRelationId){
+    //     console.log("specific rel adding: " + newRelationId);
+    //     // Adding Realtionship to our concept map ?? 
+    //     var data2 = `{
+    //         "data": [
+    //             {
+    //                 "type": "node--relationship",
+    //                 "id": "${newRelationId}"                
+    //             }
+    //         ]
+    //     }
+    //     `;
+    //     var config2 = {
+    //     method: 'post',
+    //     url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships',
+    //     headers: {
+    //         'Accept': 'application/vnd.api+json',
+    //         'Content-Type': 'application/vnd.api+json',
+    //         'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+    //     },
+    //     data: data2
+    // };
+    // axios(config2)
+    // .then(function (response) {
+    //    console.log("We have send the RELATIONSHIP to our concept map")
+    //     console.log(response);
+   
+    // })
+    // .catch(function (error) {
+    //     console.log("REL SENDING ERROR: ")
+    //     console.log(error)
+    // })
+    // },
+
+
     /**
      * Deletes node from concept map. 
      * @param {*} state 
@@ -227,6 +292,40 @@ const mutations = {
         state.nodes.splice(index, 1);
         console.log("Hellooooo")
         console.log(state.nodes)
+
+        // Deleting node from concept map
+        var data = `{"data": [ 
+            {
+                "type": "node--concept", 
+                "id": "${node.id}"
+            }
+        ]
+    }
+
+    `;
+    var config = {
+    method: 'delete',
+    url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_concepts',
+    headers: {
+        'Accept': 'application/vnd.api+json',
+        'Content-Type': 'application/vnd.api+json',
+        'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+    },
+    data: data
+};
+axios(config)
+.then(function (response) {
+ 
+   console.log("Workingggg.... We have send the concept as new concept map Concept Sending")
+    console.log(response);
+
+})
+.catch(function (error) {
+    console.log("Concept DELETE Error: ")
+    console.log(error)
+})
+
+
     },
     /**
      * Deletes the link from concept map. 
@@ -239,6 +338,7 @@ const mutations = {
         state.links.forEach(link => {
             
             if(link.sid == nodeId){
+                // Delete from state
                 state.links.splice(state.links.indexOf(link), 1);      
             }            
         });
@@ -249,6 +349,82 @@ const mutations = {
                 state.links.splice(state.links.indexOf(link), 1);
             }            
         });
+
+                // DELETE REL FROM DB
+ // Deleting relation from the database, but we delete only the relationship from the database
+    // We need to delete this relation also from our concept map.
+    var data = `{
+        "data": 
+        {
+            "type": "node--relationship",
+            "id": "${nodeId}", 
+           
+        }
+    }
+    `;
+    var config = {
+    method: 'delete',
+    url: 'https://clr-backend.x-navi.de/jsonapi/node/relationship',
+    headers: {
+        'Accept': 'application/vnd.api+json',
+        'Content-Type': 'application/vnd.api+json',
+        'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+    },
+    data: data
+};
+axios(config)
+.then(function (response) {
+
+    
+    console.log("REL deleted from DB:  " + response);
+})
+.catch(function (error) {
+    console.log("REL not deleted from db Error: ")
+    console.log(error)
+})
+
+
+
+// We need newRelationId to send our relationship to the our concept map. 
+// To wait the process above I have used setTimeout. But I feel that it is not
+// the proper solution. I could not make this process asyncron in another way.
+// Is it possible to make it differently?
+
+
+    // Sending Relationship to our concept map ?? 
+    var data2 = `{
+        "data": [
+            {
+                "type": "node--relationship",
+                "id": "${nodeId}"                
+            }
+        ]
+    }
+    `;
+    var config2 = {
+    method: 'delete',
+    url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships',
+    headers: {
+        'Accept': 'application/vnd.api+json',
+        'Content-Type': 'application/vnd.api+json',
+        'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+    },
+    data: data2
+};
+axios(config2)
+.then(function (response) {
+   console.log("We have deleted the RELATIONSHIP from our concept map")
+    console.log(response);
+
+})
+.catch(function (error) {
+    console.log("REL deleteign from concept map ERROR: ")
+    console.log(error)
+})
+
+
+
+
     },
 
 
