@@ -2,6 +2,7 @@ import axios from "axios"
 const state = () => ({
     nodes: [], // stores the nodes of concept map
     links: [], // stores the links of concept map
+    newRelId : "asd",
 })
 
 const getters = {
@@ -28,6 +29,7 @@ const actions = {
      * @param {object} concept the concept that will be added to concept map 
      */
     addConceptToConceptMap({commit}, concept) {
+        console.log("action for adding concept to map working")
         commit('ADD_CONCEPT_TO_CONCEPT_MAP', concept)
     },
     /**
@@ -50,16 +52,16 @@ const actions = {
      * commits to add links to the concept map.
      * @param {array} relationship the link that will be added to the concept map 
      */
-    async addRelationshipToConceptMap({commit}, relationship) {
-        commit('ADD_RELATIONSHIP_TO_CONCEPT_MAP', relationship);
+    addRelationshipToDatabase({commit}, relationship) {
+        console.log("addRelationshipToDB Action:: ")
+   
+        commit('ADD_RELATIONSHIP_TO_DATABASE', relationship);
+       
         
-        // this does not work. It sends id to mutation as an object. I did not understand why. 
-        // setTimeout(
-        //     () => { 
-        //         console.log("New rel ID from state "  + state.newRelId);
-        //         let id = state.newRelId;
-        //         commit('ADD_RELATIONSHIP_TO_SPECIFIC_CONCEPTMAP', id);
-        //     }, 3000 )
+    },
+    addRelationshipToConceptMap({commit}, relationship){
+        commit('ADD_RELATIONSHIP_TO_CONCEPTMAP', relationship);
+        
     },
     /**
      * Loads concept map from backend. 
@@ -148,19 +150,19 @@ const mutations = {
      * @param {*} state 
      * @param {array} relationship the relationship that will be added to concept map. 
      */
-    ADD_RELATIONSHIP_TO_CONCEPT_MAP(state, relationship) {
-    
+    ADD_RELATIONSHIP_TO_DATABASE(state, relationship) {
+        console.log("ADD_RELATIONSHIP_TO_DATABASE")
+
         // adding relationship to the state
-        let generatedId = Math.random() * 1000; 
-        let name =  "REL" + relationship[0].sid + "---&---" + relationship[0].tid;
+        // let generatedId = Math.random() * 1000; 
         state.links.push({
-            id: generatedId, 
+            // id: generatedId, 
             sid: relationship[0].sid,
             tid: relationship[0].tid,
             _color: '#FFFFFF', 
-            name: name,
+            name: relationship[0].name,
         })
-        var newRelationId; 
+     
         
     // Sending relation to the database, but we are sending only a relationship to the database
     // We need to send this relation to the our concept map.
@@ -171,7 +173,7 @@ const mutations = {
                 "type": "node--relationship", 
                 "attributes": 
                 {
-                    "title": "${name}", 
+                    "title": "${relationship[0].name}", 
                     "field_sid": "${relationship[0].sid}", 
                     "field_tid": "${relationship[0].tid}" 
                 }
@@ -191,8 +193,8 @@ const mutations = {
     axios(config)
     .then(function (response) {
     
-        newRelationId = response.data.data.id;
-        console.log("NEW REL ID in then: " + newRelationId);
+        state.newRelId = response.data.data.id;
+         
     })
     .catch(function (error) {
         console.log("Error: ")
@@ -200,57 +202,15 @@ const mutations = {
     })
 
     
-    setTimeout(() => {
+    // setTimeout(() => {
 
-        // We need newRelationId to send our relationship to the our concept map. 
-        // To wait the process above I have used setTimeout. But I feel that it is not
-        // the proper solution. I could not make this process asyncron in another way.
-        // Is it possible to make it differently?
+    //     // We need newRelationId to send our relationship to the our concept map. 
+    //     // To wait the process above I have used setTimeout. But I feel that it is not
+    //     // the proper solution. I could not make this process asyncron in another way.
+    //     // Is it possible to make it differently?
  
 
-        // Sending Relationship to our concept map ?? 
-        var data2 = `{
-            "data": [
-                {
-                    "type": "node--relationship",
-                    "id": "${newRelationId}"                
-                }
-            ]
-        }
-        `;
-        var config2 = {
-        method: 'post',
-        url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships',
-        headers: {
-            'Accept': 'application/vnd.api+json',
-            'Content-Type': 'application/vnd.api+json',
-            'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-        },
-        data: data2
-    };
-    axios(config2)
-    .then(function (response) {
-       console.log("We have send the RELATIONSHIP to our concept map")
-        console.log(response);
-   
-    })
-    .catch(function (error) {
-        console.log("REL SENDING ERROR: ")
-        console.log(error)
-    })
-
-    }, 3000);
-
-    },
-
-    // OUT OF USE. JUST  KEEPING IT TO ASK QUESTION ABOUT IT
-    // I have tried to call this mutation with settimeout in action addRelationshipToConceptMap but
-    // it takes newRelationId as an object. I dont understand why. Thats why we are not using it. 
-    // We have done the delay in add_relationship_to_conceptmap with set time out. 
-    // 
-    // ADD_RELATIONSHIP_TO_SPECIFIC_CONCEPTMAP(newRelationId){
-    //     console.log("specific rel adding: " + newRelationId);
-    //     // Adding Realtionship to our concept map ?? 
+    //     // Sending Relationship to our concept map ?? 
     //     var data2 = `{
     //         "data": [
     //             {
@@ -280,7 +240,54 @@ const mutations = {
     //     console.log("REL SENDING ERROR: ")
     //     console.log(error)
     // })
-    // },
+
+    // }, 3000);
+
+    },
+
+    // OUT OF USE. JUST  KEEPING IT TO ASK QUESTION ABOUT IT
+    // I have tried to call this mutation with settimeout in action addRelationshipToConceptMap but
+    // it takes newRelationId as an object. I dont understand why. Thats why we are not using it. 
+    // We have done the delay in add_relationship_to_conceptmap with set time out. 
+    // 
+    ADD_RELATIONSHIP_TO_CONCEPTMAP(state, relationship){
+        console.log("specific rel adding: ");
+        console.log(state.newRelId);
+        let newRelationId = state.newRelId;
+        console.log("specific rel adding: ");
+        console.log("relationship in cb mutation");
+        console.log(relationship);
+        // Adding Realtionship to our concept map ?? 
+        var data = `{
+                    "data": [
+                        {
+                            "type": "node--relationship",
+                            "id": "${newRelationId}"                
+                        }
+                    ]
+                }
+                `;
+                var config = {
+                method: 'post',
+                url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships',
+                headers: {
+                    'Accept': 'application/vnd.api+json',
+                    'Content-Type': 'application/vnd.api+json',
+                    'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+                },
+                data: data
+            };
+            axios(config)
+            .then(function (response) {
+               console.log("We have send the RELATIONSHIP to our concept map")
+                console.log(response);
+           
+            })
+            .catch(function (error) {
+                console.log("REL SENDING ERROR: ")
+                console.log(error)
+            })
+    },
 
 
     /**
@@ -291,42 +298,36 @@ const mutations = {
     DELETE_NODE_FROM_CONCEPT_MAP(state, node){
         let index = state.nodes.indexOf(node);
         state.nodes.splice(index, 1);
-        console.log("Hellooooo")
-        console.log(state.nodes)
+        console.log("Hellooooo");
+        console.log(state.nodes);
 
         // Deleting node from concept map
         var data = `{"data": [ 
-            {
-                "type": "node--concept", 
-                "id": "${node.id}"
-            }
-        ]
-    }
-
-    `;
-    var config = {
-    method: 'delete',
-    url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_concepts',
-    headers: {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json',
-        'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-    },
-    data: data
-};
-axios(config)
-.then(function (response) {
- 
-   console.log("CONCEPT DELETED.... We have deleted the concept from Concept Map")
-    console.log(response);
-
-})
-.catch(function (error) {
-    console.log("Concept DELETE Error: ")
-    console.log(error)
-})
-
-
+                {
+                    "type": "node--concept", 
+                    "id": "${node.id}"
+                }
+            ]
+        }`;
+        var config = {
+            method: 'delete',
+            url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_concepts',
+            headers: {
+                'Accept': 'application/vnd.api+json',
+                'Content-Type': 'application/vnd.api+json',
+                'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+            },
+            data: data
+        };
+        axios(config)
+            .then(function (response) {
+                 console.log("CONCEPT DELETED.... We have deleted the concept from Concept Map")
+               console.log(response);
+            })
+            .catch(function (error) {
+                console.log("Concept DELETE Error: ")
+                console.log(error)
+            })
     },
     /**
      * Deletes the link from concept map. 
@@ -336,12 +337,13 @@ axios(config)
      */
     DELETE_LINK_FROM_CONCEPT_MAP(state, nodeId){
         // Deletes the links that includes nodeId as source id (sid) in it.
-        console.log("node id: " + nodeId);
+        let linkId = []; 
         state.links.forEach(link => {
             
             if(link.sid == nodeId){
                 // Delete from state
-                state.links.splice(state.links.indexOf(link), 1);      
+                state.links.splice(state.links.indexOf(link), 1); 
+                linkId.push(link.id);   
             }            
         });
         
@@ -349,72 +351,81 @@ axios(config)
         state.links.forEach(link => {
             if(link.tid == nodeId){
                 state.links.splice(state.links.indexOf(link), 1);
+                linkId.push(link.id);  
             }            
         });
-
+        console.log("linkID =====");
+        console.log(linkId);
     // DELETE REL FROM DB
     // it gives response but it does not delete it from concept map in db !!!!
-    var data = `{
-        "data": [
-            {
-                "type": "node--relationship",
-                "id": "${nodeId}"             
-            }
-        ]
-    }
-    `;
-    var config = {
-    method: 'delete',
-    url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships',
-    headers: {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json',
-        'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-    },
-    data: data
-    };
-    axios(config)
-    .then(function (response) {
+   
+   linkId.forEach(id => {
+        console.log("Loop 1 ids:")   
+        console.log(id);
+        var data = `{
+            "data": [
+                {
+                    "type": "node--relationship",
+                    "id": "${id}"             
+                }
+            ]
+        }`;
+        var config = {
+        method: 'delete',
+        url: `https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships/${id}`,
+        headers: {
+            'Accept': 'application/vnd.api+json',
+            'Content-Type': 'application/vnd.api+json',
+            'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+        },
+        data: data
+        };
+        axios(config)
+        .then(function (response) {
+            console.log("REL deleted from CM in DB:");
+            console.log(response);
+        })
+        .catch(function (error) {
+            console.log("REL not deleted from concept map in db Error: ")
+            console.log(error)
+        })
+    });
+        
+    linkId.forEach(id => {
+        
+        // Delete relationship from relationships in db
+        // Below is working now..
+        var data2 = `{
+            "data": [
+                {
+                    "type": "node--relationship",
+                    "id": "${id}" 
+                    
+                }
+            ]
+        }`;
+        var config2 = {
+            method: 'delete',
+            url: `https://clr-backend.x-navi.de/jsonapi/node/relationship/${id}`,
+            headers: {
+                'Accept': 'application/vnd.api+json',
+                'Content-Type': 'application/vnd.api+json',
+                'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+            },
+            data: data2
+        };
+        axios(config2)
+        .then(function (response) {
+            console.log("REL DEL FROM relationships:");
+            console.log(response);
+        })
+        .catch(function (error) {
+            console.log("REL NOT DELETED FROM RELATINSHIPS Error: ")
+            console.log(error)
+        })
+    });    
 
-        console.log("REL deleted from CM in DB:");
-        console.log(response);
-    })
-    .catch(function (error) {
-        console.log("REL not deleted from concept map in db Error: ")
-        console.log(error)
-    })
-    // Delete relationship from relationships in db
-    // HERE it says I dont have permission to do it. <========== 
-var data2 = `{
-    "data": [
-        {
-            "type": "node--relationship",
-            "id": "${nodeId}" 
-            
-        }
-    ]
-}
-`;
-var config2 = {
-method: 'delete',
-url: 'https://clr-backend.x-navi.de/jsonapi/node/relationship',
-headers: {
-    'Accept': 'application/vnd.api+json',
-    'Content-Type': 'application/vnd.api+json',
-    'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-},
-data: data2
-};
-axios(config2)
-.then(function (response) {
 
-console.log("REL DEL FROM relationships:");
-console.log(response);
-})
-.catch(function (error) {
-console.log("REL NOT DELETED FROM RELATINSHIPS Error: ")
-console.log(error)
-})
     },
 
 
@@ -428,9 +439,13 @@ console.log(error)
         //TODO: Hier kode rein
         //state.nodes = concept_map.nodes; //TODO: Verlinkung
         //state.links = concept_map.relationships;//TODO: Verlinkung
+        console.log("concept_map");
+        console.log(concept_map);
         concept_map.forEach(element => {
             const concepts = element.relationships.field_conceptmap_concepts.data;
             const relationships = element.relationships.field_conceptmap_relationships.data;
+            console.log("érelationships:" );
+            console.log(relationships);
             
             concepts.forEach(element => {
                 // element is coming OK.
@@ -447,14 +462,22 @@ console.log(error)
             });
             //Get relationships of concept map
             relationships.forEach(relationship => {
-                axios.get(`https://clr-backend.x-navi.de/jsonapi/node/relationship/${relationship.id}`)
-                    .then((response) => {
+                if(relationship.id !== "missing"){
 
+                    console.log("Rel: ");
+                    console.log(relationship);
+
+                    axios.get(`https://clr-backend.x-navi.de/jsonapi/node/relationship/${relationship.id}`)
+                    .then((response) => {
+                        
                         const label = response.data.data.attributes.title;
+                        const id = response.data.data.id;
                         const sid = response.data.data.attributes.field_sid;
                         const tid = response.data.data.attributes.field_tid;
-                        state.links.push({sid: sid, tid: tid, _color: '#c93e37', name: label})
+                        state.links.push({ id: id, sid: sid, tid: tid, _color: '#c93e37', name: label})
                     })
+                }
+
             })
         });
     }

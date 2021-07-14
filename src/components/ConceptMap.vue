@@ -196,8 +196,17 @@ export default {
             let relationship = [];
             // We need to add the ids of the source and target concept to relationship array.
 
-            relationship.push({ tid: targetConcept.id, sid: sourceConcept.id });
+            relationship.push({
+                name: sourceConcept.name + " -&- " + targetConcept.name,
+                tid: targetConcept.id,
+                sid: sourceConcept.id,
+            });
             // We need to send the relationship as an array
+            this.$store.dispatch(
+                "conceptMap/addRelationshipToDatabase",
+                relationship
+            );
+            // we need to send relationship seperately to the concept map
             this.$store.dispatch(
                 "conceptMap/addRelationshipToConceptMap",
                 relationship
