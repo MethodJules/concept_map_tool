@@ -59,10 +59,10 @@ const actions = {
        
         
     },
-    addRelationshipToConceptMap({commit}, relationship){
-        commit('ADD_RELATIONSHIP_TO_CONCEPTMAP', relationship);
+    // addRelationshipToConceptMap({commit}, relationship){
+    //     commit('ADD_RELATIONSHIP_TO_CONCEPTMAP', relationship);
         
-    },
+    // },
     /**
      * Loads concept map from backend. 
      * commit it to mutation to save it in state.
@@ -91,6 +91,8 @@ const mutations = {
      * @param {object} concept concept to add concept map 
      */
     ADD_CONCEPT_TO_CONCEPT_MAP(state, concept) {  
+        console.log("Concepts in mutation:")
+        console.log(concept);
         // Adding concept to the state
         
         // We need to control if our concept is already in the map. 
@@ -192,8 +194,48 @@ const mutations = {
     };
     axios(config)
     .then(function (response) {
-    
-        state.newRelId = response.data.data.id;
+        
+        // state.newRelId = response.data.data.id;
+        // An alternative solution. Just make it here. 
+         let newRelationId = response.data.data.id;
+
+        console.log("specific rel adding: ");
+        console.log(newRelationId);
+        console.log("relationship in cb mutation");
+        console.log(relationship);
+        // Adding Realtionship to our concept map ?? 
+        var data = `{
+                    "data": [
+                        {
+                            "type": "node--relationship",
+                            "id": "${newRelationId}"                
+                        }
+                    ]
+                }
+                `;
+                var config = {
+                method: 'post',
+                url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships',
+                headers: {
+                    'Accept': 'application/vnd.api+json',
+                    'Content-Type': 'application/vnd.api+json',
+                    'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+                },
+                data: data
+
+            };
+            axios(config)
+            .then(function (response) {
+               console.log("We have send the RELATIONSHIP to our concept map. WUHUUUU It is working finally..... ")
+                console.log(response);
+           
+            })
+            .catch(function (error) {
+                console.log("REL SENDING TO Concept MAP ERROR: ")
+                console.log(error)
+            })
+
+
          
     })
     .catch(function (error) {

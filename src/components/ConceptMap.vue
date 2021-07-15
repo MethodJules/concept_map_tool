@@ -207,10 +207,10 @@ export default {
                 relationship
             );
             // we need to send relationship seperately to the concept map
-            this.$store.dispatch(
-                "conceptMap/addRelationshipToConceptMap",
-                relationship
-            );
+            // this.$store.dispatch(
+            //     "conceptMap/addRelationshipToConceptMap",
+            //     relationship
+            // );
 
             // We need to send the source concept as an object to this methode
             this.$store.dispatch(
