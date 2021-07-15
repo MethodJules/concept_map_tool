@@ -130,18 +130,17 @@ const mutations = {
             'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
         },
         data: data
-    };
-    axios(config)
-    .then(function (response) {
-     
-       console.log("Workingggg.... We have send the concept as new concept map Concept Sending")
-        console.log(response);
-   
-    })
-    .catch(function (error) {
-        console.log("Concept Sending Error: ")
-        console.log(error)
-    })
+        };
+        axios(config)
+        .then(function (response) { 
+            console.log("Workingggg.... We have send the concept to the concept map. Concept Sending");
+            console.log(response);
+    
+        })
+        .catch(function (error) {
+            console.log("Concept Sending Error: ")
+            console.log(error)
+        })
 
     },
     /**
@@ -371,7 +370,7 @@ const mutations = {
         }`;
         var config = {
         method: 'delete',
-        url: `https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships/${id}`,
+        url: `https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships`,
         headers: {
             'Accept': 'application/vnd.api+json',
             'Content-Type': 'application/vnd.api+json',
