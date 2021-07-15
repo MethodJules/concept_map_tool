@@ -369,7 +369,7 @@ export default {
                 sid: sourceConcept.id,
             }); // We need to send the relationship as an array
             this.$store.dispatch(
-                "conceptMap/addRelationshipToConceptMap",
+                "conceptMap/addRelationshipToDatabase",
                 relationship
             );
 

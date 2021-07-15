@@ -2,7 +2,6 @@ import axios from "axios"
 const state = () => ({
     nodes: [], // stores the nodes of concept map
     links: [], // stores the links of concept map
-    newRelId : "asd",
 })
 
 const getters = {
@@ -29,7 +28,6 @@ const actions = {
      * @param {object} concept the concept that will be added to concept map 
      */
     addConceptToConceptMap({commit}, concept) {
-        console.log("action for adding concept to map working")
         commit('ADD_CONCEPT_TO_CONCEPT_MAP', concept)
     },
     /**
@@ -134,10 +132,10 @@ const mutations = {
         data: data
     };
     axios(config)
-    .then(function () {
+    .then(function (response) {
      
-    //    console.log("Workingggg.... We have send the concept as new concept map Concept Sending")
-    //     console.log(response);
+       console.log("Workingggg.... We have send the concept as new concept map Concept Sending")
+        console.log(response);
    
     })
     .catch(function (error) {
@@ -194,8 +192,9 @@ const mutations = {
     };
     axios(config)
     .then(function (response) {
-        
-        // state.newRelId = response.data.data.id;
+        // wWe need the id of the saved relationship to save it to the concept map. 
+        // Thats why I have done it in then {}..
+
         // An alternative solution. Just make it here. 
          let newRelationId = response.data.data.id;
 
@@ -243,51 +242,10 @@ const mutations = {
         console.log(error)
     })
 
-    
-    // setTimeout(() => {
-
-    //     // We need newRelationId to send our relationship to the our concept map. 
-    //     // To wait the process above I have used setTimeout. But I feel that it is not
-    //     // the proper solution. I could not make this process asyncron in another way.
-    //     // Is it possible to make it differently?
- 
-
-    //     // Sending Relationship to our concept map ?? 
-    //     var data2 = `{
-    //         "data": [
-    //             {
-    //                 "type": "node--relationship",
-    //                 "id": "${newRelationId}"                
-    //             }
-    //         ]
-    //     }
-    //     `;
-    //     var config2 = {
-    //     method: 'post',
-    //     url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships',
-    //     headers: {
-    //         'Accept': 'application/vnd.api+json',
-    //         'Content-Type': 'application/vnd.api+json',
-    //         'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-    //     },
-    //     data: data2
-    // };
-    // axios(config2)
-    // .then(function (response) {
-    //    console.log("We have send the RELATIONSHIP to our concept map")
-    //     console.log(response);
-   
-    // })
-    // .catch(function (error) {
-    //     console.log("REL SENDING ERROR: ")
-    //     console.log(error)
-    // })
-
-    // }, 3000);
 
     },
 
-    // OUT OF USE. JUST  KEEPING IT TO ASK QUESTION ABOUT IT
+    // OUT OF USE....
     // I have tried to call this mutation with settimeout in action addRelationshipToConceptMap but
     // it takes newRelationId as an object. I dont understand why. Thats why we are not using it. 
     // We have done the delay in add_relationship_to_conceptmap with set time out. 
@@ -398,9 +356,8 @@ const mutations = {
         });
         console.log("linkID =====");
         console.log(linkId);
-    // DELETE REL FROM DB
+    // DELETE REL FROM Concept map
     // it gives response but it does not delete it from concept map in db !!!!
-   
    linkId.forEach(id => {
         console.log("Loop 1 ids:")   
         console.log(id);
@@ -424,15 +381,18 @@ const mutations = {
         };
         axios(config)
         .then(function (response) {
-            console.log("REL deleted from CM in DB:");
+            console.log("REL deleted from Concept map:");
             console.log(response);
         })
         .catch(function (error) {
-            console.log("REL not deleted from concept map in db Error: ")
+
+            console.log("REL is not deleted from concept map in db Error: ")
             console.log(error)
+            console.log("id that gives us error")
+            console.log(id)
         })
     });
-        
+        // Delete relationship from database, relationship table. 
     linkId.forEach(id => {
         
         // Delete relationship from relationships in db
@@ -458,7 +418,7 @@ const mutations = {
         };
         axios(config2)
         .then(function (response) {
-            console.log("REL DEL FROM relationships:");
+            console.log("REL DELETED FROM relationships:");
             console.log(response);
         })
         .catch(function (error) {
