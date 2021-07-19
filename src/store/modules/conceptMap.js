@@ -295,6 +295,7 @@ const mutations = {
      * @param {object} node the node that will be deleted from concept map 
      */
     DELETE_NODE_FROM_CONCEPT_MAP(state, node){
+        // delete node in state
         let index = state.nodes.indexOf(node);
         state.nodes.splice(index, 1);
         console.log("Hellooooo");
@@ -356,10 +357,10 @@ const mutations = {
         console.log("linkID =====");
         console.log(linkId);
     // DELETE REL FROM Concept map
+
     // it gives response but it does not delete it from concept map in db !!!!
    linkId.forEach(id => {
-        console.log("Loop 1 ids:")   
-        console.log(id);
+   
         var data = `{
             "data": [
                 {
@@ -382,6 +383,40 @@ const mutations = {
         .then(function (response) {
             console.log("REL deleted from Concept map:");
             console.log(response);
+
+            // Delete relationship from relationships in db
+            // We need to delete relationship from relationship table after we delete it from conceptmap
+            // thats why we make it here
+            var data2 = `{
+                "data": [
+                    {
+                        "type": "node--relationship",
+                        "id": "${id}" 
+                        
+                    }
+                ]
+            }`;
+            var config2 = {
+                method: 'delete',
+                url: `https://clr-backend.x-navi.de/jsonapi/node/relationship/${id}`,
+                headers: {
+                    'Accept': 'application/vnd.api+json',
+                    'Content-Type': 'application/vnd.api+json',
+                    'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+                },
+                data: data2
+            };
+            axios(config2)
+            .then(function (response) {
+                console.log("REL DELETED FROM relationships:");
+                console.log(response);
+            })
+            .catch(function (error) {
+                console.log("REL NOT DELETED FROM RELATINSHIPS Error: ")
+                console.log(error)
+            })
+
+
         })
         .catch(function (error) {
 
@@ -391,40 +426,7 @@ const mutations = {
             console.log(id)
         })
     });
-        // Delete relationship from database, relationship table. 
-    linkId.forEach(id => {
-        
-        // Delete relationship from relationships in db
-        // Below is working now..
-        var data2 = `{
-            "data": [
-                {
-                    "type": "node--relationship",
-                    "id": "${id}" 
-                    
-                }
-            ]
-        }`;
-        var config2 = {
-            method: 'delete',
-            url: `https://clr-backend.x-navi.de/jsonapi/node/relationship/${id}`,
-            headers: {
-                'Accept': 'application/vnd.api+json',
-                'Content-Type': 'application/vnd.api+json',
-                'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-            },
-            data: data2
-        };
-        axios(config2)
-        .then(function (response) {
-            console.log("REL DELETED FROM relationships:");
-            console.log(response);
-        })
-        .catch(function (error) {
-            console.log("REL NOT DELETED FROM RELATINSHIPS Error: ")
-            console.log(error)
-        })
-    });    
+ 
 
 
     },
