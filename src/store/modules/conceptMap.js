@@ -427,6 +427,10 @@ const mutations = {
         })
     });
  
+    
+
+
+
 
 
     },
@@ -465,8 +469,40 @@ const mutations = {
             });
             //Get relationships of concept map
             relationships.forEach(relationship => {
-                if(relationship.id !== "missing"){
+                if(relationship.id == "missing"){
 
+                    // Delete rel mit id=missing from concept map
+                    // These are created sometimes when I delete a relationship. 
+                    // A miserable solution I think...
+                    var data = `{
+                        "data": [
+                            {
+                                "type": "node--relationship",
+                                "id": "missing" 
+                                
+                            }
+                        ]
+                    }`;
+                    var config = {
+                        method: 'delete',
+                        url: `https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships`,
+                        headers: {
+                            'Accept': 'application/vnd.api+json',
+                            'Content-Type': 'application/vnd.api+json',
+                            'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+                        },
+                        data: data
+                    };
+                    axios(config)
+                    .then(function (response) {
+                        console.log("Missing DELETED FROM relationships:");
+                        console.log(response);
+                    })
+                    .catch(function (error) {
+                        console.log("Missing NOT DELETED FROM RELATINSHIPS Error: ")
+                        console.log(error)
+                    })
+                }else{
                     console.log("Rel: ");
                     console.log(relationship);
 
