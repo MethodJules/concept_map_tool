@@ -20,7 +20,10 @@ const getters = {
         return state.links;
 
     },
-    /** Get if there is concept in map  */
+    /** Get if there is concept in map
+     * @returns result, if concept map is free, then it returns false vice versa.
+     * 
+     */
     getIsConceptMapEmpty(state){
         let result = false;
         (state.nodes.length == 0) ? result =  true : result = false; 
@@ -57,16 +60,8 @@ const actions = {
      * @param {array} relationship the link that will be added to the concept map 
      */
     addRelationshipToDatabase({commit}, relationship) {
-        console.log("addRelationshipToDB Action:: ")
-   
         commit('ADD_RELATIONSHIP_TO_DATABASE', relationship);
-       
-        
     },
-    // addRelationshipToConceptMap({commit}, relationship){
-    //     commit('ADD_RELATIONSHIP_TO_CONCEPTMAP', relationship);
-        
-    // },
     /**
      * Loads concept map from backend. 
      * commit it to mutation to save it in state.
@@ -74,16 +69,13 @@ const actions = {
      */
     async loadConceptMapFromBackend({commit}) {
         await axios.get('https://clr-backend.x-navi.de/jsonapi/node/concept_map')
-            .then((response) => {
-              
+            .then((response) => {           
                 const data = response.data.data;
                 commit('INITIALIZE_CONCEPT_MAP', data);
             }).catch(error => {
                 throw new Error(`API ${error}`);
             });
     },
-
-
 
 }
 
@@ -95,10 +87,7 @@ const mutations = {
      * @param {object} concept concept to add concept map 
      */
     ADD_CONCEPT_TO_CONCEPT_MAP(state, concept) {  
-        console.log("Concepts in mutation:")
-        console.log(concept);
         // Adding concept to the state
-        
         // We need to control if our concept is already in the map. 
         // Thats why We need the variables below
         let nodesInMap = state.nodes; 
@@ -139,12 +128,9 @@ const mutations = {
         };
         axios(config)
         .then(function (response) { 
-            console.log("Workingggg.... We have send the concept to the concept map. Concept Sending");
-            console.log(response);
-    
+            console.log(response);    
         })
         .catch(function (error) {
-            console.log("Concept Sending Error: ")
             console.log(error)
         })
 
@@ -152,6 +138,8 @@ const mutations = {
     /**
      * Adds relationships to the concept map. 
      * Both state and database
+     * It saves first to the database and then saves relationship to state by using the id 
+     * that comes with response.
      * @param {*} state 
      * @param {array} relationship the relationship that will be added to concept map. 
      */
@@ -178,106 +166,58 @@ const mutations = {
             'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
         },
         data: data
-    };
-    axios(config)
-    .then(function (response) {
-        // wWe need the id of the saved relationship to save it to the concept map. 
-        // Thats why I have done it in then {}..
+        };
+        axios(config)
+        .then(function (response) {
+            // We need the id of the saved relationship to save it to the concept map. 
+            // Thats why I have done it in then {}..
+            let newRelationId = response.data.data.id;
+            // Adding Realtionship to our concept map 
+            var data = `{
+                        "data": [
+                            {
+                                "type": "node--relationship",
+                                "id": "${newRelationId}"                
+                            }
+                        ]
+                    }
+                    `;
+                    var config = {
+                    method: 'post',
+                    url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships',
+                    headers: {
+                        'Accept': 'application/vnd.api+json',
+                        'Content-Type': 'application/vnd.api+json',
+                        'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+                    },
+                    data: data
 
-        // An alternative solution. Just make it here. 
-         let newRelationId = response.data.data.id;
+                };
+                axios(config)
+                .then(function (response) {
+                    console.log(response);
+            
+                })
+                .catch(function (error) {
+                    console.log(error)
+                })
 
-        // Adding Realtionship to our concept map ?? 
-        var data = `{
-                    "data": [
-                        {
-                            "type": "node--relationship",
-                            "id": "${newRelationId}"                
-                        }
-                    ]
-                }
-                `;
-                var config = {
-                method: 'post',
-                url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships',
-                headers: {
-                    'Accept': 'application/vnd.api+json',
-                    'Content-Type': 'application/vnd.api+json',
-                    'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-                },
-                data: data
-
-            };
-            axios(config)
-            .then(function (response) {
-                console.log(response);
-           
-            })
-            .catch(function (error) {
-                console.log(error)
-            })
-
-            // we need to save the id of the relationship to the state.
-            // We will use the id when we delete it. 
-            // Now there is an id like "link-0" in state. We cannot delete relationship with this id. 
-            // Thats why we send it to state here. 
+                // we need to save the id of the relationship to the state.
+                // We will use the id when we delete it. 
+                // Now there is an id like "link-0" in state. We cannot delete relationship with this id. 
+                // Thats why we send it to state here. 
                 state.links.push({
-             id: newRelationId, 
-            sid: relationship[0].sid,
-            tid: relationship[0].tid,
-            _color: '#FFFFFF', 
-            name: relationship[0].name,
+                    id: newRelationId, 
+                    sid: relationship[0].sid,
+                    tid: relationship[0].tid,
+                    _color: '#FFFFFF', 
+                    name: relationship[0].name,
+                })       
         })
-
-         
-    })
-    .catch(function (error) {
-        console.log(error)
-    })
-
-
+        .catch(function (error) {
+            console.log(error)
+        })
     },
-
-    // OUT OF USE....
-    // I have tried to call this mutation with settimeout in action addRelationshipToConceptMap but
-    // it takes newRelationId as an object. I dont understand why. Thats why we are not using it. 
-    // We have done the delay in add_relationship_to_conceptmap with set time out. 
-    // 
-    ADD_RELATIONSHIP_TO_CONCEPTMAP(state){
-
-        let newRelationId = state.newRelId;
-
-        // Adding Realtionship to our concept map ?? 
-        var data = `{
-                    "data": [
-                        {
-                            "type": "node--relationship",
-                            "id": "${newRelationId}"                
-                        }
-                    ]
-                }
-                `;
-                var config = {
-                method: 'post',
-                url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships',
-                headers: {
-                    'Accept': 'application/vnd.api+json',
-                    'Content-Type': 'application/vnd.api+json',
-                    'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-                },
-                data: data
-            };
-            axios(config)
-            .then(function (response) {
-                console.log(response);
-           
-            })
-            .catch(function (error) {
-                console.log(error)
-            })
-    },
-
-
     /**
      * Deletes node from concept map. 
      * @param {*} state 
@@ -320,10 +260,10 @@ const mutations = {
      *  
      */
     DELETE_LINK_FROM_CONCEPT_MAP(state, nodeId){
+        // Delete relationship from state
         // Deletes the links that includes nodeId as source id (sid) in it.
         let linkId = []; 
-        state.links.forEach(link => {
-            
+        state.links.forEach(link => {       
             if(link.sid == nodeId){
                 // Delete from state
                 state.links.splice(state.links.indexOf(link), 1); 
@@ -338,61 +278,57 @@ const mutations = {
                 linkId.push(link.id);  
             }            
         });
-        console.log("linkID =====");
-        console.log(linkId);
-    // DELETE REL FROM Concept map
-
-    // it gives response but it does not delete it from concept map in db !!!!
-   linkId.forEach(id => {
-   
-        var data = `{
-            "data": [
-                {
-                    "type": "node--relationship",
-                    "id": "${id}"             
-                }
-            ]
-        }`;
-        var config = {
-        method: 'delete',
-        url: `https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships`,
-        headers: {
-            'Accept': 'application/vnd.api+json',
-            'Content-Type': 'application/vnd.api+json',
-            'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-        },
-        data: data
-        };
-        axios(config)
-        .then(function (response) {
-            console.log("REL deleted from Concept map:");
-            console.log(response);
-
-            // Delete relationship from relationships in db
-            // We need to delete relationship from relationship table after we delete it from conceptmap
-            // thats why we make it here
-            var data2 = `{
+        // Delete relationship from Concept map in database
+        linkId.forEach(id => {
+            var data = `{
                 "data": [
                     {
                         "type": "node--relationship",
-                        "id": "${id}" 
-                        
+                        "id": "${id}"             
                     }
                 ]
             }`;
-            var config2 = {
-                method: 'delete',
-                url: `https://clr-backend.x-navi.de/jsonapi/node/relationship/${id}`,
-                headers: {
-                    'Accept': 'application/vnd.api+json',
-                    'Content-Type': 'application/vnd.api+json',
-                    'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-                },
-                data: data2
+            var config = {
+            method: 'delete',
+            url: `https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships`,
+            headers: {
+                'Accept': 'application/vnd.api+json',
+                'Content-Type': 'application/vnd.api+json',
+                'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+            },
+            data: data
             };
-            axios(config2)
+            axios(config)
             .then(function (response) {
-                console.log("REL DELETED FROM relationships:");
+                console.log(response);
+                // Delete relationship from relationships in db
+                // We need to delete relationship from relationship table after we delete it from conceptmap
+                // Thats why we make it here
+                // But it does not do it in order. Thats why we had to do many extra work. 
+                // It creates relationship with no reference in conceptmap.json file. 
+                // We delete them regularly when we initialize the concept map and after this delete process. 
+                // If we could make it here in order. Then we would be released so much work.  
+                var data2 = `{
+                    "data": [
+                        {
+                            "type": "node--relationship",
+                            "id": "${id}" 
+                            
+                        }
+                    ]
+                }`;
+                var config2 = {
+                    method: 'delete',
+                    url: `https://clr-backend.x-navi.de/jsonapi/node/relationship/${id}`,
+                    headers: {
+                        'Accept': 'application/vnd.api+json',
+                        'Content-Type': 'application/vnd.api+json',
+                        'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+                    },
+                    data: data2
+                };
+                axios(config2)
+                .then(function (response) {
                 console.log(response);
 
                 // Check if there is a missing created and delete it.
@@ -400,8 +336,7 @@ const mutations = {
                     "data": [
                         {
                             "type": "node--relationship",
-                            "id": "missing" 
-                            
+                            "id": "missing"                             
                         }
                     ]
                 }`;
@@ -417,44 +352,32 @@ const mutations = {
                 };
                 axios(config)
                 .then(function (response) {
-                    console.log("Missing DELETED FROM relationships:");
                     console.log(response);
                 })
                 .catch(function (error) {
-                    console.log("Missing NOT DELETED FROM RELATINSHIPS Error: ")
                     console.log(error)
                 })
 
             })
             .catch(function (error) {
-                console.log("REL NOT DELETED FROM RELATINSHIPS Error: ")
                 console.log(error)
-            })
-            
-            
+            })            
         })
-        .catch(function (error) {
-            
-            console.log("REL is not deleted from concept map in db Error: ")
+        .catch(function (error) {  
             console.log(error)
-            console.log("id that gives us error")
-            console.log(id)
         })
         
-    });
- 
-    
-
-
-
-
-
+        });
     },
 
 
     /**
      * Loads concept map to the state
      * Loads nodes and link in the required form for vue-d3-network
+     * Also it controls if the conceptmap.json file is broken or not. 
+     * Somehow we may create relationship with no reference. 
+     * They are kept with id=missing.
+     * It checks for such data and delete them. 
      * @param {*} state 
      * @param {object} concept_map teh concept map that we load from database. 
      */
@@ -462,22 +385,14 @@ const mutations = {
         //TODO: Hier kode rein
         //state.nodes = concept_map.nodes; //TODO: Verlinkung
         //state.links = concept_map.relationships;//TODO: Verlinkung
-        console.log("concept_map");
-        console.log(concept_map);
+
         concept_map.forEach(element => {
             const concepts = element.relationships.field_conceptmap_concepts.data;
-            const relationships = element.relationships.field_conceptmap_relationships.data;
-            console.log("érelationships:" );
-            console.log(relationships);
-            
+            const relationships = element.relationships.field_conceptmap_relationships.data;         
             concepts.forEach(element => {
-                // element is coming OK.
                 axios.get(`https://clr-backend.x-navi.de/jsonapi/node/concept/${element.id}`)
                     .then((response) => {
-                       
-                        // Response is ok. 
                         const title = response.data.data.attributes.title;
-                        //const id = response.data.data.attributes.drupal_internal__nid;
                         const uuid = response.data.data.id;
                         state.nodes.push({id: uuid, name: title, uuid: uuid});
                     })
@@ -511,20 +426,14 @@ const mutations = {
                     };
                     axios(config)
                     .then(function (response) {
-                        console.log("Missing DELETED FROM relationships:");
                         console.log(response);
                     })
                     .catch(function (error) {
-                        console.log("Missing NOT DELETED FROM RELATINSHIPS Error: ")
                         console.log(error)
                     })
                 }else{
-                    console.log("Rel: ");
-                    console.log(relationship);
-
                     axios.get(`https://clr-backend.x-navi.de/jsonapi/node/relationship/${relationship.id}`)
                     .then((response) => {
-                        
                         const label = response.data.data.attributes.title;
                         const id = response.data.data.id;
                         const sid = response.data.data.attributes.field_sid;
