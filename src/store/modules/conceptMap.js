@@ -20,6 +20,12 @@ const getters = {
         return state.links;
 
     },
+    /** Get if there is concept in map  */
+    getIsConceptMapEmpty(state){
+        let result = false;
+        (state.nodes.length == 0) ? result =  true : result = false; 
+        return result;
+    }
 }
 
 const actions = {
@@ -181,10 +187,6 @@ const mutations = {
         // An alternative solution. Just make it here. 
          let newRelationId = response.data.data.id;
 
-        console.log("specific rel adding: ");
-        console.log(newRelationId);
-        console.log("relationship in cb mutation");
-        console.log(relationship);
         // Adding Realtionship to our concept map ?? 
         var data = `{
                     "data": [
@@ -208,12 +210,10 @@ const mutations = {
             };
             axios(config)
             .then(function (response) {
-               console.log("We have send the RELATIONSHIP to our concept map. WUHUUUU It is working finally..... ")
                 console.log(response);
            
             })
             .catch(function (error) {
-                console.log("REL SENDING TO Concept MAP ERROR: ")
                 console.log(error)
             })
 
@@ -221,7 +221,6 @@ const mutations = {
             // We will use the id when we delete it. 
             // Now there is an id like "link-0" in state. We cannot delete relationship with this id. 
             // Thats why we send it to state here. 
-             console.log(newRelationId);
                 state.links.push({
              id: newRelationId, 
             sid: relationship[0].sid,
@@ -229,11 +228,10 @@ const mutations = {
             _color: '#FFFFFF', 
             name: relationship[0].name,
         })
-          
+
          
     })
     .catch(function (error) {
-        console.log("Error: ")
         console.log(error)
     })
 
@@ -245,13 +243,10 @@ const mutations = {
     // it takes newRelationId as an object. I dont understand why. Thats why we are not using it. 
     // We have done the delay in add_relationship_to_conceptmap with set time out. 
     // 
-    ADD_RELATIONSHIP_TO_CONCEPTMAP(state, relationship){
-        console.log("specific rel adding: ");
-        console.log(state.newRelId);
+    ADD_RELATIONSHIP_TO_CONCEPTMAP(state){
+
         let newRelationId = state.newRelId;
-        console.log("specific rel adding: ");
-        console.log("relationship in cb mutation");
-        console.log(relationship);
+
         // Adding Realtionship to our concept map ?? 
         var data = `{
                     "data": [
@@ -274,12 +269,10 @@ const mutations = {
             };
             axios(config)
             .then(function (response) {
-               console.log("We have send the RELATIONSHIP to our concept map")
                 console.log(response);
            
             })
             .catch(function (error) {
-                console.log("REL SENDING ERROR: ")
                 console.log(error)
             })
     },
@@ -294,9 +287,6 @@ const mutations = {
         // delete node in state
         let index = state.nodes.indexOf(node);
         state.nodes.splice(index, 1);
-        console.log("Hellooooo");
-        console.log(state.nodes);
-
         // Deleting node from concept map
         var data = `{"data": [ 
                 {
@@ -317,11 +307,9 @@ const mutations = {
         };
         axios(config)
             .then(function (response) {
-                 console.log("CONCEPT DELETED.... We have deleted the concept from Concept Map")
                console.log(response);
             })
             .catch(function (error) {
-                console.log("Concept DELETE Error: ")
                 console.log(error)
             })
     },

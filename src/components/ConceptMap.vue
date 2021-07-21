@@ -29,14 +29,7 @@
                             {{ concept.name }}
                         </option>
                     </select>
-                    <label for="input-1">Or create a new one.</label>
-                    <b-input
-                        ref="input1"
-                        id="input-1"
-                        v-model="newConceptToAdd"
-                        :disabled="!isOptionFull"
-                        size="sm"
-                    ></b-input>
+
                     <div class="modal-buttons">
                         <b-button
                             @click="removeConceptFromConceptMap(clickedNode)"
@@ -201,11 +194,6 @@ export default {
                 "conceptMap/addRelationshipToDatabase",
                 relationship
             );
-            // we need to send relationship seperately to the concept map
-            // this.$store.dispatch(
-            //     "conceptMap/addRelationshipToConceptMap",
-            //     relationship
-            // );
             // We need to send the source concept as an object to this methode
             this.$store.dispatch(
                 "conceptMap/addConceptToConceptMap",

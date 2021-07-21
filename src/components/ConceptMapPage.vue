@@ -103,7 +103,6 @@
                                 updateConcept(neuConceptName, concept)
                             "
                             @keydown.esc="closeInput(concept)"
-                            autofocus
                         >
                         </b-form-input>
                         <div class="concept-inputGroups-buttons">
@@ -150,58 +149,52 @@
                     </div>
 
                     <div>
-                        <!-- User can create a new concept from here too.. -->
-                        <b-form-group
-                            label="New Concept"
-                            label-for="popover-input-1"
-                            label-cols="6"
-                            :state="input1state"
-                            class="mb-1"
-                            description="Create new concept map"
-                            invalid-feedback="This field is required"
-                        >
-                            <b-form-input
-                                ref="input1"
-                                id="popover-input-1"
-                                v-model="input1"
-                                :state="input1state"
-                                size="sm"
-                            ></b-form-input>
-                        </b-form-group>
                         <!-- User choose the concept to create link with -->
-                        <b-form-group
-                            label="Concept"
-                            label-for="popover-input-2"
-                            label-cols="6"
-                            :state="input2state"
-                            class="mb-1"
-                            description="Concept to link with"
-                            invalid-feedback="This field is required"
-                        >
-                            <select
-                                id="popover-input-2"
-                                v-model="targetConcept"
+                        <div v-if="!isEmpty">
+                            <b-form-group
+                                label="Concept"
+                                label-for="popover-input-2"
+                                label-cols="6"
+                                :state="input2state"
+                                class="mb-1"
+                                description="Concept to link with"
+                                invalid-feedback="This field is required"
                             >
-                                <option value="" disabled selected hidden>
-                                    Choose Concept...
-                                </option>
-
-                                <option
-                                    v-for="(concept, i) in concepts"
-                                    :key="i"
-                                    :value="concept"
+                                <select
+                                    id="popover-input-2"
+                                    v-model="targetConcept"
                                 >
-                                    {{ concept.name }}
-                                </option>
-                            </select>
-                        </b-form-group>
+                                    <option value="" disabled selected hidden>
+                                        Choose Concept...
+                                    </option>
 
-                        <b-alert show class="small">
-                            <strong>New Label</strong><br />
-                            Source: <strong>{{ concept.name }}</strong
-                            ><br />
-                            Target: <strong>{{ targetConcept.name }}</strong>
-                        </b-alert>
+                                    <option
+                                        v-for="(concept, i) in concepts"
+                                        :key="i"
+                                        :value="concept"
+                                    >
+                                        {{ concept.name }}
+                                    </option>
+                                </select>
+                            </b-form-group>
+
+                            <b-alert show class="small">
+                                <strong>New Label</strong><br />
+                                Source: <strong>{{ concept.name }}</strong
+                                ><br />
+                                Target:
+                                <strong>{{ targetConcept.name }}</strong>
+                            </b-alert>
+                        </div>
+                        <div v-if="isEmpty">
+                            <b-alert show class="small">
+                                <strong>There is no concept in map. </strong
+                                ><br />
+                                First concept is:
+                                <strong>{{ concept.name }}</strong>
+                            </b-alert>
+                        </div>
+
                         <div class="buttonGroupPopover">
                             <b-button
                                 @click="closePopover(concept)"
@@ -236,7 +229,7 @@ function toggleButtonInput(concept, e) {
     // Select input
     let inputId = "input_" + concept.nid;
     let myInput = document.getElementById(inputId);
-    myInput.focus();
+
     // select button
     let buttonId = "button_" + concept.nid;
     let myButton = document.getElementById(buttonId);
@@ -267,8 +260,7 @@ export default {
             // Popover datas, taken from bootstrap vue website
             // https://bootstrap-vue.org/docs/components/popover
             // Advanced <b-popover> usage with reactive content
-            input1: "",
-            input1state: null,
+
             targetConcept: "",
             input2state: null,
             options: [
@@ -277,7 +269,6 @@ export default {
                 "Green",
                 "Blue",
             ],
-            input1Return: "",
             input2Return: "",
             // Popover datas, taken from bootstrap vue website
         };
@@ -288,7 +279,10 @@ export default {
 
     computed: {
         // getter for concepts
-        ...mapGetters({ concepts: "getConcepts" }),
+        ...mapGetters({
+            concepts: "getConcepts",
+            isEmpty: "conceptMap/getIsConceptMapEmpty", // if there is no concept in map, we change the popover content
+        }),
         /**
          * Methode to enable new concept adding
          * If something is written in the new concept input,
@@ -363,26 +357,34 @@ export default {
             let relationship = [];
             // We need to add the ids of the source and target concept to relationship array.
 
-            relationship.push({
-                name: sourceConcept.name + " -&- " + targetConcept.name,
-                tid: targetConcept.id,
-                sid: sourceConcept.id,
-            }); // We need to send the relationship as an array
-            this.$store.dispatch(
-                "conceptMap/addRelationshipToDatabase",
-                relationship
-            );
+            if (this.isEmpty) {
+                this.$store.dispatch(
+                    "conceptMap/addConceptToConceptMap",
+                    sourceConcept
+                );
+            } else {
+                relationship.push({
+                    name: sourceConcept.name + " -&- " + targetConcept.name,
+                    tid: targetConcept.id,
+                    sid: sourceConcept.id,
+                }); // We need to send the relationship as an array
+                this.$store.dispatch(
+                    "conceptMap/addRelationshipToDatabase",
+                    relationship
+                );
 
-            // We need to send the source concept as an object to this methode
-            this.$store.dispatch(
-                "conceptMap/addConceptToConceptMap",
-                sourceConcept
-            );
-            // we need to send target concept as an object to this methode
-            this.$store.dispatch(
-                "conceptMap/addConceptToConceptMap",
-                targetConcept
-            );
+                // We need to send the source concept as an object to this methode
+                this.$store.dispatch(
+                    "conceptMap/addConceptToConceptMap",
+                    sourceConcept
+                );
+                // we need to send target concept as an object to this methode
+
+                this.$store.dispatch(
+                    "conceptMap/addConceptToConceptMap",
+                    targetConcept
+                );
+            }
         },
 
         // START! Methods for popover, taken from bootstrap vue
