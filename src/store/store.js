@@ -15,6 +15,7 @@ export default new Vuex.Store({
         },
         concepts: [],
         buttonClicked: false,
+        deleteMode: false,
 
 
 

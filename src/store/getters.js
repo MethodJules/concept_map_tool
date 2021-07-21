@@ -33,3 +33,7 @@ export const getConceptNames = (state) => {
 export const getButtonClicked = (state) => {
     return state.buttonClicked;
 }
+
+export const getDeleteMode = (state) => {
+    return state.deleteMode;
+}

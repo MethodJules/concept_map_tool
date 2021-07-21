@@ -18,14 +18,12 @@
                     <span>
                         <b> {{ conceptName }} </b>
                     </span>
-                    <span>
-                        Hinzufügen
-                        <b-icon
-                            md="2"
-                            class="align-self-end"
-                            icon="plus-circle"
-                        ></b-icon>
-                    </span>
+                    <b-icon
+                        md="2"
+                        class="align-self-end"
+                        icon="plus-circle"
+                        @click="addNewConcept(conceptName)"
+                    ></b-icon>
                 </b-button>
 
                 <b-button
@@ -35,6 +33,19 @@
                 >
                     Recommender
                     <b-icon icon="person-lines-fill"></b-icon>
+                </b-button>
+                <b-button
+                    class="tools-deleteMode"
+                    variant="danger"
+                    @click="toggleDeleteMode()"
+                >
+                    Delete Mode
+                    <b-icon
+                        v-if="isDeleteModeOn"
+                        icon="circle-fill"
+                        animation="throb"
+                        font-scale="1"
+                    ></b-icon>
                 </b-button>
                 <b-modal
                     ref="recommender-modal"
@@ -257,6 +268,7 @@ export default {
             conceptName: "", // Name of the concept, we are using it in the input that we create new concept
             neuConceptName: "", // new name of the concept, we are using it in the input tha tshown when we double click to the concept
             isInputOpen: false,
+            isDeleteModeOn: false,
             // Popover datas, taken from bootstrap vue website
             // https://bootstrap-vue.org/docs/components/popover
             // Advanced <b-popover> usage with reactive content
@@ -282,6 +294,7 @@ export default {
         ...mapGetters({
             concepts: "getConcepts",
             isEmpty: "conceptMap/getIsConceptMapEmpty", // if there is no concept in map, we change the popover content
+            nodes: "conceptMap/getNodes",
         }),
         /**
          * Methode to enable new concept adding
@@ -314,6 +327,35 @@ export default {
          */
         toggleRecommenderModal() {
             this.$refs["recommender-modal"].toggle();
+        },
+
+        /**
+         * When we call this method, we can click and delete nodes.
+         * It triggers the method changeNodeColor, which changes the color of node.
+         */
+        toggleDeleteMode() {
+            this.$store.dispatch("toggleDeleteMode");
+            let color = "";
+            if (this.isDeleteModeOn) {
+                color = "white";
+                this.isDeleteModeOn = !this.isDeleteModeOn;
+            } else {
+                color = "#E6F927";
+                this.isDeleteModeOn = !this.isDeleteModeOn;
+            }
+            this.changeNodeColor(color);
+        },
+        /**
+         * @param {string} color, the color value that we will assign to node
+         * Changes the color of node with given color
+         */
+        changeNodeColor(color) {
+            this.nodes.forEach((node) => {
+                node = Object.assign(node, {
+                    _color: color,
+                });
+                this.$set(this.nodes, node.index, node);
+            });
         },
 
         /**
@@ -513,13 +555,20 @@ export default {
     justify-content: space-between;
     flex-direction: column;
     margin-bottom: 1rem;
-    height: 10rem;
+    height: 12rem;
 }
 
 .tools-newConceptName,
 .tools-recommender {
     width: 100%;
     text-align: center;
+    display: flex;
+    justify-content: space-between;
+}
+.tools-deleteMode {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
 }
 .tools-addNewConcept {
     color: #8795b0 !important;
@@ -605,3 +654,5 @@ export default {
     padding: 0.5rem 1rem;
 }
 </style>
+
+

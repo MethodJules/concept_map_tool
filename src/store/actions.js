@@ -8,6 +8,13 @@ export const triggerLoading = ({ commit }) => {
     commit("triggerLoading")
 }
 
+    // setter for delete mode
+export const toggleDeleteMode = ({state}) => {
+        state.deleteMode = !state.deleteMode;
+
+
+    }
+
 
 /**
  * Loads the concepts from database and send them to mutation with commit. 

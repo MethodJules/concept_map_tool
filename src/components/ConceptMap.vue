@@ -8,7 +8,6 @@
                 <div class="modal-body">
                     <p>
                         Choose one of the below
-
                         <b-button
                             variant="secondary"
                             size="sm"
@@ -80,18 +79,20 @@
  */
 import D3Network from "vue-d3-network";
 import { mapGetters } from "vuex";
+
 export default {
     data() {
         return {
             // variables for link options:
             nodeSize: 30, // Link Options: arranges the size of nodes
             linkWidth: 5, // Link Options: arranges the size of the link
-            force: 3000, // Link Options: arranges how much wide the concept map
+            force: 5000, // Link Options: arranges how much wide the concept map
             fontSize: 15, // Link Options: arranges the font size of the node
             strLinks: true, // Link Options: decide if the links are straight or curved
             clickedNode: {}, // the node that user clicked on the concept map
             targetConcept: "", // The concept that we are going to add to the map
             newConceptToAdd: "", // New concept to add map and concept list
+            highlightNodes: [],
         };
     },
     components: {
@@ -103,6 +104,7 @@ export default {
         ...mapGetters({
             links: "conceptMap/getLinks",
             nodes: "conceptMap/getNodes",
+            deleteMode: "getDeleteMode",
             concepts: "getConcepts",
         }),
         /**
@@ -156,10 +158,16 @@ export default {
          * @param node The node that user clicked
          * It shows the modal when user clicked a node.
          * Modal is specialized according to the node clicked,
+         * If deleteMode is on, it deletes the node clicked.
          */
         showModal(event, node) {
-            this.$root.$emit("bv::show::modal", "add-parent-modal");
-            this.clickedNode = node;
+            if (this.deleteMode) {
+                this.removeConceptFromConceptMap(node);
+            } else {
+                this.$root.$emit("bv::show::modal", "add-parent-modal");
+                this.clickedNode = node;
+                console.log(this.deleteMode);
+            }
         },
         /**
          * Hide Modal.

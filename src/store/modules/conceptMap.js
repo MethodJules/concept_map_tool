@@ -2,6 +2,7 @@ import axios from "axios"
 const state = () => ({
     nodes: [], // stores the nodes of concept map
     links: [], // stores the links of concept map
+
 })
 
 const getters = {
@@ -28,10 +29,11 @@ const getters = {
         let result = false;
         (state.nodes.length == 0) ? result =  true : result = false; 
         return result;
-    }
+    },
 }
 
 const actions = {
+
     /**
      * commits to add concepts to the concept map.
      * @param {object} concept the concept that will be added to concept map 

@@ -12,6 +12,7 @@ export const triggerLoading = (state) => {
         state.buttonClicked = false;
     }, 2000);
 }
+
 /**
  * Updates the name of the concept.
  * @param {*} state 
