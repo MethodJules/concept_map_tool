@@ -74,9 +74,6 @@
                     </div>
                 </b-modal>
             </div>
-            <span class="hint">
-                <i> Double click to change the name of a concept </i>
-            </span>
             <div
                 class="conceptButtons"
                 v-for="(concept, i) in concepts"
@@ -101,6 +98,13 @@
                     >
                         {{ concept.name }}
                     </b-button>
+                    <b-tooltip
+                        :target="createIdForButton(concept)"
+                        placement="right"
+                        variant="secondary"
+                        noninteractive
+                        >Double click to change the concept name</b-tooltip
+                    >
 
                     <div
                         :id="createIdForInput(concept)"
@@ -634,12 +638,6 @@ export default {
     flex-direction: column;
 }
 
-.hint {
-    font-size: 0.8rem;
-    text-align: center;
-    color: rgb(197, 163, 163);
-    margin-bottom: 0.5rem;
-}
 /* Concept Buttons  */
 
 /* Recommender Modal */
