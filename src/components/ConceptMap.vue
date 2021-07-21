@@ -86,9 +86,7 @@
  *
  */
 import D3Network from "vue-d3-network";
-
 import { mapGetters } from "vuex";
-
 export default {
     data() {
         return {
@@ -177,7 +175,6 @@ export default {
         hideModal() {
             this.$root.$emit("bv::hide::modal", "add-parent-modal");
         },
-
         /**Clear Options.
          * Deletes the value of the option in the modal.
          * targetConcept stores tha values of the option in the modal
@@ -185,7 +182,6 @@ export default {
         clearOptions() {
             this.targetConcept = "";
         },
-
         /**
          * Adds given concept to concept map
          * @param sourceConcept The source concept as an object
@@ -195,7 +191,6 @@ export default {
         addConceptToConceptMap(sourceConcept, targetConcept) {
             let relationship = [];
             // We need to add the ids of the source and target concept to relationship array.
-
             relationship.push({
                 name: sourceConcept.name + " -&- " + targetConcept.name,
                 tid: targetConcept.id,
@@ -211,7 +206,6 @@ export default {
             //     "conceptMap/addRelationshipToConceptMap",
             //     relationship
             // );
-
             // We need to send the source concept as an object to this methode
             this.$store.dispatch(
                 "conceptMap/addConceptToConceptMap",
@@ -258,14 +252,12 @@ export default {
 .modal-title {
     border-bottom: 1px solid grey;
 }
-
 .modal-body {
     padding: 1rem 0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
-
 .modal-body p {
     display: flex;
     justify-content: space-between;
@@ -276,7 +268,6 @@ export default {
 .modal-body label {
     margin-bottom: 0.5rem;
 }
-
 .modal-buttons {
     display: flex;
     margin-top: 1rem;
@@ -286,7 +277,6 @@ export default {
 .modal-buttons div button:first-child {
     margin-right: 0.5rem;
 }
-
 .buttonGroup {
     padding: 1rem;
     display: flex;
@@ -299,17 +289,14 @@ export default {
     display: flex;
     justify-content: flex-start;
 }
-
 .buttonGroup div label {
     width: 50%;
 }
-
 .link-label {
     fill: purple;
     transform: translate(0, 0.5em);
     font-size: 0.8em;
 }
-
 .net {
     width: 100%;
     height: 70vh;

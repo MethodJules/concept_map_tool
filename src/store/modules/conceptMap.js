@@ -149,23 +149,7 @@ const mutations = {
      * @param {*} state 
      * @param {array} relationship the relationship that will be added to concept map. 
      */
-    ADD_RELATIONSHIP_TO_DATABASE(state, relationship) {
-        console.log("ADD_RELATIONSHIP_TO_DATABASE")
-
-        // adding relationship to the state
-        // let generatedId = Math.random() * 1000; 
-        state.links.push({
-            // id: generatedId, 
-            sid: relationship[0].sid,
-            tid: relationship[0].tid,
-            _color: '#FFFFFF', 
-            name: relationship[0].name,
-        })
-     
-        
-    // Sending relation to the database, but we are sending only a relationship to the database
-    // We need to send this relation to the our concept map.
-    // We do it in setTimeout. Because we need the id of the new relationship.  
+    ADD_RELATIONSHIP_TO_DATABASE(state, relationship) { 
         var data = `{
             "data": 
             {
@@ -233,7 +217,19 @@ const mutations = {
                 console.log(error)
             })
 
-
+            // we need to save the id of the relationship to the state.
+            // We will use the id when we delete it. 
+            // Now there is an id like "link-0" in state. We cannot delete relationship with this id. 
+            // Thats why we send it to state here. 
+             console.log(newRelationId);
+                state.links.push({
+             id: newRelationId, 
+            sid: relationship[0].sid,
+            tid: relationship[0].tid,
+            _color: '#FFFFFF', 
+            name: relationship[0].name,
+        })
+          
          
     })
     .catch(function (error) {
@@ -410,21 +406,53 @@ const mutations = {
             .then(function (response) {
                 console.log("REL DELETED FROM relationships:");
                 console.log(response);
+
+                // Check if there is a missing created and delete it.
+                var data = `{
+                    "data": [
+                        {
+                            "type": "node--relationship",
+                            "id": "missing" 
+                            
+                        }
+                    ]
+                }`;
+                var config = {
+                    method: 'delete',
+                    url: `https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships`,
+                    headers: {
+                        'Accept': 'application/vnd.api+json',
+                        'Content-Type': 'application/vnd.api+json',
+                        'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
+                    },
+                    data: data
+                };
+                axios(config)
+                .then(function (response) {
+                    console.log("Missing DELETED FROM relationships:");
+                    console.log(response);
+                })
+                .catch(function (error) {
+                    console.log("Missing NOT DELETED FROM RELATINSHIPS Error: ")
+                    console.log(error)
+                })
+
             })
             .catch(function (error) {
                 console.log("REL NOT DELETED FROM RELATINSHIPS Error: ")
                 console.log(error)
             })
-
-
+            
+            
         })
         .catch(function (error) {
-
+            
             console.log("REL is not deleted from concept map in db Error: ")
             console.log(error)
             console.log("id that gives us error")
             console.log(id)
         })
+        
     });
  
     
