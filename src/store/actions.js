@@ -11,8 +11,6 @@ export const triggerLoading = ({ commit }) => {
     // setter for delete mode
 export const toggleDeleteMode = ({state}) => {
         state.deleteMode = !state.deleteMode;
-
-
     }
 
 

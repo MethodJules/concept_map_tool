@@ -57,7 +57,7 @@ export default {
 }
 
 .page-container {
-    height: 92vh;
     background-color: #394173;
+    height: 92vh;
 }
 </style>
