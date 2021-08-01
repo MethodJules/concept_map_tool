@@ -223,10 +223,16 @@ export default {
             // Removes the node that is send to the methode
             this.$store.dispatch("conceptMap/deleteNodeFromConceptMap", node);
             // removes the link that associated with the node send.
-            this.$store.dispatch(
-                "conceptMap/deleteLinkFromConceptMap",
-                node.id
-            );
+            this.$store
+                .dispatch("conceptMap/deleteLinkFromConceptMap2", node.id)
+                .then((response) => {
+                    console.log("burada geldi mi??");
+                    console.log(response);
+                    this.$store.dispatch(
+                        "conceptMap/deleteLinkFromRelationships",
+                        node.id
+                    );
+                });
         },
         // changes the color of the link when user click to it.
         // Can be removed....
