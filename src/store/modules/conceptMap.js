@@ -1,4 +1,5 @@
-import axios from "axios"
+import axios from "@/config/custom_axios";
+
 const state = () => ({
     nodes: [], // stores the nodes of concept map
     links: [], // stores the links of concept map
@@ -70,7 +71,7 @@ const actions = {
     *  
     */
     async loadConceptMapFromBackend({commit}) {
-        await axios.get('https://clr-backend.x-navi.de/jsonapi/node/concept_map')
+        await axios.get('concept_map')
         .then((response) => {           
             const data = response.data.data;
             commit('INITIALIZE_CONCEPT_MAP', data);
@@ -120,12 +121,8 @@ const mutations = {
     `;
     var config = {
         method: 'post',
-        url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_concepts',
-        headers: {
-            'Accept': 'application/vnd.api+json',
-            'Content-Type': 'application/vnd.api+json',
-            'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-        },
+        url: 'concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_concepts',
+    
         data: data
     };
     axios(config)
@@ -161,12 +158,7 @@ ADD_RELATIONSHIP_TO_DATABASE(state, relationship) {
     `;
     var config = {
         method: 'post',
-        url: 'https://clr-backend.x-navi.de/jsonapi/node/relationship',
-        headers: {
-            'Accept': 'application/vnd.api+json',
-            'Content-Type': 'application/vnd.api+json',
-            'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-        },
+        url: 'relationship',
         data: data
     };
     axios(config)
@@ -186,14 +178,8 @@ ADD_RELATIONSHIP_TO_DATABASE(state, relationship) {
         `;
         var config = {
             method: 'post',
-            url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships',
-            headers: {
-                'Accept': 'application/vnd.api+json',
-                'Content-Type': 'application/vnd.api+json',
-                'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-            },
-            data: data
-            
+            url: 'concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships',
+            data: data       
         };
         axios(config)
         .then(function (response) {
@@ -239,12 +225,7 @@ DELETE_NODE_FROM_CONCEPT_MAP(state, node){
 }`;
 var config = {
     method: 'delete',
-    url: 'https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_concepts',
-    headers: {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json',
-        'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-    },
+    url: 'concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_concepts',
     data: data
 };
 axios(config)
@@ -292,12 +273,8 @@ DELETE_LINK_FROM_CONCEPT_MAP(state, nodeId){
         }`;
         var config = {
             method: 'delete',
-            url: `https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships`,
-            headers: {
-                'Accept': 'application/vnd.api+json',
-                'Content-Type': 'application/vnd.api+json',
-                'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-            },
+            url: `concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships`,
+        
             data: data
         };
         axios(config)
@@ -321,12 +298,8 @@ DELETE_LINK_FROM_CONCEPT_MAP(state, nodeId){
             }`;
             var config2 = {
                 method: 'delete',
-                url: `https://clr-backend.x-navi.de/jsonapi/node/relationship/${id}`,
-                headers: {
-                    'Accept': 'application/vnd.api+json',
-                    'Content-Type': 'application/vnd.api+json',
-                    'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-                },
+                url: `relationship/${id}`,
+              
                 data: data2
             };
             axios(config2)
@@ -344,12 +317,8 @@ DELETE_LINK_FROM_CONCEPT_MAP(state, nodeId){
                 }`;
                 var config = {
                     method: 'delete',
-                    url: `https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships`,
-                    headers: {
-                        'Accept': 'application/vnd.api+json',
-                        'Content-Type': 'application/vnd.api+json',
-                        'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-                    },
+                    url: `concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships`,
+                   
                     data: data
                 };
                 axios(config)
@@ -392,7 +361,7 @@ INITIALIZE_CONCEPT_MAP(state, concept_map) {
         const concepts = element.relationships.field_conceptmap_concepts.data;
         const relationships = element.relationships.field_conceptmap_relationships.data;         
         concepts.forEach(element => {
-            axios.get(`https://clr-backend.x-navi.de/jsonapi/node/concept/${element.id}`)
+            axios.get(`concept/${element.id}`)
             .then((response) => {
                 const title = response.data.data.attributes.title;
                 const uuid = response.data.data.id;
@@ -418,12 +387,7 @@ INITIALIZE_CONCEPT_MAP(state, concept_map) {
                 }`;
                 var config = {
                     method: 'delete',
-                    url: `https://clr-backend.x-navi.de/jsonapi/node/concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships`,
-                    headers: {
-                        'Accept': 'application/vnd.api+json',
-                        'Content-Type': 'application/vnd.api+json',
-                        'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-                    },
+                    url: `concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships`,
                     data: data
                 };
                 axios(config)
@@ -434,7 +398,7 @@ INITIALIZE_CONCEPT_MAP(state, concept_map) {
                     console.log(error)
                 })
             }else{
-                axios.get(`https://clr-backend.x-navi.de/jsonapi/node/relationship/${relationship.id}`)
+                axios.get(`relationship/${relationship.id}`)
                 .then((response) => {
                     const label = response.data.data.attributes.title;
                     const id = response.data.data.id;

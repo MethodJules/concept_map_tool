@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from '@/config/custom_axios';
 
 /**
  * Triggers loading bar. 
@@ -34,26 +34,19 @@ export const UPDATE_CONCEPT = (state, payload) => {
 
     var config = {
         method: 'patch',
-        url: `https://clr-backend.x-navi.de/jsonapi/node/concept/${id}`,
-        headers: {
-            'Accept': 'application/vnd.api+json',
-            'Content-Type': 'application/vnd.api+json',
-            'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-        },
+        url: `concept/${id}`,
         data: data
     };
 
     axios(config)
         .then(function (response) {
             console.log(response)
+            console.log("updated")
         })
         .catch(function (error) {
             console.log(error)
         })
 }
-
-
-
 
 
 /**
@@ -76,14 +69,10 @@ export const SAVE_CONCEPTS = (state, concepts) => {
 export const ADD_NEW_CONCEPT = (state, conceptName) => {
     // Generating the proper format for database and sending it to database
     var data = `{"data":{"type":"node--concept", "attributes": {"title": "${conceptName}"}}}`;
+    
     var config = {
         method: 'post',
-        url: 'https://clr-backend.x-navi.de/jsonapi/node/concept',
-        headers: {
-            'Accept': 'application/vnd.api+json',
-            'Content-Type': 'application/vnd.api+json',
-            'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-        },
+        url: 'concept',
         data: data
     };
 
@@ -91,6 +80,7 @@ export const ADD_NEW_CONCEPT = (state, conceptName) => {
         .then(function (response) {
             // it was not adding id to state. Thats why we were having problems when we delete the concept. 
             state.concepts.push({ name: conceptName, id: response.data.data.id, nid: response.data.data.attributes.drupal_internal__nid });
+            console.log("HEre is the proof...")
         })
         .catch(function (error) {
             console.log(error);

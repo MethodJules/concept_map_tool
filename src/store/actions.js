@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from '@/config/custom_axios'
 
 /**
  * Triggers loading bar.
@@ -20,7 +20,7 @@ export const toggleDeleteMode = ({state}) => {
  *  
  */
 export const loadConceptListFromDb = ({ commit }) => {
-    axios.get('https://clr-backend.x-navi.de/jsonapi/node/concept')
+    axios.get('concept')
         .then((response) => {
             const data = response.data.data;
             let concepts = [];
@@ -50,12 +50,7 @@ export const deleteConcept = ({ commit }, concept) => {
     // Deletes it from database
     var config = {
         method: 'delete',
-        url: `https://clr-backend.x-navi.de/jsonapi/node/concept/${concept.id}`,
-        headers: {
-            'Accept': 'application/vnd.api+json',
-            'Content-Type': 'application/vnd.api+json',
-            'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-        },
+        url: `concept/${concept.id}`,
     };
     axios(config)
     // ACTIVATE THESE LINES in order to understand what is going on with axios and look at the console. 
