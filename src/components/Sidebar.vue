@@ -1,243 +1,228 @@
 <template>
-    <b-row class="pageContainer">
-        <b-col md="2" class="pageContainer-sidebar">
-            <div class="tools">
-                <b-form-input
-                    class="tools-newConceptName"
-                    placeholder="Schreiben Sie hier Concept Name..."
-                    v-model="conceptName"
-                    @keydown.enter="addNewConcept(conceptName)"
-                >
-                </b-form-input>
-                <b-button
-                    class="tools-addNewConcept"
-                    @click="addNewConcept(conceptName)"
-                    variant="outline-dark"
-                    :disabled="saveEnabled"
-                >
-                    <span>
-                        <b> {{ conceptName }} </b>
-                    </span>
-                    <b-icon
-                        md="2"
-                        class="align-self-end"
-                        icon="plus-circle"
-                        @click="addNewConcept(conceptName)"
-                    ></b-icon>
-                </b-button>
-
-                <b-button
-                    variant="warning"
-                    class="tools-recommender"
-                    @click="toggleRecommenderModal"
-                >
-                    Recommender
-                    <b-icon icon="person-lines-fill"></b-icon>
-                </b-button>
-                <b-button
-                    class="tools-deleteMode"
-                    variant="danger"
-                    @click="toggleDeleteMode()"
-                >
-                    Delete Mode
-                    <b-icon
-                        v-if="isDeleteModeOn"
-                        icon="circle-fill"
-                        animation="throb"
-                        font-scale="1"
-                    ></b-icon>
-                </b-button>
-                <b-modal
-                    ref="recommender-modal"
-                    class="recommender-modal"
-                    hide-footer
-                    hide-header
-                >
-                    <div class="recommender-modal-container">
-                        <div class="recommender-modal-header">
-                            <h3>Recommender</h3>
-                        </div>
-                        <div class="recommender-modal-content"></div>
-
-                        <p v-for="(concept, i) in concepts" :key="i">
-                            {{ concept.name }}
-                        </p>
-                        <div class="recommender-modal-footer">
-                            <b-button
-                                variant="danger"
-                                size="sm"
-                                block
-                                @click="toggleRecommenderModal"
-                                >Close Me</b-button
-                            >
-                        </div>
-                    </div>
-                </b-modal>
-            </div>
-            <div
-                class="conceptButtons"
-                v-for="(concept, i) in concepts"
-                :key="i"
+    <div>
+        <div class="tools">
+            <b-form-input
+                class="tools-newConceptName"
+                placeholder="Schreiben Sie hier Concept Name..."
+                v-model="conceptName"
+                @keydown.enter="addNewConcept(conceptName)"
             >
-                <b-button
-                    class="conceptButtons-deleteButton"
-                    size="sm"
-                    variant="danger"
-                    @click="deleteConcept(concept)"
-                >
-                    <b-icon icon="trash" aria-hidden="true"></b-icon>
-                </b-button>
+            </b-form-input>
+            <b-button
+                class="tools-addNewConcept"
+                @click="addNewConcept(conceptName)"
+                variant="outline-dark"
+                :disabled="saveEnabled"
+            >
+                <span>
+                    <b> {{ conceptName }} </b>
+                </span>
+                <b-icon
+                    md="2"
+                    class="align-self-end"
+                    icon="plus-circle"
+                    @click="addNewConcept(conceptName)"
+                ></b-icon>
+            </b-button>
 
-                <b-row class="concept">
-                    <b-button
-                        class="d-flex"
-                        :id="createIdForButton(concept)"
-                        size="sm"
-                        variant="primary"
-                        @dblclick="openInput(concept, $event)"
-                    >
-                        {{ concept.name }}
-                    </b-button>
-                    <b-tooltip
-                        :target="createIdForButton(concept)"
-                        placement="right"
-                        variant="secondary"
-                        noninteractive
-                        >Double click to change the concept name</b-tooltip
-                    >
-
-                    <div
-                        :id="createIdForInput(concept)"
-                        class="concept-inputGroup hide"
-                    >
-                        <b-form-input
-                            size="sm"
-                            type="text"
-                            v-model="neuConceptName"
-                            @keydown.enter="
-                                updateConcept(neuConceptName, concept)
-                            "
-                            @keydown.esc="closeInput(concept)"
-                        >
-                        </b-form-input>
-                        <div class="concept-inputGroups-buttons">
-                            <b-icon
-                                @click="closeInput(concept)"
-                                icon="x-square"
-                            ></b-icon>
-                            <b-icon
-                                @click="updateConcept(neuConceptName, concept)"
-                                icon="check-square"
-                            ></b-icon>
-                        </div>
+            <b-button
+                variant="warning"
+                class="tools-recommender"
+                @click="toggleRecommenderModal"
+            >
+                Recommender
+                <b-icon icon="person-lines-fill"></b-icon>
+            </b-button>
+            <b-button
+                class="tools-deleteMode"
+                variant="danger"
+                @click="toggleDeleteMode()"
+            >
+                Delete Mode
+                <b-icon
+                    v-if="isDeleteModeOn"
+                    icon="circle-fill"
+                    animation="throb"
+                    font-scale="1"
+                ></b-icon>
+            </b-button>
+            <b-modal
+                ref="recommender-modal"
+                class="recommender-modal"
+                hide-footer
+                hide-header
+            >
+                <div class="recommender-modal-container">
+                    <div class="recommender-modal-header">
+                        <h3>Recommender</h3>
                     </div>
-                </b-row>
+                    <div class="recommender-modal-content"></div>
 
+                    <p v-for="(concept, i) in concepts" :key="i">
+                        {{ concept.name }}
+                    </p>
+                    <div class="recommender-modal-footer">
+                        <b-button
+                            variant="danger"
+                            size="sm"
+                            block
+                            @click="toggleRecommenderModal"
+                            >Close Me</b-button
+                        >
+                    </div>
+                </div>
+            </b-modal>
+        </div>
+        <div class="conceptButtons" v-for="(concept, i) in concepts" :key="i">
+            <b-button
+                class="conceptButtons-deleteButton"
+                size="sm"
+                variant="danger"
+                @click="deleteConcept(concept)"
+            >
+                <b-icon icon="trash" aria-hidden="true"></b-icon>
+            </b-button>
+
+            <b-row class="concept">
                 <b-button
-                    :id="createIdForAddButton(concept)"
-                    class="conceptButtons-addButton"
+                    class="d-flex"
+                    :id="createIdForButton(concept)"
                     size="sm"
-                    variant="secondary"
+                    variant="primary"
+                    @dblclick="openInput(concept, $event)"
                 >
-                    <b-icon icon="box-arrow-right" aria-hidden="true"></b-icon>
+                    {{ concept.name }}
                 </b-button>
-                <!-- POPOVER START-->
-
-                <b-popover
-                    :target="createIdForAddButton(concept)"
-                    triggers="click"
-                    placement="auto"
-                    container="my-container"
-                    ref="popover"
-                    @show="onShow"
+                <b-tooltip
+                    :target="createIdForButton(concept)"
+                    placement="right"
+                    variant="secondary"
+                    noninteractive
+                    >Double click to change the concept name</b-tooltip
                 >
-                    <div class="popoverTitle">
-                        <span> <b> Add to concept map </b> </span>
+
+                <div
+                    :id="createIdForInput(concept)"
+                    class="concept-inputGroup hide"
+                >
+                    <b-form-input
+                        size="sm"
+                        type="text"
+                        v-model="neuConceptName"
+                        @keydown.enter="updateConcept(neuConceptName, concept)"
+                        @keydown.esc="closeInput(concept)"
+                    >
+                    </b-form-input>
+                    <div class="concept-inputGroups-buttons">
+                        <b-icon
+                            @click="closeInput(concept)"
+                            icon="x-square"
+                        ></b-icon>
+                        <b-icon
+                            @click="updateConcept(neuConceptName, concept)"
+                            icon="check-square"
+                        ></b-icon>
+                    </div>
+                </div>
+            </b-row>
+
+            <b-button
+                :id="createIdForAddButton(concept)"
+                class="conceptButtons-addButton"
+                size="sm"
+                variant="secondary"
+            >
+                <b-icon icon="box-arrow-right" aria-hidden="true"></b-icon>
+            </b-button>
+            <!-- POPOVER START-->
+
+            <b-popover
+                :target="createIdForAddButton(concept)"
+                triggers="click"
+                placement="auto"
+                container="my-container"
+                ref="popover"
+                @show="onShow"
+            >
+                <div class="popoverTitle">
+                    <span> <b> Add to concept map </b> </span>
+                    <b-button
+                        @click="closePopover(concept)"
+                        variant="secondary"
+                        size="sm"
+                        aria-label="Close"
+                    >
+                        <span>&times;</span>
+                    </b-button>
+                </div>
+
+                <div>
+                    <!-- User choose the concept to create link with -->
+                    <div v-if="!isEmpty">
+                        <b-form-group
+                            label="Concept"
+                            label-for="popover-input-2"
+                            label-cols="6"
+                            :state="input2state"
+                            class="mb-1"
+                            description="Concept to link with"
+                            invalid-feedback="This field is required"
+                        >
+                            <select
+                                id="popover-input-2"
+                                v-model="targetConcept"
+                            >
+                                <option value="" disabled selected hidden>
+                                    Choose Concept...
+                                </option>
+
+                                <option
+                                    v-for="(concept, i) in concepts"
+                                    :key="i"
+                                    :value="concept"
+                                >
+                                    {{ concept.name }}
+                                </option>
+                            </select>
+                        </b-form-group>
+
+                        <b-alert show class="small">
+                            <strong>New Label</strong><br />
+                            Source: <strong>{{ concept.name }}</strong
+                            ><br />
+                            Target:
+                            <strong>{{ targetConcept.name }}</strong>
+                        </b-alert>
+                    </div>
+                    <div v-if="isEmpty">
+                        <b-alert show class="small">
+                            <strong>There is no concept in map. </strong><br />
+                            First concept is:
+                            <strong>{{ concept.name }}</strong>
+                        </b-alert>
+                    </div>
+
+                    <div class="buttonGroupPopover">
                         <b-button
                             @click="closePopover(concept)"
-                            variant="secondary"
                             size="sm"
-                            aria-label="Close"
+                            variant="danger"
+                            >Cancel</b-button
                         >
-                            <span>&times;</span>
-                        </b-button>
+                        <b-button
+                            @click="
+                                addConceptToConceptMap(concept, targetConcept)
+                            "
+                            size="sm"
+                            variant="primary"
+                            >Ok</b-button
+                        >
                     </div>
-
-                    <div>
-                        <!-- User choose the concept to create link with -->
-                        <div v-if="!isEmpty">
-                            <b-form-group
-                                label="Concept"
-                                label-for="popover-input-2"
-                                label-cols="6"
-                                :state="input2state"
-                                class="mb-1"
-                                description="Concept to link with"
-                                invalid-feedback="This field is required"
-                            >
-                                <select
-                                    id="popover-input-2"
-                                    v-model="targetConcept"
-                                >
-                                    <option value="" disabled selected hidden>
-                                        Choose Concept...
-                                    </option>
-
-                                    <option
-                                        v-for="(concept, i) in concepts"
-                                        :key="i"
-                                        :value="concept"
-                                    >
-                                        {{ concept.name }}
-                                    </option>
-                                </select>
-                            </b-form-group>
-
-                            <b-alert show class="small">
-                                <strong>New Label</strong><br />
-                                Source: <strong>{{ concept.name }}</strong
-                                ><br />
-                                Target:
-                                <strong>{{ targetConcept.name }}</strong>
-                            </b-alert>
-                        </div>
-                        <div v-if="isEmpty">
-                            <b-alert show class="small">
-                                <strong>There is no concept in map. </strong
-                                ><br />
-                                First concept is:
-                                <strong>{{ concept.name }}</strong>
-                            </b-alert>
-                        </div>
-
-                        <div class="buttonGroupPopover">
-                            <b-button
-                                @click="closePopover(concept)"
-                                size="sm"
-                                variant="danger"
-                                >Cancel</b-button
-                            >
-                            <b-button
-                                @click="
-                                    addConceptToConceptMap(
-                                        concept,
-                                        targetConcept
-                                    )
-                                "
-                                size="sm"
-                                variant="primary"
-                                >Ok</b-button
-                            >
-                        </div>
-                    </div>
-                </b-popover>
-                <!-- POPOVER END-->
-            </div>
-        </b-col>
-        <b-col md="10" class="border pageContainer-mapContainer">
-            <ConceptMap />
-        </b-col>
-    </b-row>
+                </div>
+            </b-popover>
+            <!-- POPOVER END-->
+        </div>
+    </div>
 </template>
 <script>
 function toggleButtonInput(concept, e) {
@@ -261,8 +246,6 @@ function toggleButtonInput(concept, e) {
         myButton.classList.remove("hide");
     }
 }
-
-import ConceptMap from "@/components/ConceptMap.vue";
 
 import { mapGetters } from "vuex";
 
@@ -289,10 +272,6 @@ export default {
             // Popover datas, taken from bootstrap vue website
         };
     },
-    components: {
-        ConceptMap,
-    },
-
     computed: {
         // getter for concepts
         ...mapGetters({
@@ -539,20 +518,6 @@ export default {
 }
 /* Popover style end*/
 
-.pageContainer {
-    padding: 0.5rem;
-    margin: 0;
-}
-
-.pageContainer-sidebar {
-    display: flex;
-    justify-content: flex-start;
-    flex-direction: column;
-    height: 90vh;
-}
-.pageContainer-mapContainer {
-    height: 90vh;
-}
 /* Tools */
 .tools {
     display: flex;
@@ -652,5 +617,3 @@ export default {
     padding: 0.5rem 1rem;
 }
 </style>
-
-
