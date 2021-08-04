@@ -31,7 +31,9 @@
 
                     <div class="modal-buttons">
                         <b-button
-                            @click="removeConceptFromConceptMap(clickedNode)"
+                            @click="
+                                removeConceptFromConceptMap(clickedNode, links)
+                            "
                             variant="danger"
                             size="sm"
                         >
@@ -222,17 +224,26 @@ export default {
         removeConceptFromConceptMap(node) {
             // Removes the node that is send to the methode
             this.$store.dispatch("conceptMap/deleteNodeFromConceptMap", node);
-            // removes the link that associated with the node send.
-            this.$store
-                .dispatch("conceptMap/deleteLinkFromConceptMap2", node.id)
-                .then((response) => {
-                    console.log("burada geldi mi??");
-                    console.log(response);
+            // // removes the link that associated with the node send.
+            // this.$store.dispatch("conceptMap/deleteLink", node.id);
+            // // Find the link related with given node and delete them
+            let linkIds = [];
+            // console.log(this.$store.state);
+            let links = this.$store.state.conceptMap.links;
+            links.forEach((link) => {
+                link.sid == node.id || link.tid == node.id
+                    ? linkIds.push(link.id)
+                    : "";
+            });
+            console.log(linkIds);
+            if (linkIds.length > 0) {
+                linkIds.forEach((linkId) => {
                     this.$store.dispatch(
-                        "conceptMap/deleteLinkFromRelationships",
-                        node.id
+                        "conceptMap/deleteLinkFromConceptMap",
+                        linkId
                     );
                 });
+            }
         },
         // changes the color of the link when user click to it.
         // Can be removed....

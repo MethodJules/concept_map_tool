@@ -1,5 +1,3 @@
-import axios from '@/config/custom_axios';
-
 /**
  * Triggers loading bar. 
  * @param {*} state 
@@ -14,49 +12,28 @@ export const triggerLoading = (state) => {
 }
 
 /**
+ * Saves concept to state. 
+ * @param {*} state 
+ * @param {object} concepts concept to save. 
+ */
+ export const SAVE_CONCEPTS = (state, concepts) => {
+    state.concepts = concepts;
+}
+
+
+/**
  * Updates the name of the concept.
  * @param {*} state 
  * @param {object} payload includes concept as an object and new concept name as string 
  */
 export const UPDATE_CONCEPT = (state, payload) => {
-    // analyze and split the payload
-    let conceptToChange = payload.concept;
-    let neuConceptName = payload.neuConceptName;
-
-    let index = state.concepts.indexOf(conceptToChange);
-    let id = conceptToChange.id;
-
+    let index = state.concepts.indexOf(payload.concept);
     // State update
-    state.concepts[index].name = neuConceptName;
-
-    // Database Update
-    var data = `{"data":{"type":"node--concept", "id": "${id}", "attributes": {"title": "${neuConceptName}"}}}`;
-
-    var config = {
-        method: 'patch',
-        url: `concept/${id}`,
-        data: data
-    };
-
-    axios(config)
-        .then(function (response) {
-            console.log(response)
-            console.log("updated")
-        })
-        .catch(function (error) {
-            console.log(error)
-        })
+    state.concepts[index].name = payload.neuConceptName;  
 }
 
 
-/**
- * Saves concept to state. 
- * @param {*} state 
- * @param {object} concepts concept to save. 
- */
-export const SAVE_CONCEPTS = (state, concepts) => {
-    state.concepts = concepts;
-}
+
 
 /**
  * Saves concept name to database.
@@ -66,25 +43,8 @@ export const SAVE_CONCEPTS = (state, concepts) => {
  * @param {state} state  
  * @param {conceptName} conceptName to save database 
  */
-export const ADD_NEW_CONCEPT = (state, conceptName) => {
-    // Generating the proper format for database and sending it to database
-    var data = `{"data":{"type":"node--concept", "attributes": {"title": "${conceptName}"}}}`;
-    
-    var config = {
-        method: 'post',
-        url: 'concept',
-        data: data
-    };
-
-    axios(config)
-        .then(function (response) {
-            // it was not adding id to state. Thats why we were having problems when we delete the concept. 
-            state.concepts.push({ name: conceptName, id: response.data.data.id, nid: response.data.data.attributes.drupal_internal__nid });
-            console.log("HEre is the proof...")
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
+export const ADD_NEW_CONCEPT = (state, concept) => {
+    state.concepts.push(concept);
 }
 
 /**
