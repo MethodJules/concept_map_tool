@@ -66,12 +66,7 @@ const actions = {
                 data: data
             };
             axios(config)
-            .then(function (response) { 
-                console.log(response);    
-            })
-            .catch(function (error) {
-                console.log(error)
-            })
+         
             
         }
         
@@ -124,8 +119,8 @@ const actions = {
             data: data
         };
         axios(config)
-        .then(function (response) {
-            console.log(response);
+        .then(()=> {
+           
             // Delete relationship from relationships in db
             // We need to delete relationship from relationship table after we delete it from conceptmap
             // Thats why we make it here
@@ -145,8 +140,7 @@ const actions = {
                 data: data2
             };
             axios(config2)
-            .then(function (response) {
-                console.log(response);
+            .then(() => {
                 
                 // Check if there is a missing created and delete it.
                 var data = `{"data": [{
@@ -160,9 +154,8 @@ const actions = {
                     data: data
                 };
                 axios(config)
-                .then(function (response) {
+                .then(() => {
                     console.log("missing deleted")
-                    console.log(response);
                 })
                 .catch(function (error) {
                     console.log(error)
@@ -198,7 +191,7 @@ const actions = {
             data: data
         };
         axios(config)
-        .then(function (response) {
+        .then((response)=> {
             // we need to save the id of the relationship to the state.
             // We will use the id when we delete it. 
             // Now there is an id like "link-0" in state. We cannot delete relationship with this id. 
@@ -211,8 +204,6 @@ const actions = {
             state.links.forEach(link => {
                 if(link.name == relationship[0].name){
                     link.id = response.data.data.id;
-                    console.log("new id")
-                    console.log(response.data.data.id);
                 }
                 
             });
@@ -227,12 +218,7 @@ const actions = {
                 data: data       
             };
             axios(config)
-            .then(function (response) {
-                console.log(response);    
-            })
-            .catch(function (error) {
-                console.log(error)
-            })      
+                
         })
         .catch(function (error) {
             console.log(error)

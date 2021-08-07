@@ -7,10 +7,6 @@ const instance = axios.create({
     'Content-Type': 'application/vnd.api+json',
     'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
     },
-    // transformResponse: [function (data) {
-    //     // Do whatever you want to transform the data
-    //     return data;
-    //   }],
 })
 
 

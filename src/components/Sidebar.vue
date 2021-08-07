@@ -351,11 +351,32 @@ export default {
             this.conceptName = null;
         },
         /**
-         * Deletes the concept from both state and database
+         * Deletes the concept from both state and database.
+         * @param {object} concept concept to delete
          */
         deleteConcept(concept) {
             alert("Are you sure??");
-            this.$store.dispatch("deleteConcept", concept);
+            if (this.isConceptInMap(concept)) {
+                alert(
+                    "Diese Konzept ist in der Konzept Map, Bitte löschen Sie von der Konzept Map zuerst."
+                );
+            } else {
+                this.$store.dispatch("deleteConcept", concept);
+            }
+        },
+        /**
+         * Controls if the given concept is in concept map.
+         * @param {object} concept concept to control
+         */
+        isConceptInMap(concept) {
+            let inMap = false;
+            console.log(this.$store.state);
+            this.$store.state.conceptMap.nodes.forEach((node) => {
+                if (node.id == concept.id) {
+                    inMap = true;
+                }
+            });
+            return inMap;
         },
         /**
          * Updates the name of the concept.

@@ -168,7 +168,6 @@ export default {
             } else {
                 this.$root.$emit("bv::show::modal", "add-parent-modal");
                 this.clickedNode = node;
-                console.log(this.deleteMode);
             }
         },
         /**

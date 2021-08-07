@@ -31,10 +31,6 @@ export const UPDATE_CONCEPT = (state, payload) => {
     // State update
     state.concepts[index].name = payload.neuConceptName;  
 }
-
-
-
-
 /**
  * Saves concept name to database.
  * It takes the name of concept only. 
