@@ -3,15 +3,13 @@ import VueRouter from 'vue-router'
 
 Vue.use(VueRouter)
 
-import ConceptMapPage from "@/components/ConceptMapPage"
-import Comments from "@/components/Comments"
-import DailyScrum from "@/components/DailyScrum"
+import Home from "@/components/Home"
+import Login from "@/components/Login"
 
 const routes = [
-    { path: "/", component: ConceptMapPage },
-    { path: "/concept-map-page", component: ConceptMapPage },
-    { path: "/comments", component: Comments },
-    { path: "/daily-scrum", component: DailyScrum },
+    { path: "/", component: Home },
+    { path: "/concept-map-page", component: Home },
+    { path: "/login", component: Login },
     { path: "*", redirect: "/" }
 
 

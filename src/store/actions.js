@@ -1,15 +1,18 @@
-import axios from 'axios'
+import axios from '@/config/custom_axios'
 
-
-// Loading bar 
-
+/**
+ * Triggers loading bar.
+ * @param {*} commit 
+ */
 export const triggerLoading = ({ commit }) => {
-
     commit("triggerLoading")
-
 }
 
-// Concept List Actions 
+    // setter for delete mode
+export const toggleDeleteMode = ({state}) => {
+        state.deleteMode = !state.deleteMode;
+    }
+
 
 /**
  * Loads the concepts from database and send them to mutation with commit. 
@@ -17,7 +20,7 @@ export const triggerLoading = ({ commit }) => {
  *  
  */
 export const loadConceptListFromDb = ({ commit }) => {
-    axios.get('https://clr-backend.x-navi.de/jsonapi/node/concept')
+    axios.get('concept')
         .then((response) => {
             const data = response.data.data;
             let concepts = [];
@@ -30,12 +33,29 @@ export const loadConceptListFromDb = ({ commit }) => {
         });
 }
 /**
- * 
+ * Commits to add concepts to the database. 
  * @param {commit}  
  * @param {conceptName} the concept name that we send in order to save to database 
  */
 export const addConceptToDb = ({ commit }, conceptName) => {
-    commit("ADD_NEW_CONCEPT", conceptName);
+    
+    var data = `{"data":{
+        "type":"node--concept",
+        "attributes": {"title": "${conceptName}"}}}`;
+    
+    var config = {
+        method: 'post',
+        url: 'concept',
+        data: data
+    };
+
+    axios(config)
+        .then(function (response) {
+            commit("ADD_NEW_CONCEPT", { name: conceptName, id: response.data.data.id, nid: response.data.data.attributes.drupal_internal__nid });
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
 }
 
 /**
@@ -47,41 +67,26 @@ export const deleteConcept = ({ commit }, concept) => {
     // Deletes it from database
     var config = {
         method: 'delete',
-        url: `https://clr-backend.x-navi.de/jsonapi/node/concept/${concept.id}`,
-        headers: {
-            'Accept': 'application/vnd.api+json',
-            'Content-Type': 'application/vnd.api+json',
-            'Authorization': 'Basic YWRtaW46cGFzc3dvcmQ='
-        },
+        url: `concept/${concept.id}`,
     };
     axios(config)
-    // ACTIVATE THESE LINES in order to understand what is going on with axios and look at the console. 
-    //     .then((response) => {
-    //         console.log(response);
-    //     }).catch(function (error) {
-    //         console.log(error);
-    //     });
-
-    // Triggers mutation
+    // send it to mutation to save it in state
     commit('DELETE_CONCEPT', concept);
 }
-
+/**
+ * Commits to update the name of the concept.
+ * @param {*} commit 
+ * @param {object} payload includes concept as an object and new concept name as string 
+ */
 export const updateConcept = ({ commit }, payload) => {
     commit("UPDATE_CONCEPT", payload);
+    var data = `{"data":{"type":"node--concept", "id": "${payload.concept.id}", "attributes": {"title": "${payload.neuConceptName}"}}}`;
 
-}
-
-// Concept Map Actions
-
-
-export const getConceptsFromDB = () => {
-    axios.get('https://clr-backend.x-navi.de/jsonapi/node/concept_map')
-        .then((response) => {
-
-            const data = response.data.data;
-            console.log(data);
-        }).catch(error => {
-            throw new Error(`API ${error}`);
-        });
+    var config = {
+        method: 'patch',
+        url: `concept/${payload.concept.id}`,
+        data: data
+    };
+    axios(config)
 
 }

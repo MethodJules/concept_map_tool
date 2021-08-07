@@ -1,7 +1,5 @@
 import Vue from "vue"
 import Vuex from "vuex"
-import comments from "./modules/comments"
-import dailyScrum from "./modules/dailyScrum"
 import conceptMap from "./modules/conceptMap"
 import * as getters from "./getters"
 import * as mutations from "./mutations"
@@ -17,6 +15,7 @@ export default new Vuex.Store({
         },
         concepts: [],
         buttonClicked: false,
+        deleteMode: false,
 
 
 
@@ -25,8 +24,6 @@ export default new Vuex.Store({
     mutations,
     actions,
     modules: {
-        comments,
-        dailyScrum,
         conceptMap,
 
     }
