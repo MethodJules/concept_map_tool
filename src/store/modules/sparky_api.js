@@ -62,7 +62,6 @@ const actions = {
                 if (user.attributes.field_sparky_id == state.sparkyUserID) {
                     state.drupalUserID = user.id
                     state.drupalUserObject = user
-                    dispatch("project/loadProjectsFromBackend", null, { root: true })
                     state.validCredential = true
                 }
             }

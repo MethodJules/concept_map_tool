@@ -1,26 +1,32 @@
 <template>
     <b-navbar toggleable="lg" type="dark" variant="primary" class="menu">
         <b-navbar-brand to="/"> Concept Mapping Tool</b-navbar-brand>
-
-        <!-- <div class="menu-items">
-            <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-
-            <b-collapse id="nav-collapse" is-nav>
-                <b-navbar-nav>
-                    <b-nav-item to="/concept-map">Concept Map</b-nav-item>
-                </b-navbar-nav>
-            </b-collapse> 
-        </div> -->
+        <!-- <b-navbar-brand to="/login"> Login</b-navbar-brand> -->
+        <b-navbar-brand>
+            <b-icon @click="logout()" icon="box-arrow-right"></b-icon>
+        </b-navbar-brand>
     </b-navbar>
 </template>
 <script>
-export default {};
+export default {
+    methods: {
+        logout() {
+            this.$store.dispatch("drupal_api/logoutDrupal");
+        },
+    },
+};
 </script>
 <style scoped>
+.logoutButton {
+    color: white;
+    background-color: #3949b3;
+    border: none;
+}
+
 .menu {
     background-color: #3949b3 !important;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     padding: 1rem 4rem;
     height: 8vh;
 }
@@ -68,5 +74,6 @@ export default {};
 .menu-items ul li a:hover {
     color: rgb(250, 250, 250) !important;
 }
+
 /* END!! Menu items style is useless now. But I am keeping it in case we use them later or another page */
 </style>

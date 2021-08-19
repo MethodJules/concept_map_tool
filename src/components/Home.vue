@@ -2,6 +2,7 @@
     <b-row class="pageContainer">
         <b-col md="2" class="pageContainer-sidebar">
             <Sidebar />
+            test
         </b-col>
         <b-col md="10" class="border pageContainer-mapContainer">
             <ConceptMap />

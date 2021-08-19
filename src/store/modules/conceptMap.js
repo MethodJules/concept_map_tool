@@ -33,7 +33,7 @@ const getters = {
     },
 }
 
-const actions = {
+const actions = { 
     
     /**
     * Saves concept to the concept map in database 
@@ -66,7 +66,7 @@ const actions = {
                 data: data
             };
             axios(config)
-         
+            
             
         }
         
@@ -106,6 +106,24 @@ const actions = {
     deleteLinkFromConceptMap({commit}, linkId){
         // state delete
         commit("DELETE_LINK_FROM_STATE", linkId);
+
+        // To make it seperate
+        // var data = `{"data": [{
+        //     "type": "node--relationship",
+        //     "id": "${linkId}"             
+        // }]}`;
+        // var config = {
+        //     method: 'delete',
+        //     url: `concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships`,
+            
+        //     data: data
+        // };
+        // axios(config).then(()=>{
+        //     dispatch("deleteLinkFromRelationsTable", linkId);
+        // })
+       
+
+
         
         // Delete relationship from Concept map in database
         var data = `{"data": [{
@@ -120,7 +138,7 @@ const actions = {
         };
         axios(config)
         .then(()=> {
-           
+            
             // Delete relationship from relationships in db
             // We need to delete relationship from relationship table after we delete it from conceptmap
             // Thats why we make it here
@@ -171,6 +189,23 @@ const actions = {
         })
         
     },
+
+    deleteLinkFromRelationsTable(linkId){
+        console.log("Link ID === ????")
+        console.log(linkId);
+        var data2 = `{"data": [{
+            "type": "node--relationship",
+            "id": "${linkId}" 
+            
+        }]}`;
+        var config2 = {
+            method: 'delete',
+            url: `relationship/${linkId}`,
+            
+            data: data2
+        };
+        axios(config2)
+    },
     
     /**
     * commits to add links to the concept map.
@@ -218,7 +253,7 @@ const actions = {
                 data: data       
             };
             axios(config)
-                
+            
         })
         .catch(function (error) {
             console.log(error)

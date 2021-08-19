@@ -68,7 +68,7 @@
                                 <td>
                                     <input
                                         v-model="zugangsKennung"
-                                        id="zugangskennung"
+                                        id="zugangskennung2"
                                         type="text"
                                         placeholder=""
                                         class="form-control"
@@ -82,7 +82,7 @@
                                 <td>
                                     <input
                                         v-model="passwort"
-                                        id="password"
+                                        id="password2"
                                         type="password"
                                         placeholder=""
                                         class="form-control"
@@ -102,11 +102,79 @@
 <script>
 export default {
     data() {
-        return {};
+        return {
+            zugangsKennung: "",
+            passwort: "",
+            registrierungsKennung: "",
+            registrierungsPasswort: "",
+            matrikelnummer: "",
+        };
+    },
+    computed: {
+        account() {
+            return this.$store.state.sparky_api.account;
+        },
+
+        validCredential() {
+            // return true;
+            // return this.$store.state.sparky_api.validCredential;
+            // When we login, it breaks the z-circle at the main page.
+            // Zircle is hidden when we double click outside of the zcircle
+
+            return this.$store.state.drupal_api.validCredential;
+        },
     },
     methods: {
+        registrieren() {
+            this.$store.dispatch("sparky_api/registrate", {
+                username: this.registrierungsKennung,
+                password: this.registrierungsPasswort,
+                matrikelnummer: this.matrikelnummer,
+            });
+
+            //remove so username and password arent saved after login
+            this.registrierungsKennung = "";
+            this.registrierungsPasswort = "";
+            this.matrikelnummer = "";
+        },
+
+        generatePassword(username) {
+            const crypto = require("crypto");
+            const md5sum = crypto.createHash("md5");
+            let str = username;
+            const res = md5sum.update(str).digest("hex");
+            console.log(res);
+            return res;
+        },
         login() {
-            alert();
+            let username = this.zugangsKennung;
+            let password = this.passwort;
+            // wenn das hier genutzt wird -> password wird aus namen generiert - die "richtige" anmeldung des nutzers erfolgt beim sparky backend mit rz kennung
+            //password=this.generatePassword(username)
+            let authorization_token = this.encodeBasicAuth(username, password);
+            this.$store
+                .dispatch("drupal_api/loginToDrupal", {
+                    username,
+                    password,
+                })
+                .then(() => {
+                    this.$router.push("concept-map-page");
+                });
+            this.$store.dispatch(
+                "drupal_api/saveBasicAuth",
+                authorization_token
+            );
+
+            //remove so username and password arent saved after login
+            this.username = "";
+            this.password = "";
+            return authorization_token;
+        },
+
+        encodeBasicAuth(user, password) {
+            var creds = user + ":" + password;
+            var base64 = btoa(creds);
+            return "Basic " + base64;
         },
     },
 };

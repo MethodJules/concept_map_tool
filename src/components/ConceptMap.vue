@@ -237,6 +237,8 @@ export default {
             console.log(linkIds);
             if (linkIds.length > 0) {
                 linkIds.forEach((linkId) => {
+                    console.log("link send");
+                    console.log(linkId);
                     this.$store.dispatch(
                         "conceptMap/deleteLinkFromConceptMap",
                         linkId
