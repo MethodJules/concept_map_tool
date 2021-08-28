@@ -63,13 +63,32 @@
                 </div>
             </div>
         </b-modal>
-        <d3-network
-            :net-nodes="nodes"
-            :net-links="links"
-            :options="options"
-            @node-click="showModal"
-            @link-click="changeColor"
-        />
+        <div>
+            <div class="radioButtons">
+                <div v-for="(conceptMap, i) in conceptMaps" :key="i">
+                    <input
+                        type="radio"
+                        class="btn-check"
+                        name="options"
+                        checked
+                        :id="i"
+                        autocomplete="off"
+                        @click="conceptMapSelect(conceptMap, i)"
+                    />
+                    <label class="btn btn-outline-primary btn-sm" :for="i">
+                        {{ conceptMap.title }}</label
+                    >
+                </div>
+            </div>
+
+            <d3-network
+                :net-nodes="conceptMaps[index].nodes"
+                :net-links="conceptMaps[index].links"
+                :options="options"
+                @node-click="showModal"
+                @link-click="changeColor"
+            />
+        </div>
     </div>
 </template>
 <script>
@@ -108,7 +127,10 @@ export default {
             nodes: "conceptMap/getNodes",
             deleteMode: "getDeleteMode",
             concepts: "getConcepts",
+            conceptMaps: "conceptMap/getConceptMaps",
+            index: "conceptMap/getIndex",
         }),
+
         /**
          * It controls if option or input is full or not.
          * We need this info in order to prevent sending an unfilled form
@@ -155,6 +177,11 @@ export default {
         },
     },
     methods: {
+        conceptMapSelect(conceptMap, index) {
+            this.$store.state.conceptMap.index = index;
+            this.$store.state.conceptMap.aktive_concept_map = conceptMap;
+        },
+
         /**
          * Show Modal.
          * @param node The node that user clicked
@@ -192,6 +219,7 @@ export default {
          */
         addConceptToConceptMap(sourceConcept, targetConcept) {
             let relationship = [];
+
             // We need to add the ids of the source and target concept to relationship array.
             relationship.push({
                 name: sourceConcept.name + " -&- " + targetConcept.name,
@@ -199,20 +227,17 @@ export default {
                 sid: sourceConcept.id,
             });
             // We need to send the relationship as an array
-            this.$store.dispatch(
-                "conceptMap/addRelationshipToDatabase",
-                relationship
-            );
+            this.$store.dispatch("conceptMap/addRelationshipToDatabase", {
+                relationship: relationship,
+            });
             // We need to send the source concept as an object to this methode
-            this.$store.dispatch(
-                "conceptMap/addConceptToConceptMap",
-                sourceConcept
-            );
+            this.$store.dispatch("conceptMap/addConceptToConceptMap", {
+                concept: sourceConcept,
+            });
             // we need to send target concept as an object to this methode
-            this.$store.dispatch(
-                "conceptMap/addConceptToConceptMap",
-                targetConcept
-            );
+            this.$store.dispatch("conceptMap/addConceptToConceptMap", {
+                concept: targetConcept,
+            });
         },
         /**
          * Remove Concept From Concept Map.
@@ -222,13 +247,18 @@ export default {
          */
         removeConceptFromConceptMap(node) {
             // Removes the node that is send to the methode
-            this.$store.dispatch("conceptMap/deleteNodeFromConceptMap", node);
-            // // removes the link that associated with the node send.
-            // this.$store.dispatch("conceptMap/deleteLink", node.id);
-            // // Find the link related with given node and delete them
+            this.$store.dispatch("conceptMap/deleteNodeFromConceptMap", {
+                node: node,
+            });
+            // removes the link that associated with the node send.
+            // Find the link related with given node and delete them
             let linkIds = [];
-            // console.log(this.$store.state);
-            let links = this.$store.state.conceptMap.links;
+            console.log(this.$store.state);
+            let links =
+                this.$store.state.conceptMap.concept_maps[
+                    this.$store.state.conceptMap.index
+                ].links;
+
             links.forEach((link) => {
                 link.sid == node.id || link.tid == node.id
                     ? linkIds.push(link.id)
@@ -241,7 +271,9 @@ export default {
                     console.log(linkId);
                     this.$store.dispatch(
                         "conceptMap/deleteLinkFromConceptMap",
-                        linkId
+                        {
+                            linkId: linkId,
+                        }
                     );
                 });
             }
@@ -258,6 +290,15 @@ export default {
 };
 </script>
 <style scoped >
+.radioButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+.radioButtons * {
+    margin-left: 0.5rem;
+}
+
 .modal-container {
     display: flex;
     flex-direction: column;

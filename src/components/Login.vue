@@ -177,6 +177,9 @@ export default {
             return "Basic " + base64;
         },
     },
+    // mounted() {
+    //     this.$store.dispatch("drupal_api/loadTokensfromSessionStorage");
+    // },
 };
 </script>
 <style scoped>

@@ -99,11 +99,11 @@ const actions= {
             throw new Error(`API ${error}`);
         });          
     },
- /**
+    /**
     * Connects to the Drupal Backend and request a login
     * The Backend will give csrf_token a logout token and a current_user object
     */
-    async loginToDrupal({commit, rootState},{username, password}) {
+    async loginToDrupal({commit, rootState, dispatch},{username, password}) {
         //authenticate with sparky_api at sparky backend is commented out for development purposes. thus testaccounts can be used without the need of real user data
         //TODO: uncomment sparky_api/authenticate to authenticate real users when development is finished 
         //await dispatch("sparky_api/authenticate", { username, password }, { root: true })
@@ -124,16 +124,49 @@ const actions= {
         .then((response) => {
             console.log(rootState.sparky_api.sparkylogin)
             commit('SAVE_LOGIN_USER', response.data); 
-            //console.log(response.data.csrf_token);
-            //console.log(response.data.current_user);
-            //console.log(response.data.logout_token);   
+            // I need to take users concept map id from here. 
+            // Todo: Save users concept map id to the state      
+            dispatch('loadUserFromBackend');           
         })
         .catch((error) => {
             console.log(error)
         });
     },
-    
-    
+
+    async loadUserFromBackend({ commit, rootState }) {
+        var config = {
+            method: 'get',
+            url: `https://clr-backend.x-navi.de/jsonapi/user/user?filter[drupal_internal__uid]=${rootState.drupal_api.user.uid}`,
+            headers: {
+                'Accept': 'application/vnd.api+json',
+                'Content-Type': 'application/vnd.api+json',
+                'Authorization': rootState.drupal_api.authToken,
+                'X-CSRF-Token': `${rootState.drupal_api.csrf_token}`
+            },
+        };
+
+        axios(config)
+            .then(function (response) {
+                // We need for now only concept map id, but I am saving the other values in case we use them later. 
+                let user = {
+                     name : response.data.data.[0].attributes.name,
+                     mail : response.data.data.[0].attributes.mail,
+                     concept_map_id	:  response.data.data.[0].attributes.field_concept_map_id,
+                     fullname : response.data.data.[0].attributes.field_fullname,
+                     matrikelnummer : response.data.data.[0].attributes.field_matrikelnummer,
+                }
+                console.table(user)
+                commit('SAVE_USER', user );
+            })
+            .catch(function (error) {
+                console.log(error)
+            })
+
+
+    },
+
+
+
     /**
     * Connects to the Drupal Backend and request a login
     * The Backend will give csrf_token a logout token and a current_user object
@@ -143,6 +176,7 @@ const actions= {
         console.log(rootState.drupal_api.logout_token)
         console.log(state.logout_token)
         console.log(rootState.drupal_api.authToken)
+        console.log(rootState)
         const config = {
             method: 'post',
             url: `https://clr-backend.x-navi.de/user/logout?_format=json&token=${rootState.drupal_api.logout_token}`,
@@ -208,14 +242,12 @@ const mutations ={
     * @param {*} token 
     */
     SAVE_LOGIN_USER(state, login_data) {
+        console.log("login_data")
+        console.log(login_data)
         state.csrf_token = login_data.csrf_token;
         state.user = login_data.current_user;
         state.logout_token = login_data.logout_token;
-        console.log(state.csrf_token)
-        console.log(state.user)
-        console.log(state.logout_token)
         state.validCredential=true;
-        console.log(state.validCredential)
         
     },
     
@@ -224,7 +256,13 @@ const mutations ={
         state.validCredential=false;
         
     },
-    
+    SAVE_USER(state, user){
+        state.user.mail = user.mail;
+        state.user.matrikelnummer = user.matrikelnummer;
+        state.user.mail = user.mail;
+        state.user.concept_map_id = user.concept_map_id;
+        state.user.fullname = user.fullname;
+    }
 }
 
 

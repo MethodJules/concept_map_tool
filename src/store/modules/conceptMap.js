@@ -2,7 +2,10 @@ import axios from "@/config/custom_axios";
 
 const state = () => ({
     nodes: [], // stores the nodes of concept map
-    links: [], // stores the links of concept map
+    // links: [], // stores the links of concept map
+    concept_maps:[],
+    aktive_concept_map : "",
+    index : 0
     
 })
 
@@ -28,9 +31,18 @@ const getters = {
     */
     getIsConceptMapEmpty(state){
         let result = false;
-        (state.nodes.length == 0) ? result =  true : result = false; 
+        (state.aktive_concept_map.nodes.length == 0) ? result =  true : result = false; 
         return result;
     },
+
+    // TODO concept map için getter yaz. bunları concept map vue de kullanarak her bir cp yi ayrı ayrı yazdır. 
+    getConceptMaps(state){
+        return state.concept_maps;
+    },
+    getIndex(state){
+        return state.index;
+    }
+
 }
 
 const actions = { 
@@ -40,11 +52,15 @@ const actions = {
     * commits to save concepts to the concept map in state.
     * @param {object} concept the concept that will be added to concept map 
     */
-    addConceptToConceptMap({commit, state}, concept) {
+    addConceptToConceptMap({commit, state}, payload) {
+        let id = state.aktive_concept_map.id;
+        let concept = payload.concept;
+        
         // We need to control if our concept is already in the map. 
         // Thats why We need the variables below
-        let nodesInMap = state.nodes; 
+        let nodesInMap = state.aktive_concept_map.nodes; 
         let isMapConsist = false;
+        console.log(nodesInMap);
         // If our concept is in map, this loop returns isMapConsist true
         nodesInMap.forEach(node => {
             if(node.id == concept.id) isMapConsist = true;
@@ -52,7 +68,7 @@ const actions = {
         // If concept is not in the concept map, we are adding it to the concept map. 
         if(!isMapConsist){
             // send it to mutations to save to the state
-            commit('ADD_CONCEPT_TO_CONCEPT_MAP', concept);
+            commit('ADD_CONCEPT_TO_CONCEPT_MAP', payload);
             // save to db
             // It is now working. We send the concept to the conept map. 
             var data = `{"data": [{
@@ -61,12 +77,17 @@ const actions = {
             }]}`;
             var config = {
                 method: 'post',
-                url: 'concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_concepts',
+                url: `concept_map/${id}/relationships/field_conceptmap_concepts`,
                 
                 data: data
             };
             axios(config)
-            
+            .then((response)=>{
+                console.log(response);
+            })
+            .catch((error) => {
+                console.log(error)
+            })
             
         }
         
@@ -77,16 +98,16 @@ const actions = {
     * @param {object} node the node that will be deleted from concept map. 
     * 
     */
-    deleteNodeFromConceptMap({commit}, node){
-        commit('DELETE_NODE_FROM_CONCEPT_MAP', node);
+    deleteNodeFromConceptMap({commit, state}, payload){
+        commit('DELETE_NODE_FROM_CONCEPT_MAP', payload);
         // Deleting node from concept map in database
         var data = `{"data": [{
             "type": "node--concept", 
-            "id": "${node.id}"
+            "id": "${payload.node.id}"
         }]}`;
         var config = {
             method: 'delete',
-            url: 'concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_concepts',
+            url: `concept_map/${state.aktive_concept_map.id}/relationships/field_conceptmap_concepts`,
             data: data
         };
         axios(config)        
@@ -103,9 +124,9 @@ const actions = {
     * So as a solution the function checks at the end if they are created and delete them immediately.
     * @param {string} linkId the id of the link that we are going to delete 
     */
-    deleteLinkFromConceptMap({commit}, linkId){
+    deleteLinkFromConceptMap({commit, state}, payload){
         // state delete
-        commit("DELETE_LINK_FROM_STATE", linkId);
+        commit("DELETE_LINK_FROM_STATE", payload);
 
         // To make it seperate
         // var data = `{"data": [{
@@ -128,7 +149,7 @@ const actions = {
         // Delete relationship from Concept map in database
         var data = `{"data": [{
             "type": "node--relationship",
-            "id": "${linkId}"             
+            "id": "${payload.linkId}"             
         }]}`;
         var config = {
             method: 'delete',
@@ -148,12 +169,12 @@ const actions = {
             // If we could make it here in order. Then we would be released so much work.  
             var data2 = `{"data": [{
                 "type": "node--relationship",
-                "id": "${linkId}" 
+                "id": "${payload.linkId}" 
                 
             }]}`;
             var config2 = {
                 method: 'delete',
-                url: `relationship/${linkId}`,
+                url: `relationship/${payload.linkId}`,
                 
                 data: data2
             };
@@ -167,7 +188,7 @@ const actions = {
                 }]}`;
                 var config = {
                     method: 'delete',
-                    url: `concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships`,
+                    url: `concept_map/${state.aktive_concept_map.id}/relationships/field_conceptmap_relationships`,
                     
                     data: data
                 };
@@ -211,14 +232,14 @@ const actions = {
     * commits to add links to the concept map.
     * @param {array} relationship the link that will be added to the concept map 
     */
-    addRelationshipToDatabase({commit, state}, relationship) {
+    addRelationshipToDatabase({commit, state}, payload) {
         // send it to state
-        commit('ADD_RELATIONSHIP_TO_STATE', relationship)
+        commit('ADD_RELATIONSHIP_TO_STATE', payload)
         var data = `{"data":{
             "type": "node--relationship", 
-            "attributes":{"title": "${relationship[0].name}", 
-            "field_sid": "${relationship[0].sid}", 
-            "field_tid": "${relationship[0].tid}" 
+            "attributes":{"title": "${payload.relationship[0].name}", 
+            "field_sid": "${payload.relationship[0].sid}", 
+            "field_tid": "${payload.relationship[0].tid}" 
         }}}`;
         var config = {
             method: 'post',
@@ -236,8 +257,8 @@ const actions = {
             // commit('ADD_RELATIONSHIP_TO_DATABASE', relationship, response.data.data.id);
             let newRelationId = response.data.data.id;
             // update the id of the link in state
-            state.links.forEach(link => {
-                if(link.name == relationship[0].name){
+            state.concept_maps[state.index].links.forEach(link => {
+                if(link.name == payload.relationship[0].name){
                     link.id = response.data.data.id;
                 }
                 
@@ -249,7 +270,7 @@ const actions = {
             }]}`;
             var config = {
                 method: 'post',
-                url: 'concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships',
+                url: `concept_map/${state.aktive_concept_map.id}/relationships/field_conceptmap_relationships`,
                 data: data       
             };
             axios(config)
@@ -268,7 +289,9 @@ const actions = {
         await axios.get('concept_map')
         .then((response) => {           
             const data = response.data.data;
-            commit('INITIALIZE_CONCEPT_MAP', data);
+            data.forEach(element => {
+                commit('INITIALIZE_CONCEPT_MAP', element);
+            })
         }).catch(error => {
             throw new Error(`API ${error}`);
         });
@@ -283,9 +306,15 @@ const mutations = {
     * @param {*} state 
     * @param {object} concept concept to add concept map 
     */
-    ADD_CONCEPT_TO_CONCEPT_MAP(state, concept) {  
+    ADD_CONCEPT_TO_CONCEPT_MAP(state, payload) {  
         // Adding concept to the state  
-        state.nodes.push({
+        let concept = payload.concept;
+        let index = state.index;
+        console.log(state.concept_maps)
+        console.log(concept)
+        console.log(index)
+        console.log(state.concept_maps[index])
+        state.concept_maps[index].nodes.push({
             id: concept.id,
             name: concept.name,
             uuid: concept.id,        
@@ -299,12 +328,12 @@ const mutations = {
     * @param {*} state 
     * @param {array} relationship the relationship that will be added to concept map. 
     */
-    ADD_RELATIONSHIP_TO_STATE(state, relationship) {  
-        state.links.push({
-            sid: relationship[0].sid,
-            tid: relationship[0].tid,
+    ADD_RELATIONSHIP_TO_STATE(state, payload) {  
+        state.concept_maps[state.index].links.push({
+            sid: payload.relationship[0].sid,
+            tid: payload.relationship[0].tid,
             _color: '#FFFFFF', 
-            name: relationship[0].name,
+            name: payload.relationship[0].name,
         })       
     },
     
@@ -314,10 +343,13 @@ const mutations = {
     * @param {*} state 
     * @param {object} node the node that will be deleted from concept map 
     */
-    DELETE_NODE_FROM_CONCEPT_MAP(state, node){
+    DELETE_NODE_FROM_CONCEPT_MAP(state, payload){
         // delete node in state
-        let index = state.nodes.indexOf(node);
-        state.nodes.splice(index, 1);
+        console.log(payload);
+        console.log(state);
+        let indexOfNode = state.concept_maps[state.index].nodes.indexOf(payload.node);
+        console.log(indexOfNode);
+        state.concept_maps[state.index].nodes.splice(indexOfNode, 1);
         
     },
     /**
@@ -327,12 +359,12 @@ const mutations = {
     *  
     */
     
-    DELETE_LINK_FROM_STATE(state, id){
+    DELETE_LINK_FROM_STATE(state, payload){
         // Delete relationship from state
-        state.links.forEach(link => {     
-            if(link.id == id){
+        state.concept_maps[state.index].links.forEach(link => {     
+            if(link.id == payload.linkId){
                 // Delete from state
-                state.links.splice(state.links.indexOf(link), 1); 
+                state.concept_maps[state.index].links.splice(state.concept_maps[state.index].links.indexOf(link), 1); 
             }            
         });        
     },
@@ -347,33 +379,41 @@ const mutations = {
         //TODO: Hier kode rein
         //state.nodes = concept_map.nodes; //TODO: Verlinkung
         //state.links = concept_map.relationships;//TODO: Verlinkung
+        let nodes=[];
+        let links = [];
         
-        concept_map.forEach(element => {
-            const concepts = element.relationships.field_conceptmap_concepts.data;
-            const relationships = element.relationships.field_conceptmap_relationships.data;         
-            concepts.forEach(element => {
-                axios.get(`concept/${element.id}`)
-                .then((response) => {
-                    const title = response.data.data.attributes.title;
-                    const uuid = response.data.data.id;
-                    state.nodes.push({id: uuid, name: title, uuid: uuid});
-                })
-                
-            });
-            
-            relationships.forEach(relationship => {
-                axios.get(`relationship/${relationship.id}`)
-                .then((response) => {
-                    const label = response.data.data.attributes.title;
-                    const id = response.data.data.id;
-                    const sid = response.data.data.attributes.field_sid;
-                    const tid = response.data.data.attributes.field_tid;
-                    state.links.push({ id: id, sid: sid, tid: tid, _color: '#c93e37', name: label})
-                })
+        const id = concept_map.id;
+        const concepts = concept_map.relationships.field_conceptmap_concepts.data;
+        const relationships = concept_map.relationships.field_conceptmap_relationships.data;
+        const concept_map_title = concept_map.attributes.title;
+        
+        concepts.forEach(element => {
+            axios.get(`concept/${element.id}`)
+            .then((response) => {
+                const title = response.data.data.attributes.title;
+                const uuid = response.data.data.id;
+                state.nodes.push({id: uuid, name: title, uuid: uuid});
+                nodes.push({id: uuid, name: title, uuid: uuid});
             })
             
-            
         });
+        
+        relationships.forEach(relationship => {
+            axios.get(`relationship/${relationship.id}`)
+            .then((response) => {
+                const label = response.data.data.attributes.title;
+                const id = response.data.data.id;
+                const sid = response.data.data.attributes.field_sid;
+                const tid = response.data.data.attributes.field_tid;
+                // state.links.push({ id: id, sid: sid, tid: tid, _color: '#c93e37', name: label})
+                links.push({ id: id, sid: sid, tid: tid, _color: '#c93e37', name: label})
+            })
+        })
+        state.concept_maps.push({id: id, title:concept_map_title, nodes:nodes, links:links})
+     
+        state.aktive_concept_map = state.concept_maps[0];
+
+      
     }
     
 }

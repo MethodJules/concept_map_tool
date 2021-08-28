@@ -356,9 +356,10 @@ export default {
          */
         deleteConcept(concept) {
             alert("Are you sure??");
-            if (this.isConceptInMap(concept)) {
+            let data = this.isConceptInMap(concept);
+            if (data.inMap) {
                 alert(
-                    "Diese Konzept ist in der Konzept Map, Bitte löschen Sie von der Konzept Map zuerst."
+                    `Diese Konzept ist in ${data.consistingMapName}, Bitte löschen Sie von der Konzept Map zuerst.`
                 );
             } else {
                 this.$store.dispatch("deleteConcept", concept);
@@ -370,13 +371,23 @@ export default {
          */
         isConceptInMap(concept) {
             let inMap = false;
-            console.log(this.$store.state);
-            this.$store.state.conceptMap.nodes.forEach((node) => {
-                if (node.id == concept.id) {
-                    inMap = true;
-                }
+            let consistingMapName;
+            this.$store.state.conceptMap.concept_maps.forEach((conceptMap) => {
+                conceptMap.nodes.forEach((node) => {
+                    if (node.id == concept.id) {
+                        inMap = true;
+                        consistingMapName = conceptMap.title;
+                    }
+                });
             });
-            return inMap;
+            // this.$store.state.conceptMap.aktive_concept_map.nodes.forEach(
+            //     (node) => {
+            //         if (node.id == concept.id) {
+            //             inMap = true;
+            //         }
+            //     }
+            // );
+            return { inMap: inMap, consistingMapName: consistingMapName };
         },
         /**
          * Updates the name of the concept.
@@ -404,32 +415,28 @@ export default {
             // We need to add the ids of the source and target concept to relationship array.
 
             if (this.isEmpty) {
-                this.$store.dispatch(
-                    "conceptMap/addConceptToConceptMap",
-                    sourceConcept
-                );
+                this.$store.dispatch("conceptMap/addConceptToConceptMap", {
+                    concept: sourceConcept,
+                });
             } else {
                 relationship.push({
                     name: sourceConcept.name + " -&- " + targetConcept.name,
                     tid: targetConcept.id,
                     sid: sourceConcept.id,
                 }); // We need to send the relationship as an array
-                this.$store.dispatch(
-                    "conceptMap/addRelationshipToDatabase",
-                    relationship
-                );
+                this.$store.dispatch("conceptMap/addRelationshipToDatabase", {
+                    relationship: relationship,
+                });
 
                 // We need to send the source concept as an object to this methode
-                this.$store.dispatch(
-                    "conceptMap/addConceptToConceptMap",
-                    sourceConcept
-                );
+                this.$store.dispatch("conceptMap/addConceptToConceptMap", {
+                    concept: sourceConcept,
+                });
                 // we need to send target concept as an object to this methode
 
-                this.$store.dispatch(
-                    "conceptMap/addConceptToConceptMap",
-                    targetConcept
-                );
+                this.$store.dispatch("conceptMap/addConceptToConceptMap", {
+                    concept: targetConcept,
+                });
             }
         },
 
