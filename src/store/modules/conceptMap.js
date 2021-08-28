@@ -34,7 +34,7 @@ const getters = {
         (state.aktive_concept_map.nodes.length == 0) ? result =  true : result = false; 
         return result;
     },
-
+    
     // TODO concept map için getter yaz. bunları concept map vue de kullanarak her bir cp yi ayrı ayrı yazdır. 
     getConceptMaps(state){
         return state.concept_maps;
@@ -42,10 +42,37 @@ const getters = {
     getIndex(state){
         return state.index;
     }
-
+    
 }
 
 const actions = { 
+    
+    createConceptMap({commit, dispatch},conceptMap){
+        commit("CREATE_CONCEPT_MAP", conceptMap)
+        
+        var data = `{"data": {
+            "type": "node--concept_map",
+            "attributes": {"title": "${conceptMap.title}"}}}`;
+        var config = {
+            method: 'post',
+            url: 'concept_map',
+            data: data
+        };
+        axios(config)
+        .then((response)=>{
+            console.log(response);
+            let newConceptMapId = response.data.data.id;
+            console.log(newConceptMapId);
+            dispatch("addConceptMapToUser", newConceptMapId)
+        })
+        .catch((error) => {
+            console.log(error)
+        })
+        
+    },
+    addConceptMapToUser(newConceptMapId){
+        console.log(newConceptMapId)
+    },
     
     /**
     * Saves concept to the concept map in database 
@@ -127,7 +154,7 @@ const actions = {
     deleteLinkFromConceptMap({commit, state}, payload){
         // state delete
         commit("DELETE_LINK_FROM_STATE", payload);
-
+        
         // To make it seperate
         // var data = `{"data": [{
         //     "type": "node--relationship",
@@ -136,15 +163,15 @@ const actions = {
         // var config = {
         //     method: 'delete',
         //     url: `concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships`,
-            
+        
         //     data: data
         // };
         // axios(config).then(()=>{
         //     dispatch("deleteLinkFromRelationsTable", linkId);
         // })
-       
-
-
+        
+        
+        
         
         // Delete relationship from Concept map in database
         var data = `{"data": [{
@@ -210,7 +237,7 @@ const actions = {
         })
         
     },
-
+    
     deleteLinkFromRelationsTable(linkId){
         console.log("Link ID === ????")
         console.log(linkId);
@@ -285,6 +312,7 @@ const actions = {
     * commit it to mutation to save it in state.
     *  
     */
+   // TODO: take only the users concept maps.. IMPORTANT
     async loadConceptMapFromBackend({commit}) {
         await axios.get('concept_map')
         .then((response) => {           
@@ -300,6 +328,13 @@ const actions = {
 }
 
 const mutations = {
+    
+    CREATE_CONCEPT_MAP(state, conceptMap){
+        state.concept_maps.push(conceptMap);
+        state.index =
+        state.concept_maps.indexOf(conceptMap);
+    },
+    
     /**
     * Adds concept to concept map,
     * Both state and database
@@ -410,10 +445,10 @@ const mutations = {
             })
         })
         state.concept_maps.push({id: id, title:concept_map_title, nodes:nodes, links:links})
-     
+        
         state.aktive_concept_map = state.concept_maps[0];
-
-      
+        
+        
     }
     
 }

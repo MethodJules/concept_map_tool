@@ -65,6 +65,36 @@
         </b-modal>
         <div>
             <div class="radioButtons">
+                <b-button
+                    id="concept-map-create-popover"
+                    variant="primary"
+                    size="sm"
+                    >+</b-button
+                >
+
+                <b-popover
+                    target="concept-map-create-popover"
+                    title="Erstelle Concept Map"
+                    triggers="focus"
+                    ref="newConceptMapPopover"
+                    placement="left"
+                >
+                    <b-input-group size="sm">
+                        <b-form-input
+                            v-model="newConceptMapName"
+                            @keydown.enter="createConceptMap(newConceptMapName)"
+                        ></b-form-input>
+
+                        <b-input-group-append>
+                            <b-button
+                                size="sm"
+                                variant="primary"
+                                @click="createConceptMap(newConceptMapName)"
+                                >Hinzufügen</b-button
+                            >
+                        </b-input-group-append>
+                    </b-input-group>
+                </b-popover>
                 <div v-for="(conceptMap, i) in conceptMaps" :key="i">
                     <input
                         type="radio"
@@ -114,6 +144,7 @@ export default {
             targetConcept: "", // The concept that we are going to add to the map
             newConceptToAdd: "", // New concept to add map and concept list
             highlightNodes: [],
+            newConceptMapName: "",
         };
     },
     components: {
@@ -180,6 +211,17 @@ export default {
         conceptMapSelect(conceptMap, index) {
             this.$store.state.conceptMap.index = index;
             this.$store.state.conceptMap.aktive_concept_map = conceptMap;
+        },
+
+        createConceptMap(newConceptMapName) {
+            let newConceptMap = {
+                title: newConceptMapName,
+                nodes: [],
+                links: [],
+            };
+            this.$store.dispatch("conceptMap/createConceptMap", newConceptMap);
+            this.$refs.newConceptMapPopover.$emit("close");
+            this.newConceptMapName = "";
         },
 
         /**

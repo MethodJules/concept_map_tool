@@ -138,7 +138,7 @@
 
             <b-popover
                 :target="createIdForAddButton(concept)"
-                triggers="click"
+                triggers="focus"
                 placement="auto"
                 container="my-container"
                 ref="popover"
@@ -380,13 +380,6 @@ export default {
                     }
                 });
             });
-            // this.$store.state.conceptMap.aktive_concept_map.nodes.forEach(
-            //     (node) => {
-            //         if (node.id == concept.id) {
-            //             inMap = true;
-            //         }
-            //     }
-            // );
             return { inMap: inMap, consistingMapName: consistingMapName };
         },
         /**
