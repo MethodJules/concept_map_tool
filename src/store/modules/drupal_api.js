@@ -6,6 +6,7 @@ const state = () => ({
     logout_token: null,
     validCredential: false,
     authToken: null, 
+    concept_map_ids:null
     
     
 })
@@ -124,24 +125,26 @@ const actions= {
         .then((response) => {
             console.log(rootState.sparky_api.sparkylogin)
             commit('SAVE_LOGIN_USER', response.data); 
+            console.log(response);
             // I need to take users concept map id from here. 
             // Todo: Save users concept map id to the state      
-            dispatch('loadUserFromBackend');           
+            dispatch('loadUserFromBackend');   
+            console.log(this)
         })
         .catch((error) => {
             console.log(error)
         });
     },
 
-    async loadUserFromBackend({ commit, rootState }) {
+    async loadUserFromBackend({ commit, state }) {
         var config = {
             method: 'get',
-            url: `https://clr-backend.x-navi.de/jsonapi/user/user?filter[drupal_internal__uid]=${rootState.drupal_api.user.uid}`,
+            url: `https://clr-backend.x-navi.de/jsonapi/user/user?filter[drupal_internal__uid]=${state.user.uid}`,
             headers: {
                 'Accept': 'application/vnd.api+json',
                 'Content-Type': 'application/vnd.api+json',
-                'Authorization': rootState.drupal_api.authToken,
-                'X-CSRF-Token': `${rootState.drupal_api.csrf_token}`
+                'Authorization': state.authToken,
+                'X-CSRF-Token': `${state.csrf_token}`
             },
         };
 
@@ -259,7 +262,6 @@ const mutations ={
     SAVE_USER(state, user){
         state.user.mail = user.mail;
         state.user.matrikelnummer = user.matrikelnummer;
-        state.user.mail = user.mail;
         state.user.concept_map_id = user.concept_map_id;
         state.user.fullname = user.fullname;
     }

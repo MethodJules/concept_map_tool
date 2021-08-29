@@ -29,9 +29,9 @@ export default {
     computed: {
         ...mapGetters({ buttonClicked: "getButtonClicked" }),
     },
-    created() {
-        this.$store.dispatch("loadConceptListFromDb");
-        this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
+    async created() {
+        await this.$store.dispatch("loadConceptListFromDb");
+        await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
     },
 };
 </script>

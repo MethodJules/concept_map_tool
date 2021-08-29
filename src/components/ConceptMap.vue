@@ -329,6 +329,9 @@ export default {
             this.$set(this.links, link.index, link);
         },
     },
+    // async created() {
+    //     await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
+    // },
 };
 </script>
 <style scoped >

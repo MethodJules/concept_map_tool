@@ -9,7 +9,7 @@ Vue.use(VueRouter)
 
 const routes = [
     { path: "/", component: Home },
-    { path: "/concept-map-page", name:"concept-map-page", component: Home },
+    { path: "/concept-map-page", name:"concept-map-page", component: Home},
     { path: "/login", name:"Login", component: Login },
     { path: "*", redirect: "/" }
     

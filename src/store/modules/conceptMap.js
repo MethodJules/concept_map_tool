@@ -314,8 +314,20 @@ const actions = {
     */
    // TODO: take only the users concept maps.. IMPORTANT
     async loadConceptMapFromBackend({commit}) {
+        
+        
+        // console.log(rootState.drupal_api.user.concept_map_id)
+        // setTimeout(()=>{
+
+        //     console.log(rootState.drupal_api.user.concept_map_id)
+        // }, 4000)
+        // conceptMapIds.forEach((id)=> {
+        //     console.log(id);
+        // })
+           
         await axios.get('concept_map')
-        .then((response) => {           
+        .then((response) => {  
+            console.log(response);
             const data = response.data.data;
             data.forEach(element => {
                 commit('INITIALIZE_CONCEPT_MAP', element);
@@ -324,7 +336,9 @@ const actions = {
             throw new Error(`API ${error}`);
         });
     },
-    
+    test(){
+        console.log("test");
+    }
 }
 
 const mutations = {
