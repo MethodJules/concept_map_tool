@@ -104,7 +104,7 @@ const actions= {
     * Connects to the Drupal Backend and request a login
     * The Backend will give csrf_token a logout token and a current_user object
     */
-    async loginToDrupal({commit, rootState, dispatch},{username, password}) {
+    async loginToDrupal({commit, dispatch},{username, password}) {
         //authenticate with sparky_api at sparky backend is commented out for development purposes. thus testaccounts can be used without the need of real user data
         //TODO: uncomment sparky_api/authenticate to authenticate real users when development is finished 
         //await dispatch("sparky_api/authenticate", { username, password }, { root: true })
@@ -123,13 +123,10 @@ const actions= {
         
         await axios(config)
         .then((response) => {
-            console.log(rootState.sparky_api.sparkylogin)
             commit('SAVE_LOGIN_USER', response.data); 
-            console.log(response);
             // I need to take users concept map id from here. 
             // Todo: Save users concept map id to the state      
             dispatch('loadUserFromBackend');   
-            console.log(this)
         })
         .catch((error) => {
             console.log(error)
@@ -245,8 +242,6 @@ const mutations ={
     * @param {*} token 
     */
     SAVE_LOGIN_USER(state, login_data) {
-        console.log("login_data")
-        console.log(login_data)
         state.csrf_token = login_data.csrf_token;
         state.user = login_data.current_user;
         state.logout_token = login_data.logout_token;

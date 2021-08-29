@@ -509,6 +509,9 @@ export default {
             return id;
         },
     },
+    // async created() {
+    //     await this.$store.dispatch("loadConceptListFromDb");
+    // },
 };
 </script>
 <style scoped>
