@@ -277,7 +277,6 @@ export default {
         ...mapGetters({
             concepts: "getConcepts",
             isEmpty: "conceptMap/getIsConceptMapEmpty", // if there is no concept in map, we change the popover content
-            nodes: "conceptMap/getNodes",
         }),
         /**
          * Methode to enable new concept adding

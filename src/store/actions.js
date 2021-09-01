@@ -27,7 +27,7 @@ export const loadConceptListFromDb = ({ commit }) => {
             for (var i in data) {
                 concepts.push({ name: data[i].attributes.title, nid: data[i].attributes.drupal_internal__nid, id: data[i].id });
             }
-            commit("SAVE_CONCEPTS", concepts)
+            return commit("SAVE_CONCEPTS", concepts)
         }).catch(error => {
             throw new Error(`API ${error}`);
         });

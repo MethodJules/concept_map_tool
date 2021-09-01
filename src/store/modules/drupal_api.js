@@ -123,10 +123,11 @@ const actions= {
         
         await axios(config)
         .then((response) => {
+            
             commit('SAVE_LOGIN_USER', response.data); 
             // I need to take users concept map id from here. 
-            // Todo: Save users concept map id to the state      
-            dispatch('loadUserFromBackend');   
+            // Todo: Save users concept map id to the state    
+            return dispatch("loadUserFromBackend");  
         })
         .catch((error) => {
             console.log(error)
@@ -134,6 +135,7 @@ const actions= {
     },
 
     async loadUserFromBackend({ commit, state }) {
+      
         var config = {
             method: 'get',
             url: `https://clr-backend.x-navi.de/jsonapi/user/user?filter[drupal_internal__uid]=${state.user.uid}`,
@@ -145,23 +147,23 @@ const actions= {
             },
         };
 
-        axios(config)
+        await axios(config)
             .then(function (response) {
+                
                 // We need for now only concept map id, but I am saving the other values in case we use them later. 
                 let user = {
-                     name : response.data.data.[0].attributes.name,
-                     mail : response.data.data.[0].attributes.mail,
-                     concept_map_id	:  response.data.data.[0].attributes.field_concept_map_id,
-                     fullname : response.data.data.[0].attributes.field_fullname,
-                     matrikelnummer : response.data.data.[0].attributes.field_matrikelnummer,
+                    id: response.data.data[0].id,
+                    name : response.data.data[0].attributes.name,
+                    mail : response.data.data[0].attributes.mail,
+                    concept_maps	:  response.data.data[0].relationships.field_concept_map_ids,
+                    fullname : response.data.data[0].attributes.field_fullname,
+                    matrikelnummer : response.data.data[0].attributes.field_matrikelnummer,
                 }
-                console.table(user)
-                commit('SAVE_USER', user );
+                 commit('SAVE_USER', user );
             })
             .catch(function (error) {
                 console.log(error)
             })
-
 
     },
 
@@ -255,9 +257,10 @@ const mutations ={
         
     },
     SAVE_USER(state, user){
+        state.user.id = user.id;
         state.user.mail = user.mail;
         state.user.matrikelnummer = user.matrikelnummer;
-        state.user.concept_map_id = user.concept_map_id;
+        state.user.concept_maps = user.concept_maps.data;
         state.user.fullname = user.fullname;
     }
 }

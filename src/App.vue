@@ -29,10 +29,10 @@ export default {
     computed: {
         ...mapGetters({ buttonClicked: "getButtonClicked" }),
     },
-    async created() {
-        await this.$store.dispatch("loadConceptListFromDb");
-        await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
-    },
+    // async created() {
+    //     await this.$store.dispatch("loadConceptListFromDb");
+    //     await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
+    // },
 };
 </script>
 

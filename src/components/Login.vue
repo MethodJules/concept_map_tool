@@ -146,7 +146,7 @@ export default {
             console.log(res);
             return res;
         },
-        login() {
+        async login() {
             let username = this.zugangsKennung;
             let password = this.passwort;
             // wenn das hier genutzt wird -> password wird aus namen generiert - die "richtige" anmeldung des nutzers erfolgt beim sparky backend mit rz kennung
@@ -159,7 +159,20 @@ export default {
                 })
                 .then(() => {
                     this.$router.push("concept-map-page");
+                    this.$store.dispatch(
+                        "conceptMap/loadConceptMapFromBackend"
+                    );
+                    this.$store.dispatch("loadConceptListFromDb");
                 });
+            // It does not work so: Why?
+            // await this.$store.dispatch("drupal_api/loginToDrupal", {
+            //     username,
+            //     password,
+            // });
+            // await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
+            // await this.$router.push("concept-map-page");
+            // await this.$store.dispatch("loadConceptListFromDb");
+
             this.$store.dispatch(
                 "drupal_api/saveBasicAuth",
                 authorization_token
