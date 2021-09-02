@@ -67,8 +67,8 @@
                                 </td>
                                 <td>
                                     <input
-                                        v-model="zugangsKennung"
-                                        id="zugangskennung2"
+                                        v-model="registrierungsKennung"
+                                        id="registrierungsKennung"
                                         type="text"
                                         placeholder=""
                                         class="form-control"
@@ -81,8 +81,8 @@
                                 </td>
                                 <td>
                                     <input
-                                        v-model="passwort"
-                                        id="password2"
+                                        v-model="registrierungsPasswort"
+                                        id="registrierungsPasswort"
                                         type="password"
                                         placeholder=""
                                         class="form-control"
@@ -152,31 +152,30 @@ export default {
             // wenn das hier genutzt wird -> password wird aus namen generiert - die "richtige" anmeldung des nutzers erfolgt beim sparky backend mit rz kennung
             //password=this.generatePassword(username)
             let authorization_token = this.encodeBasicAuth(username, password);
-            this.$store
-                .dispatch("drupal_api/loginToDrupal", {
-                    username,
-                    password,
-                })
-                .then(() => {
-                    this.$router.push("concept-map-page");
-                    this.$store.dispatch(
-                        "conceptMap/loadConceptMapFromBackend"
-                    );
-                    this.$store.dispatch("loadConceptListFromDb");
-                });
+            // this.$store
+            //     .dispatch("drupal_api/loginToDrupal", {
+            //         username,
+            //         password,
+            //     })
+            //     .then(() => {
+            //         this.$router.push("concept-map-page");
+            //         this.$store.dispatch(
+            //             "conceptMap/loadConceptMapFromBackend"
+            //         );
+            //         this.$store.dispatch("loadConceptListFromDb");
+            //     });
             // It does not work so: Why?
-            // await this.$store.dispatch("drupal_api/loginToDrupal", {
-            //     username,
-            //     password,
-            // });
-            // await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
-            // await this.$router.push("concept-map-page");
-            // await this.$store.dispatch("loadConceptListFromDb");
-
             this.$store.dispatch(
                 "drupal_api/saveBasicAuth",
                 authorization_token
             );
+            await this.$store.dispatch("drupal_api/loginToDrupal", {
+                username,
+                password,
+            });
+            await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
+            await this.$store.dispatch("loadConceptListFromDb");
+            await this.$router.push("concept-map-page");
 
             //remove so username and password arent saved after login
             this.username = "";

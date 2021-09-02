@@ -123,7 +123,6 @@ const actions= {
         
         await axios(config)
         .then((response) => {
-            
             commit('SAVE_LOGIN_USER', response.data); 
             // I need to take users concept map id from here. 
             // Todo: Save users concept map id to the state    
@@ -142,24 +141,23 @@ const actions= {
             headers: {
                 'Accept': 'application/vnd.api+json',
                 'Content-Type': 'application/vnd.api+json',
-                'Authorization': state.authToken,
+                'Authorization': `${state.authToken}`,
                 'X-CSRF-Token': `${state.csrf_token}`
             },
         };
 
         await axios(config)
             .then(function (response) {
-                
                 // We need for now only concept map id, but I am saving the other values in case we use them later. 
                 let user = {
                     id: response.data.data[0].id,
                     name : response.data.data[0].attributes.name,
                     mail : response.data.data[0].attributes.mail,
-                    concept_maps	:  response.data.data[0].relationships.field_concept_map_ids,
+                    concept_maps : response.data.data[0].relationships.field_concept_maps,
                     fullname : response.data.data[0].attributes.field_fullname,
                     matrikelnummer : response.data.data[0].attributes.field_matrikelnummer,
                 }
-                 commit('SAVE_USER', user );
+                 return commit('SAVE_USER', user );
             })
             .catch(function (error) {
                 console.log(error)

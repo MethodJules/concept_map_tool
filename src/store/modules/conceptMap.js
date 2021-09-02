@@ -23,7 +23,7 @@ const getters = {
     */
     getIsConceptMapEmpty(state){
         let result = false;
-        console.log(state.aktive_concept_map.nodes);
+        // console.log(state.aktive_concept_map.nodes);
         (state.aktive_concept_map.nodes.length == 0) ? result =  true : result = false; 
         return result;
     },
@@ -51,31 +51,30 @@ const actions = {
         };
         axios(config)
         .then((response)=>{
-            let newConceptMapId = response.data.data.id;
-            dispatch("addConceptMapToUser", newConceptMapId)
+            console.log(response);
+            
+            dispatch("addConceptMapToUser", response.data.data)
         })
         .catch((error) => {
             console.log(error)
         })
         
     },
-    addConceptMapToUser({rootState }, newConceptMapId){
-        console.log(newConceptMapId)
+    addConceptMapToUser({rootState }, conceptMap){
+        console.log(conceptMap);
         let userId = rootState.drupal_api.user.id;
-
+        console.log(userId);
         var data = `{
-            "data": {
-                "type": "user--user", 
-                "id": "${userId}",
-                "attributes": {
-                    "field_concept_map_id" : "${newConceptMapId}",
-                }
-                
-            }
+            "data": [{
+                "type": "node--concept_map",
+                "id": "${conceptMap.id}"
+            }]
+            
         }`;
+        
         var config = {
-            method: 'patch',
-            url: `https://clr-backend.x-navi.de/jsonapi/user/user/${userId}`,
+            method: 'post',
+            url: `https://clr-backend.x-navi.de/jsonapi/user/user/${userId}/relationships/field_concept_maps`,
             headers: {
                 'Accept': 'application/vnd.api+json',
                 'Content-Type': 'application/vnd.api+json',
@@ -84,14 +83,13 @@ const actions = {
             },
             data: data
         };
-
         axios(config)
-            .then(function (response) {
-                console.log(response);
-            })
-            .catch(function (error) {
-                console.log(error)
-            })
+        .then(function (response) {
+            console.log(response);
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
     },
     
     /**
@@ -332,66 +330,35 @@ const actions = {
     * commit it to mutation to save it in state.
     *  
     */
-    // TODO: take only the users concept maps.. IMPORTANT
     async loadConceptMapFromBackend({commit, rootState, dispatch}) {
         
         let conceptMaps = rootState.drupal_api.user.concept_maps;
         commit("UPDATE_INDEX", conceptMaps);
         
-        await conceptMaps.forEach((conceptMap) => {
-            axios.get(`concept_map/${conceptMap.id}`)
-            .then((response) => {  
-                const conceptMapCredientials = response.data.data;
+        return conceptMaps.forEach( async (conceptMap) => {
+            await axios.get(`concept_map/${conceptMap.id}`)
+            .then(async (response) => {  
                 const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
                 const links = response.data.data.relationships.field_conceptmap_relationships.data;
                 
-                let concept_map = {conceptMapCredientials: conceptMapCredientials, nodes:nodes, links:links};
-                dispatch("loadConceptMapNodesAndLinks", concept_map);
-
-            }).catch(error => {
+                // dispatch("loadConceptMapNodesAndLinks", concept_map);
+                let newNodes = await dispatch("loadNodesOfConceptMap", nodes);
+                let newLinks = await dispatch("loadLinksOfConceptMap", links);
+                await dispatch("loadConceptMapSingle", {conceptMapCredientials: response.data.data, nodes:newNodes, links:newLinks});
+                
+                
+            })
+            .catch(error => {
                 throw new Error(`API ${error}`);
             });    
         })
+        
+        
     },
-
-     loadConceptMapNodesAndLinks({commit}, concept_map ){
-        
-        //load nodes from database
-        let concepts = [];
-        let relationships = [];
-
-        concept_map.nodes.forEach(element => {
-            axios.get(`concept/${element.id}`)
-            .then((response) => {
-                const title = response.data.data.attributes.title;
-                const uuid = response.data.data.id;
-                concepts.push({id: uuid, name: title, uuid: uuid});
-            })
-            
-        });
-        
-        // load links from database
-        
-        
-        concept_map.links.forEach(link => {
-            axios.get(`relationship/${link.id}`)
-            .then((response) => {
-                const label = response.data.data.attributes.title;
-                const id = response.data.data.id;
-                const sid = response.data.data.attributes.field_sid;
-                const tid = response.data.data.attributes.field_tid;
-                relationships.push({ id: id, sid: sid, tid: tid, _color: '#c93e37', name: label})
-            })
-        })
-        let conceptMap = {conceptMapCredientials: concept_map.conceptMapCredientials, nodes:concepts, links:relationships}
-        
-        commit('INITIALIZE_CONCEPT_MAP', conceptMap); 
-      
-    },
-
+    
+    
     async loadNodesOfConceptMap({state}, nodes){
         console.log(state)
-        console.log(nodes)
         let concepts = [];
         await nodes.forEach(element => {
             axios.get(`concept/${element.id}`)
@@ -405,11 +372,11 @@ const actions = {
         console.log(concepts);
         return concepts;
     },
-
+    
     async loadLinksOfConceptMap({state}, links){
         console.log(state)
         let relationships = [];
-        links.forEach(link => {
+        await links.forEach(link => {
             axios.get(`relationship/${link.id}`)
             .then((response) => {
                 const label = response.data.data.attributes.title;
@@ -417,13 +384,16 @@ const actions = {
                 const sid = response.data.data.attributes.field_sid;
                 const tid = response.data.data.attributes.field_tid;
                 // state.links.push({ id: id, sid: sid, tid: tid, _color: '#c93e37', name: label})
-                links.push({ id: id, sid: sid, tid: tid, _color: '#c93e37', name: label})
+                relationships.push({ id: id, sid: sid, tid: tid, _color: '#c93e37', name: label})
             })
         })
         console.log(relationships)
         return relationships;
-    }
+    },
     
+    loadConceptMapSingle({commit}, conceptMap){
+        commit('INITIALIZE_CONCEPT_MAP', conceptMap);
+    }
     
 }
 
@@ -518,7 +488,7 @@ const mutations = {
         let links = conceptMap.links;
         state.concept_maps.push({id: id, title:title, nodes:nodes, links:links})
         state.aktive_concept_map = state.concept_maps[0];
-                
+        
     },
     
     UPDATE_INDEX(state, conceptMaps){
