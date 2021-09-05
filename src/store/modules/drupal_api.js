@@ -11,6 +11,12 @@ const state = () => ({
     
     
 })
+
+const getters = {
+    getUser(state){
+        return state.user;
+    }
+} 
 const actions= {
     //TO DO: Check if a user already exists
     
@@ -257,6 +263,7 @@ const mutations ={
 export default {
     namespaced: true,
     state,
+    getters,
     mutations,
     actions
 }

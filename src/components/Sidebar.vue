@@ -1,29 +1,34 @@
 <template>
     <div>
         <div class="tools">
-            <b-button
-                variant="warning"
-                class="tools-recommender"
-                @click="toggleRecommenderModal"
-            >
-                Recommender
-                <b-icon icon="person-lines-fill"></b-icon>
-            </b-button>
-            <b-button
-                class="tools-deleteMode"
-                variant="danger"
-                @click="toggleDeleteMode()"
-            >
-                Delete Mode
-                <b-icon
-                    v-if="isDeleteModeOn"
-                    icon="circle-fill"
-                    animation="throb"
-                    font-scale="1"
-                ></b-icon>
-            </b-button>
+            <div class="tools-buttons">
+                <b-button
+                    class="tools-buttonsRecommender"
+                    size="sm"
+                    variant="warning"
+                    @click="toggleRecommenderModal"
+                >
+                    Recommender
+                    <b-icon icon="person-lines-fill" font-scale="1"></b-icon>
+                </b-button>
+                <b-button
+                    class="tools-buttonsDeleteMode"
+                    size="sm"
+                    variant="danger"
+                    @click="toggleDeleteMode()"
+                >
+                    Delete Mode
+                    <b-icon
+                        v-if="isDeleteModeOn"
+                        icon="circle-fill"
+                        animation="throb"
+                        font-scale="1"
+                    ></b-icon>
+                </b-button>
+            </div>
             <b-form-input
                 class="tools-newConceptName"
+                size="sm"
                 placeholder="Neu Concept Name..."
                 v-model="conceptName"
                 @keydown.enter="addNewConcept(conceptName)"
@@ -559,23 +564,26 @@ export default {
 /* Tools */
 .tools {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     flex-direction: column;
     margin-bottom: 1rem;
-    height: 9rem;
 }
 
-.tools-newConceptName,
-.tools-recommender {
+.tools-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.tools-newConceptName {
     width: 100%;
     text-align: center;
     display: flex;
     justify-content: space-between;
 }
-.tools-deleteMode {
+.tools-buttonsDeleteMode {
     display: flex;
     justify-content: space-between;
-    margin-top: 0.5rem;
 }
 .tools-addNewConcept {
     color: #8795b0 !important;

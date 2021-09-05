@@ -5,7 +5,7 @@ const state = () => ({
     nodes: [], // stores the nodes of concept map
     concept_maps:[], // Stores the concept maps of the user
     index : 0, // the index of concept_maps. We use it for D3-network in ConceptMap.vue
-    aktive_concept_map:[], // the selected concept map from radio button which are at the top right of the concept map page
+    activeConceptMap:[], // the selected concept map from radio button which are at the top right of the concept map page
     
 })
 
@@ -25,9 +25,9 @@ const getters = {
     */
     getIsConceptMapEmpty(state){
         let result = false;
-        console.log(state.aktive_concept_map);
-        // console.log(state.aktive_concept_map.nodes);
-        (state.aktive_concept_map.nodes.length == 0) ? result =  true : result = false; 
+        console.log(state.activeConceptMap);
+        // console.log(state.activeConceptMap.nodes);
+        (state.activeConceptMap.nodes.length == 0) ? result =  true : result = false; 
         return result;
     },
     
@@ -47,7 +47,9 @@ const getters = {
     getIndex(state){
         return state.index;
     },
-    
+    getActiveConceptMap(state){
+        return state.activeConceptMap;
+    }
     
 }
 
@@ -119,12 +121,12 @@ const actions = {
     * @param {object} concept the concept that will be added to concept map 
     */
     addConceptToConceptMap({commit, state}, payload) {
-        let id = state.aktive_concept_map.id;
+        let id = state.activeConceptMap.id;
         let concept = payload.concept;
         
         // We need to control if our concept is already in the map. 
         // Thats why We need the variables below
-        let nodesInMap = state.aktive_concept_map.nodes; 
+        let nodesInMap = state.activeConceptMap.nodes; 
         let isMapConsist = false;
         console.log(nodesInMap);
         // If our concept is in map, this loop returns isMapConsist true
@@ -173,7 +175,7 @@ const actions = {
         }]}`;
         var config = {
             method: 'delete',
-            url: `concept_map/${state.aktive_concept_map.id}/relationships/field_conceptmap_concepts`,
+            url: `concept_map/${state.activeConceptMap.id}/relationships/field_conceptmap_concepts`,
             data: data
         };
         axios(config)        
@@ -256,7 +258,7 @@ const actions = {
                 }]}`;
                 var config = {
                     method: 'delete',
-                    url: `concept_map/${state.aktive_concept_map.id}/relationships/field_conceptmap_relationships`,
+                    url: `concept_map/${state.activeConceptMap.id}/relationships/field_conceptmap_relationships`,
                     
                     data: data
                 };
@@ -340,7 +342,7 @@ const actions = {
             }]}`;
             var config = {
                 method: 'post',
-                url: `concept_map/${state.aktive_concept_map.id}/relationships/field_conceptmap_relationships`,
+                url: `concept_map/${state.activeConceptMap.id}/relationships/field_conceptmap_relationships`,
                 data: data       
             };
             axios(config)
@@ -540,11 +542,11 @@ const mutations = {
     /**
      * 
      * @param {*} state, state as parameter to access and manipulation of state data 
-     * @returns state.aktive_concept_map
+     * @returns state.activeConceptMap
      */
     INITIALIZE_AKTIVE_CONCEPT_MAP(state){
         
-        return state.aktive_concept_map = state.concept_maps[0];
+        return state.activeConceptMap = state.concept_maps[0];
     },
     
     

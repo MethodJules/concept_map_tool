@@ -65,7 +65,7 @@
         </b-modal>
         <div>
             <div class="conceptMapBar">
-                <b-button
+                <!-- <b-button
                     id="concept-map-create-popover"
                     variant="primary"
                     size="sm"
@@ -94,8 +94,8 @@
                             >
                         </b-input-group-append>
                     </b-input-group>
-                </b-popover>
-                <div
+                </b-popover> 
+                 <div
                     class="conceptMapBar-buttons"
                     v-for="(conceptMap, i) in conceptMaps"
                     :key="i"
@@ -112,6 +112,59 @@
                     <label class="btn btn-outline-primary btn-sm" :for="i">
                         {{ conceptMap.title }}</label
                     >
+                </div> -->
+                <div>
+                    <b-dropdown
+                        id="dropdown-1"
+                        :text="activeConceptMap.title"
+                        variant="primary"
+                        size="sm"
+                        right
+                    >
+                        <div class="dropdown-input">
+                            <b-form-input
+                                size="sm"
+                                placeholder="Neu Concept Map"
+                                v-model="newConceptMapName"
+                                @keydown.enter="
+                                    createConceptMap(newConceptMapName)
+                                "
+                            >
+                            </b-form-input>
+                            <b-button
+                                size="sm"
+                                variant="success"
+                                @click="createConceptMap(newConceptMapName)"
+                            >
+                                <b-icon
+                                    icon="plus-circle"
+                                    aria-hidden="true"
+                                ></b-icon>
+                            </b-button>
+                        </div>
+
+                        <b-dropdown-item
+                            class="dropdown-conceptMap"
+                            v-for="(conceptMap, i) in conceptMaps"
+                            :key="i"
+                        >
+                            <span @click="conceptMapSelect(conceptMap, i)">
+                                {{ conceptMap.title }}
+                            </span>
+                            <b-button
+                                class="tools-buttonsDeleteMode"
+                                size="sm"
+                                variant="danger"
+                                @click.stop="deleteConceptMap(conceptMap, i)"
+                            >
+                                <b-icon
+                                    icon="trash"
+                                    size="sm"
+                                    font-scale="1"
+                                ></b-icon>
+                            </b-button>
+                        </b-dropdown-item>
+                    </b-dropdown>
                 </div>
             </div>
 
@@ -164,6 +217,7 @@ export default {
             concepts: "getConcepts",
             conceptMaps: "conceptMap/getConceptMaps",
             index: "conceptMap/getIndex",
+            activeConceptMap: "conceptMap/getActiveConceptMap",
         }),
 
         /**
@@ -212,9 +266,14 @@ export default {
         },
     },
     methods: {
+        deleteConceptMap(conceptMap, i) {
+            console.log(conceptMap);
+            console.log(i);
+        },
+
         conceptMapSelect(conceptMap, index) {
             this.$store.state.conceptMap.index = index;
-            this.$store.state.conceptMap.aktive_concept_map = conceptMap;
+            this.$store.state.conceptMap.activeConceptMap = conceptMap;
         },
 
         createConceptMap(newConceptMapName) {
@@ -352,6 +411,18 @@ export default {
 }
 .conceptMapBar-buttons label {
     height: 2rem;
+}
+
+.dropdown-input {
+    display: flex;
+    padding: 0 1rem 0 1rem;
+}
+::v-deep .dropdown-item {
+    display: flex;
+    justify-content: space-between;
+}
+::v-deep .dropdown-item span {
+    width: 100%;
 }
 .modal-container {
     display: flex;

@@ -9,7 +9,7 @@
                 variant="info"
                 src="https://placekitten.com/300/300"
             ></b-avatar>
-            <b-nav-item-dropdown class="menu-dropdown" text="User Name" right>
+            <b-nav-item-dropdown class="menu-dropdown" :text="user.name" right>
                 <b-dropdown-item>Account</b-dropdown-item>
                 <b-dropdown-item>Settings</b-dropdown-item>
                 <b-dropdown-item>
@@ -21,8 +21,13 @@
     </b-navbar>
 </template>
 <script>
+import { mapGetters } from "vuex";
+
 export default {
     computed: {
+        ...mapGetters({
+            user: "drupal_api/getUser", // getter to take datas of the user.
+        }),
         account() {
             return this.$store.state.sparky_api.account;
         },
@@ -62,6 +67,11 @@ export default {
     list-style-type: none;
 }
 
+.menu-avatar {
+    min-width: 200px;
+    display: flex;
+    justify-content: flex-end;
+}
 .menu-avatar li {
     width: 70%;
     padding: 0;
