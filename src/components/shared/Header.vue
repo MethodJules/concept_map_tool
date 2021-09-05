@@ -1,14 +1,39 @@
 <template>
-    <b-navbar toggleable="lg" type="dark" variant="primary" class="menu">
-        <b-navbar-brand to="/"> Concept Mapping Tool</b-navbar-brand>
+    <b-navbar toggleable="lg" type="dark" class="menu">
+        <b-navbar-brand to="/" class="menu-item">
+            Concept Mapping Tool</b-navbar-brand
+        >
         <!-- <b-navbar-brand to="/login"> Login</b-navbar-brand> -->
-        <b-navbar-brand>
-            <b-icon @click="logout()" icon="box-arrow-right"></b-icon>
-        </b-navbar-brand>
+        <b-row class="menu-avatar" v-if="validCredential">
+            <b-avatar
+                variant="info"
+                src="https://placekitten.com/300/300"
+            ></b-avatar>
+            <b-nav-item-dropdown class="menu-dropdown" text="User Name" right>
+                <b-dropdown-item>Account</b-dropdown-item>
+                <b-dropdown-item>Settings</b-dropdown-item>
+                <b-dropdown-item>
+                    Logout
+                    <b-icon @click="logout()" icon="box-arrow-right"></b-icon>
+                </b-dropdown-item>
+            </b-nav-item-dropdown>
+        </b-row>
     </b-navbar>
 </template>
 <script>
 export default {
+    computed: {
+        account() {
+            return this.$store.state.sparky_api.account;
+        },
+
+        validCredential() {
+            // return true;
+            // return this.$store.state.sparky_api.validCredential;
+            return this.$store.state.drupal_api.validCredential;
+        },
+    },
+
     methods: {
         logout() {
             this.$store.dispatch("drupal_api/logoutDrupal");
@@ -27,15 +52,33 @@ export default {
     background-color: #3949b3 !important;
     display: flex;
     justify-content: space-between;
-    padding: 1rem 4rem;
-    height: 8vh;
+    padding: 0.7rem 2rem;
 }
-.menu * {
+
+.menu-item {
     font-size: 1.7rem;
+}
+.menu li {
+    list-style-type: none;
+}
+
+.menu-avatar li {
+    width: 70%;
+    padding: 0;
+}
+.menu-avatar span {
+    width: 25%;
+    padding: 0;
+    margin-right: 0.5rem;
+}
+::v-deep .nav-link {
+    color: white !important;
+    font-size: 1.2rem;
+    padding-left: 0;
 }
 
 /* START!! Menu items style is useless now. But I am keeping it in case we use them later or another page */
-.menu-items ul {
+/* .menu-items ul {
     font-size: 1.5rem;
     display: flex;
     justify-content: space-around;
@@ -60,7 +103,7 @@ export default {
     height: 3px;
     background: rgb(250, 250, 250);
     opacity: 0;
-    -webkit-transition: width 1.5s; /* Safari */
+    -webkit-transition: width 1.5s; 
     transition: width 1.5s;
 }
 .menu-items ul li a:hover:before {
@@ -73,7 +116,7 @@ export default {
 }
 .menu-items ul li a:hover {
     color: rgb(250, 250, 250) !important;
-}
+} */
 
 /* END!! Menu items style is useless now. But I am keeping it in case we use them later or another page */
 </style>

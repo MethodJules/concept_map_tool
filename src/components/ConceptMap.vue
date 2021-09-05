@@ -64,7 +64,7 @@
             </div>
         </b-modal>
         <div>
-            <div class="radioButtons">
+            <div class="conceptMapBar">
                 <b-button
                     id="concept-map-create-popover"
                     variant="primary"
@@ -95,10 +95,14 @@
                         </b-input-group-append>
                     </b-input-group>
                 </b-popover>
-                <div v-for="(conceptMap, i) in conceptMaps" :key="i">
+                <div
+                    class="conceptMapBar-buttons"
+                    v-for="(conceptMap, i) in conceptMaps"
+                    :key="i"
+                >
                     <input
                         type="radio"
-                        class="btn-check"
+                        class="btn-check conceptMapBar-button"
                         name="options"
                         checked
                         :id="i"
@@ -335,15 +339,20 @@ export default {
 };
 </script>
 <style scoped >
-.radioButtons {
+.conceptMapBar {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
 }
-.radioButtons * {
+.conceptMapBar * {
     margin-left: 0.5rem;
 }
-
+.conceptMapBar-buttons {
+    height: 2rem;
+}
+.conceptMapBar-buttons label {
+    height: 2rem;
+}
 .modal-container {
     display: flex;
     flex-direction: column;
