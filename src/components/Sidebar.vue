@@ -1,30 +1,6 @@
 <template>
     <div>
         <div class="tools">
-            <b-form-input
-                class="tools-newConceptName"
-                placeholder="Schreiben Sie hier Concept Name..."
-                v-model="conceptName"
-                @keydown.enter="addNewConcept(conceptName)"
-            >
-            </b-form-input>
-            <b-button
-                class="tools-addNewConcept"
-                @click="addNewConcept(conceptName)"
-                variant="outline-dark"
-                :disabled="saveEnabled"
-            >
-                <span>
-                    <b> {{ conceptName }} </b>
-                </span>
-                <b-icon
-                    md="2"
-                    class="align-self-end"
-                    icon="plus-circle"
-                    @click="addNewConcept(conceptName)"
-                ></b-icon>
-            </b-button>
-
             <b-button
                 variant="warning"
                 class="tools-recommender"
@@ -46,6 +22,13 @@
                     font-scale="1"
                 ></b-icon>
             </b-button>
+            <b-form-input
+                class="tools-newConceptName"
+                placeholder="Neu Concept Name..."
+                v-model="conceptName"
+                @keydown.enter="addNewConcept(conceptName)"
+            >
+            </b-form-input>
             <b-modal
                 ref="recommender-modal"
                 class="recommender-modal"
@@ -73,9 +56,36 @@
                 </div>
             </b-modal>
         </div>
-        <div class="conceptButtons" v-for="(concept, i) in concepts" :key="i">
+        <div class="tools-conceptAdding" v-if="isWriting">
             <b-button
-                class="conceptButtons-deleteButton"
+                class="tools-conceptAdding-cancel"
+                size="sm"
+                variant="danger"
+                @click="conceptName = ''"
+            >
+                <b-icon icon="x-circle" aria-hidden="true"></b-icon>
+            </b-button>
+            <b-row class="concept">
+                <b-button class="d-flex" size="sm" variant="primary">
+                    {{ conceptName }}
+                </b-button>
+            </b-row>
+            <b-button
+                class="tools-conceptAdding-add"
+                size="sm"
+                variant="success"
+                @click="addNewConcept(conceptName)"
+            >
+                <b-icon icon="plus-circle" aria-hidden="true"></b-icon>
+            </b-button>
+        </div>
+        <div
+            class="tools-conceptButtons"
+            v-for="(concept, i) in concepts"
+            :key="i"
+        >
+            <b-button
+                class="tools-conceptButtons-deleteButton"
                 size="sm"
                 variant="danger"
                 @click="deleteConcept(concept)"
@@ -128,7 +138,7 @@
 
             <b-button
                 :id="createIdForAddButton(concept)"
-                class="conceptButtons-addButton"
+                class="tools-conceptButtons-addButton"
                 size="sm"
                 variant="secondary"
             >
@@ -138,7 +148,7 @@
 
             <b-popover
                 :target="createIdForAddButton(concept)"
-                triggers="click"
+                triggers="focus"
                 placement="auto"
                 container="my-container"
                 ref="popover"
@@ -277,7 +287,6 @@ export default {
         ...mapGetters({
             concepts: "getConcepts",
             isEmpty: "conceptMap/getIsConceptMapEmpty", // if there is no concept in map, we change the popover content
-            nodes: "conceptMap/getNodes",
         }),
         /**
          * Methode to enable new concept adding
@@ -300,6 +309,11 @@ export default {
             });
 
             return names;
+        },
+        isWriting() {
+            let result = false;
+            this.conceptName.length > 0 ? (result = true) : "";
+            return result;
         },
     },
     methods: {
@@ -348,7 +362,7 @@ export default {
             this.$store.dispatch("addConceptToDb", conceptName);
             this.$store.dispatch("triggerLoading");
 
-            this.conceptName = null;
+            this.conceptName = "";
         },
         /**
          * Deletes the concept from both state and database.
@@ -356,9 +370,10 @@ export default {
          */
         deleteConcept(concept) {
             alert("Are you sure??");
-            if (this.isConceptInMap(concept)) {
+            let data = this.isConceptInMap(concept);
+            if (data.inMap) {
                 alert(
-                    "Diese Konzept ist in der Konzept Map, Bitte löschen Sie von der Konzept Map zuerst."
+                    `Diese Konzept ist in ${data.consistingMapName}, Bitte löschen Sie von der Konzept Map zuerst.`
                 );
             } else {
                 this.$store.dispatch("deleteConcept", concept);
@@ -370,13 +385,16 @@ export default {
          */
         isConceptInMap(concept) {
             let inMap = false;
-            console.log(this.$store.state);
-            this.$store.state.conceptMap.nodes.forEach((node) => {
-                if (node.id == concept.id) {
-                    inMap = true;
-                }
+            let consistingMapName;
+            this.$store.state.conceptMap.concept_maps.forEach((conceptMap) => {
+                conceptMap.nodes.forEach((node) => {
+                    if (node.id == concept.id) {
+                        inMap = true;
+                        consistingMapName = conceptMap.title;
+                    }
+                });
             });
-            return inMap;
+            return { inMap: inMap, consistingMapName: consistingMapName };
         },
         /**
          * Updates the name of the concept.
@@ -404,32 +422,28 @@ export default {
             // We need to add the ids of the source and target concept to relationship array.
 
             if (this.isEmpty) {
-                this.$store.dispatch(
-                    "conceptMap/addConceptToConceptMap",
-                    sourceConcept
-                );
+                this.$store.dispatch("conceptMap/addConceptToConceptMap", {
+                    concept: sourceConcept,
+                });
             } else {
                 relationship.push({
                     name: sourceConcept.name + " -&- " + targetConcept.name,
                     tid: targetConcept.id,
                     sid: sourceConcept.id,
                 }); // We need to send the relationship as an array
-                this.$store.dispatch(
-                    "conceptMap/addRelationshipToDatabase",
-                    relationship
-                );
+                this.$store.dispatch("conceptMap/addRelationshipToDatabase", {
+                    relationship: relationship,
+                });
 
                 // We need to send the source concept as an object to this methode
-                this.$store.dispatch(
-                    "conceptMap/addConceptToConceptMap",
-                    sourceConcept
-                );
+                this.$store.dispatch("conceptMap/addConceptToConceptMap", {
+                    concept: sourceConcept,
+                });
                 // we need to send target concept as an object to this methode
 
-                this.$store.dispatch(
-                    "conceptMap/addConceptToConceptMap",
-                    targetConcept
-                );
+                this.$store.dispatch("conceptMap/addConceptToConceptMap", {
+                    concept: targetConcept,
+                });
             }
         },
 
@@ -509,6 +523,9 @@ export default {
             return id;
         },
     },
+    // async created() {
+    //     await this.$store.dispatch("loadConceptListFromDb");
+    // },
 };
 </script>
 <style scoped>
@@ -545,7 +562,7 @@ export default {
     justify-content: space-between;
     flex-direction: column;
     margin-bottom: 1rem;
-    height: 12rem;
+    height: 9rem;
 }
 
 .tools-newConceptName,
@@ -572,21 +589,34 @@ export default {
 }
 /* Tools */
 
-/* Concept Buttons  */
-.conceptButtons {
+/* New Concept Adding Button */
+.tools-conceptAdding {
     display: flex;
     justify-content: space-around;
     width: 100%;
     margin-bottom: 0.5rem;
 }
-.conceptButtons-deleteButton,
-.conceptButtons-addButton {
+.tools-conceptAdding-cancel,
+.tools-conceptAdding-add {
     width: 15%;
 }
-.conceptButtons-addButton {
+/* New Concept Adding Button */
+/* Concept Buttons  */
+.tools-conceptButtons {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.tools-conceptButtons-deleteButton,
+.tools-conceptButtons-addButton {
+    width: 15%;
+}
+.tools-conceptButtons-addButton {
     background-color: #8795b0;
 }
-.conceptButtons-addButton:hover {
+.tools-conceptButtons-addButton:hover {
     background-color: #6b79b2;
 }
 

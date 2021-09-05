@@ -67,8 +67,8 @@
                                 </td>
                                 <td>
                                     <input
-                                        v-model="zugangsKennung"
-                                        id="zugangskennung"
+                                        v-model="registrierungsKennung"
+                                        id="registrierungsKennung"
                                         type="text"
                                         placeholder=""
                                         class="form-control"
@@ -81,8 +81,8 @@
                                 </td>
                                 <td>
                                     <input
-                                        v-model="passwort"
-                                        id="password"
+                                        v-model="registrierungsPasswort"
+                                        id="registrierungsPasswort"
                                         type="password"
                                         placeholder=""
                                         class="form-control"
@@ -102,13 +102,83 @@
 <script>
 export default {
     data() {
-        return {};
+        return {
+            zugangsKennung: "",
+            passwort: "",
+            registrierungsKennung: "",
+            registrierungsPasswort: "",
+            matrikelnummer: "",
+        };
     },
-    methods: {
-        login() {
-            alert();
+    computed: {
+        account() {
+            return this.$store.state.sparky_api.account;
+        },
+
+        validCredential() {
+            // return true;
+            // return this.$store.state.sparky_api.validCredential;
+            return this.$store.state.drupal_api.validCredential;
         },
     },
+    methods: {
+        registrieren() {
+            this.$store.dispatch("sparky_api/registrate", {
+                username: this.registrierungsKennung,
+                password: this.registrierungsPasswort,
+                matrikelnummer: this.matrikelnummer,
+            });
+
+            //remove so username and password arent saved after login
+            this.registrierungsKennung = "";
+            this.registrierungsPasswort = "";
+            this.matrikelnummer = "";
+        },
+
+        generatePassword(username) {
+            const crypto = require("crypto");
+            const md5sum = crypto.createHash("md5");
+            let str = username;
+            const res = md5sum.update(str).digest("hex");
+            console.log(res);
+            return res;
+        },
+        async login() {
+            let username = this.zugangsKennung;
+            let password = this.passwort;
+            // wenn das hier genutzt wird -> password wird aus namen generiert - die "richtige" anmeldung des nutzers erfolgt beim sparky backend mit rz kennung
+            //password=this.generatePassword(username)
+            let authorization_token = this.encodeBasicAuth(username, password);
+
+            // HUGE PROBLEM: They are not working one by one.
+
+            await this.$store.dispatch(
+                "drupal_api/saveBasicAuth",
+                authorization_token
+            );
+            await this.$store.dispatch("drupal_api/loginToDrupal", {
+                username,
+                password,
+            });
+            await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
+            await this.$store.dispatch("loadConceptListFromDb");
+            await this.$router.push("concept-map-page");
+
+            //remove so username and password arent saved after login
+            this.username = "";
+            this.password = "";
+            return authorization_token;
+        },
+
+        encodeBasicAuth(user, password) {
+            var creds = user + ":" + password;
+            var base64 = btoa(creds);
+            return "Basic " + base64;
+        },
+    },
+    // mounted() {
+    //     this.$store.dispatch("drupal_api/loadTokensfromSessionStorage");
+    // },
 };
 </script>
 <style scoped>

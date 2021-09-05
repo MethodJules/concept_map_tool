@@ -1,6 +1,8 @@
 import Vue from "vue"
 import Vuex from "vuex"
 import conceptMap from "./modules/conceptMap"
+import drupal_api from "./modules/drupal_api"
+import sparky_api from "./modules/sparky_api"
 import * as getters from "./getters"
 import * as mutations from "./mutations"
 import * as actions from "./actions"
@@ -25,6 +27,8 @@ export default new Vuex.Store({
     actions,
     modules: {
         conceptMap,
+        drupal_api,
+        sparky_api
 
     }
 

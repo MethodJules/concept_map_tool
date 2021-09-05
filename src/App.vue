@@ -29,20 +29,26 @@ export default {
     computed: {
         ...mapGetters({ buttonClicked: "getButtonClicked" }),
     },
-    created() {
-        this.$store.dispatch("loadConceptListFromDb");
-        this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
-    },
+    // async created() {
+    //     await this.$store.dispatch("loadConceptListFromDb");
+    //     await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
+    // },
 };
 </script>
 
 <style>
 @import "assets/loading.css";
+html {
+    height: 100vh;
+}
+body {
+    height: 100%;
+}
 #app {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    height: 100vh;
-    /* background-color: #fefffe; */
+    height: 100%;
+    background-color: #394173;
 }
 .fade-enter {
     opacity: 0.05;
@@ -58,6 +64,5 @@ export default {
 
 .page-container {
     background-color: #394173;
-    height: 92vh;
 }
 </style>

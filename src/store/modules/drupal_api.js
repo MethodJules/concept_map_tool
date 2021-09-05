@@ -1,4 +1,5 @@
-import axios from "@/config/login_axios";
+// import axios from 'axios'
+import axios from "@/config/login_axios"
 
 const state = () => ({
     user: null, //TODO Should we name it current_user? Would be more semantically correct
@@ -6,6 +7,7 @@ const state = () => ({
     logout_token: null,
     validCredential: false,
     authToken: null, 
+    concept_map_ids:null
     
     
 })
@@ -23,7 +25,7 @@ const actions= {
     * after that another action createUser is called
     * @param username username the user gives as input in App.vue for registration
     * @param password password the user gives as input in App.vue for registration
-    * @param commit commit is used to call a mutation from this function
+    * @param commit commit us used to call a mutation from this function
     * @param state state as parameter for access and manipulation of state data
     * @param dispatch dispatch is used to call another action from this function
     */
@@ -33,7 +35,6 @@ const actions= {
         console.log(state)
         await  axios.get('rest/session/token')
         .then((response) => {
-            console.log(response.data);
             const token = response.data;
             commit('SAVE_SESSION_TOKEN', token);
             dispatch('createUser', { username, password, matrikelnummer})
@@ -98,148 +99,164 @@ const actions= {
             throw new Error(`API ${error}`);
         });          
     },
-    
     /**
     * Connects to the Drupal Backend and request a login
     * The Backend will give csrf_token a logout token and a current_user object
     */
-    async loginToDrupal({commit, rootState},{username, password}) {
+    async loginToDrupal({commit, dispatch},{username, password}) {
         //authenticate with sparky_api at sparky backend is commented out for development purposes. thus testaccounts can be used without the need of real user data
         //TODO: uncomment sparky_api/authenticate to authenticate real users when development is finished 
         //await dispatch("sparky_api/authenticate", { username, password }, { root: true })
-        const url = 'https://clr-backend.x-navi.de/user/login?_format=json';
         const data = `{"name": "${username}", "pass": "${password}"}`;
         const config = {
             method: 'post',
-            url: url,
-            headers: {
-                'Accept': 'application/vnd.api+json',
-                'Content-Type':'application/vnd.api+json'
-            },
+            url: 'user/login?_format=json',
             withCredentials: true,
             data: data
         };
         
-        await axios(config).then(
-            (response) => {
-                console.log(rootState.sparky_api.sparkylogin)
-                
-                commit('SAVE_LOGIN_USER', response.data);
-                
-                
-                //console.log(response.data.csrf_token);
-                //console.log(response.data.current_user);
-                //console.log(response.data.logout_token);
-                
-                
-            }).catch((error) => {
-                console.log(error)
-            });
-        },
-        
-        
-        /**
-        * Connects to the Drupal Backend and request a login
-        * The Backend will give csrf_token a logout token and a current_user object
-        */
-        async logoutDrupal({commit, rootState}) {
-            console.log(rootState.drupal_api.csrf_token)
-            console.log(rootState.drupal_api.logout_token)
-            console.log(state.logout_token)
-            console.log(rootState.drupal_api.authToken)
-            const url = `https://clr-backend.x-navi.de/user/logout?_format=json&token=${rootState.drupal_api.logout_token}`;
-            const config = {
-                method: 'post',
-                url: url,
-                headers: {
-                    'Accept': 'application/vnd.api+json',
-                    'Content-Type':'application/vnd.api+json',
-                    'X-CSRF-Token': `${rootState.drupal_api.csrf_token}` ,
-                    
-                    
-                },
-                withCredentials: true
-            };
-            
-            await axios(config).then(
-                (response) => {
-                    console.log(response)
-                    //console.log(response.data.csrf_token);
-                    //console.log(response.data.current_user);
-                    //console.log(response.data.logout_token);
-                    commit('SAVE_LOGOUT_USER')
-                    
-                    
+        await axios(config)
+        .then((response) => {
+            commit('SAVE_LOGIN_USER', response.data); 
+            // I need to take users concept map id from here. 
+            // Todo: Save users concept map id to the state    
+            return dispatch("loadUserFromBackend");  
+        })
+        .catch((error) => {
+            console.log(error)
+        });
+    },
+
+    async loadUserFromBackend({ commit, state }) {
+      
+        var config = {
+            method: 'get',
+            url: `jsonapi/user/user?filter[drupal_internal__uid]=${state.user.uid}`,
+            headers: {
+                'Authorization': `${state.authToken}`,
+                'X-CSRF-Token': `${state.csrf_token}`
+            },
+        };
+
+        await axios(config)
+            .then(function (response) {
+                // We need for now only concept map id, but I am saving the other values in case we use them later. 
+                let user = {
+                    id: response.data.data[0].id,
+                    name : response.data.data[0].attributes.name,
+                    mail : response.data.data[0].attributes.mail,
+                    concept_maps : response.data.data[0].relationships.field_concept_maps,
+                    fullname : response.data.data[0].attributes.field_fullname,
+                    matrikelnummer : response.data.data[0].attributes.field_matrikelnummer,
                 }
-                ).catch((error) => {
-                    state.validCredential=false;
-                    console.log(error)
-                });
-            },
-            
-            saveBasicAuth({commit}, authorization_token){
-                
-                commit('SAVE_BASIC_AUTH_TOKEN', authorization_token)
-                
-            }
-            
-            
-        }
-        const mutations ={
-            
-            SAVE_BASIC_AUTH_TOKEN(state, authorization_token){
-                state.authToken=authorization_token
-            },
-            
-            /**
-            * gets the token from action and puts it in state 
-            * @param token token from
-            * @param state state as parameter for access and manipulation of state data
-            */
-            SAVE_SESSION_TOKEN(state, token) {
-                state.csrf_token=token
-                console.log(state.csrf_token)
-            },
-            
-            /**
-            * gets user object from action and puts it in state
-            * @param user
-            * @param state state as parameter for access and manipulation of state data
-            */
-            SAVE_CREATED_USER(state, user) {
-                state.user=user
-                console.log("jetzt csrf und user")
-                console.log(state.user)
-                console.log(state.csrf_token)
-            },
-            
-            /**
-            * gets the csrf_token, user object and loguttoken from action 
-            * and puts it in the state object
-            * @param {*} state 
-            * @param {*} token 
-            */
-            SAVE_LOGIN_USER(state, login_data) {
-                state.csrf_token = login_data.csrf_token;
-                state.user = login_data.current_user;
-                state.logout_token = login_data.logout_token;
-                console.log(state.csrf_token)
-                console.log(state.user)
-                console.log(state.logout_token)
-                state.validCredential=true;
-                
-            },
-            
-            SAVE_LOGOUT_USER(state) {  
-                state.validCredential=false;
-            },
-            
-        }
+                 return commit('SAVE_USER', user );
+            })
+            .catch(function (error) {
+                console.log(error)
+            })
+
+    },
+
+
+
+    /**
+    * Connects to the Drupal Backend and request a login
+    * The Backend will give csrf_token a logout token and a current_user object
+    */
+    async logoutDrupal({commit, rootState, state}) {
+        console.log(rootState.drupal_api.csrf_token)
+        console.log(rootState.drupal_api.logout_token)
+        console.log(state.logout_token)
+        console.log(rootState.drupal_api.authToken)
+        console.log(rootState)
+        const config = {
+            method: 'post',
+            url: `user/logout?_format=json&token=${rootState.drupal_api.logout_token}`,
+            headers: {
+                'X-CSRF-Token': `${rootState.drupal_api.csrf_token}`,
+            },                    withCredentials: true
+        };
         
+        await axios(config)
+        .then((response) => {
+            console.log(response)
+            //console.log(response.data.csrf_token);
+            //console.log(response.data.current_user);
+            //console.log(response.data.logout_token);
+            commit('SAVE_LOGOUT_USER')        
+        })
+        .catch((error) => {
+            state.validCredential=false;
+            console.log(error)
+        });
+    },
+    
+    saveBasicAuth({commit}, authorization_token){
+        commit('SAVE_BASIC_AUTH_TOKEN', authorization_token)
+    }
+    
+    
+}
+const mutations ={
+    
+    SAVE_BASIC_AUTH_TOKEN(state, authorization_token){
+        state.authToken=authorization_token
+    },
+    
+    /**
+    * gets the token from action and puts it in state 
+    * @param token token from
+    * @param state state as parameter for access and manipulation of state data
+    */
+    SAVE_SESSION_TOKEN(state, token) {
+        state.csrf_token=token
+        console.log(state.csrf_token)
+    },
+    
+    /**
+    * gets user object from action and puts it in state
+    * @param user
+    * @param state state as parameter for access and manipulation of state data
+    */
+    SAVE_CREATED_USER(state, user) {
+        state.user=user
+        console.log("jetzt csrf und user")
+        console.log(state.user)
+        console.log(state.csrf_token)
+    },
+    
+    /**
+    * gets the csrf_token, user object and loguttoken from action 
+    * and puts it in the state object
+    * @param {*} state 
+    * @param {*} token 
+    */
+    SAVE_LOGIN_USER(state, login_data) {
+        state.csrf_token = login_data.csrf_token;
+        state.user = login_data.current_user;
+        state.logout_token = login_data.logout_token;
+        state.validCredential=true;
         
-        export default {
-            namespaced: true,
-            state,
-            mutations,
-            actions
-        }
+    },
+    
+    SAVE_LOGOUT_USER(state) {
+        
+        state.validCredential=false;
+        
+    },
+    SAVE_USER(state, user){
+        state.user.id = user.id;
+        state.user.mail = user.mail;
+        state.user.matrikelnummer = user.matrikelnummer;
+        state.user.concept_maps = user.concept_maps.data;
+        state.user.fullname = user.fullname;
+    }
+}
+
+
+export default {
+    namespaced: true,
+    state,
+    mutations,
+    actions
+}
