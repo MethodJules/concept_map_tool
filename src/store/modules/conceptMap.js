@@ -1,47 +1,69 @@
 import axios from "@/config/custom_axios";
+import loginAxios from "@/config/login_axios"
 
 const state = () => ({
     nodes: [], // stores the nodes of concept map
-    // links: [], // stores the links of concept map
-    concept_maps:[],
-    index : 0, 
-    aktive_concept_map:[]
+    concept_maps:[], // Stores the concept maps of the user
+    index : 0, // the index of concept_maps. We use it for D3-network in ConceptMap.vue
+    aktive_concept_map:[], // the selected concept map from radio button which are at the top right of the concept map page
     
 })
 
 const getters = {
     /** Getter for nodes of the concept map
+    * @param {object} state state as parameter for access and manipulation of state data
     * @returns nodes 
     */
     getNodes(state) {
         return state.nodes;
     },
     
-    /** Get if there is concept in map
+    /** Gets a variable if there is concept in map, returns a boolean
+    * @param {object} state, state as parameter for access and manipulation of state data
     * @returns result, if concept map is free, then it returns false vice versa.
     * 
     */
     getIsConceptMapEmpty(state){
         let result = false;
+        console.log(state.aktive_concept_map);
         // console.log(state.aktive_concept_map.nodes);
         (state.aktive_concept_map.nodes.length == 0) ? result =  true : result = false; 
         return result;
     },
     
+    /**
+    * Getter for concept_maps in state
+    * @param {object} state, state as parameter for access and manipulation of state data 
+    * @returns concept_maps, concept maps from state
+    */
     getConceptMaps(state){
         return state.concept_maps;
     },
+    /**
+    * Getter for index value in state
+    * @param {object} state, state as parameter for access and manipulation of state data 
+    * @returns index, we are using it in concept_maps array.
+    */
     getIndex(state){
         return state.index;
-    }
+    },
+    
     
 }
 
 const actions = { 
     
-    createConceptMap({commit, dispatch},conceptMap){
-        commit("CREATE_CONCEPT_MAP", conceptMap)
-        
+    /**
+    * Sends concept map to database.
+    * It also triggers the action to save it in the user.
+    * @param {*} commit, commit is being used to call a mutation
+    * @param {*} dispatch, dispatch is being used to call an aciton
+    * @param {object} conceptMap,the concept map, to save in database and state
+    */
+    async createConceptMap({state, commit, dispatch},conceptMap){
+        await commit("CREATE_CONCEPT_MAP", conceptMap)
+        let index = state.concept_maps.indexOf(conceptMap);
+        await commit("UPDATE_INDEX", index);
         var data = `{"data": {"type": "node--concept_map",
         "attributes": {"title": "${conceptMap.title}"}}}`;
         var config = {
@@ -51,8 +73,6 @@ const actions = {
         };
         axios(config)
         .then((response)=>{
-            console.log(response);
-            
             dispatch("addConceptMapToUser", response.data.data)
         })
         .catch((error) => {
@@ -60,6 +80,11 @@ const actions = {
         })
         
     },
+    /**
+    * Adds concept map id to the user in database.
+    * @param {rootState} rootState, it allows access to states of other modules in store
+    * @param {object} conceptMap, the concept map to save to user in database. 
+    */
     addConceptMapToUser({rootState }, conceptMap){
         console.log(conceptMap);
         let userId = rootState.drupal_api.user.id;
@@ -69,21 +94,17 @@ const actions = {
                 "type": "node--concept_map",
                 "id": "${conceptMap.id}"
             }]
-            
         }`;
-        
         var config = {
             method: 'post',
-            url: `https://clr-backend.x-navi.de/jsonapi/user/user/${userId}/relationships/field_concept_maps`,
+            url: `jsonapi/user/user/${userId}/relationships/field_concept_maps`,
             headers: {
-                'Accept': 'application/vnd.api+json',
-                'Content-Type': 'application/vnd.api+json',
                 'Authorization': rootState.drupal_api.authToken,
                 'X-CSRF-Token': `${rootState.drupal_api.csrf_token}`
             },
             data: data
         };
-        axios(config)
+        loginAxios(config)
         .then(function (response) {
             console.log(response);
         })
@@ -167,7 +188,9 @@ const actions = {
     * in an order with then blocks. I have tried to delete first from concept map and then in relationship table
     * But somehow it creates the links with id missing in concept map table. I could not prevent it.
     * So as a solution the function checks at the end if they are created and delete them immediately.
-    * @param {string} linkId the id of the link that we are going to delete 
+    * @param {object} payload it stores the lind ids of the links that we are going to delete from backend.
+    * @param {*} state, state as parameter for access and manipulation of state data
+    * @param {*} commit, commit is being used to call a mutation
     */
     deleteLinkFromConceptMap({commit, state}, payload){
         // state delete
@@ -275,6 +298,8 @@ const actions = {
     
     /**
     * commits to add links to the concept map.
+    * @param {*} commit, commit is being used to call a mutation
+    * @param {*} state, state as parameter for access and manipulation of state data
     * @param {array} relationship the link that will be added to the concept map 
     */
     addRelationshipToDatabase({commit, state}, payload) {
@@ -327,36 +352,40 @@ const actions = {
     },
     /**
     * Loads concept map from backend. 
-    * commit it to mutation to save it in state.
-    *  
+    * It takes the concept map from backend and this concept maps stores the ids of nodes and links.
+    * It calls another actions to take the datas of the nodes and links. 
+    * Then it makes them together and sends it to mutation to save it in state.
+    *  @param {*} commit, it is being used to call a mutation
+    *  @param {*} rootState, it allows access to states of other modules in store.
+    *  @param {*} dispatch, it is being used to call an action
     */
     async loadConceptMapFromBackend({commit, rootState, dispatch}) {
-        
         let conceptMaps = rootState.drupal_api.user.concept_maps;
-        commit("UPDATE_INDEX", conceptMaps);
-        
+        let index = conceptMaps.length - 1;
+        commit("UPDATE_INDEX", index); 
         return conceptMaps.forEach( async (conceptMap) => {
             await axios.get(`concept_map/${conceptMap.id}`)
             .then(async (response) => {  
+                console.log(response)
                 const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
                 const links = response.data.data.relationships.field_conceptmap_relationships.data;
-                
-                // dispatch("loadConceptMapNodesAndLinks", concept_map);
                 let newNodes = await dispatch("loadNodesOfConceptMap", nodes);
                 let newLinks = await dispatch("loadLinksOfConceptMap", links);
-                await dispatch("loadConceptMapSingle", {conceptMapCredientials: response.data.data, nodes:newNodes, links:newLinks});
-                
-                
+                await dispatch("loadConceptMap", {conceptMapCredientials: response.data.data, nodes:newNodes, links:newLinks});
+                await commit("INITIALIZE_AKTIVE_CONCEPT_MAP");      
             })
             .catch(error => {
                 throw new Error(`API ${error}`);
             });    
-        })
-        
-        
+        })    
     },
     
-    
+    /**
+    * Loads the node data of the concept maps from database.
+    * @param {*} state, state as parameter for access and manipulation of state data 
+    * @param {*} nodes, it stores the ids of the nodes.  
+    * @returns {object} concepts, it stores the concept ids, titles and uuids.
+    */
     async loadNodesOfConceptMap({state}, nodes){
         console.log(state)
         let concepts = [];
@@ -366,13 +395,17 @@ const actions = {
                 const title = response.data.data.attributes.title;
                 const uuid = response.data.data.id;
                 concepts.push({id: uuid, name: title, uuid: uuid});
-            })
-            
+            })     
         });
         console.log(concepts);
         return concepts;
     },
-    
+    /**
+    * Loads the link data of the concept maps from database.
+    * @param {*} state, state as parameter for access and manipulation of state data 
+    * @param {*} links, it stores the ids of the links.  
+    * @returns {object} concepts, it stores the links ids, names,source ids(sid) and target ids(tid)
+    */
     async loadLinksOfConceptMap({state}, links){
         console.log(state)
         let relationships = [];
@@ -390,39 +423,51 @@ const actions = {
         console.log(relationships)
         return relationships;
     },
+    /**
+    * Sends concept map to mutation to save it in state. 
+    * @param {*} commit, it is being used to call a mutation 
+    * @param {object} conceptMap, it stores the concept map to save the state 
+    * @returns 
+    */
+    async loadConceptMap({commit}, conceptMap){
+        return await commit('INITIALIZE_CONCEPT_MAP', conceptMap);
+    }, 
     
-    loadConceptMapSingle({commit}, conceptMap){
-        commit('INITIALIZE_CONCEPT_MAP', conceptMap);
-    }
     
 }
 
 const mutations = {
-    
+    /**
+    * Saves concept map to the state and 
+    * @param {*} state 
+    * @param {*} conceptMap 
+    */
     CREATE_CONCEPT_MAP(state, conceptMap){
-        state.concept_maps.push(conceptMap);
-        state.index =
-        state.concept_maps.indexOf(conceptMap);
+        return state.concept_maps.push(conceptMap);
+        // let index =
+        // state.concept_maps.indexOf(conceptMap);
+        // commit("UPDATE_INDEX", index);
+    },
+    /**
+     * 
+     * @param {*} state, state as variable to access and manipulation of state data 
+     * @param {*} index, the new index to save
+     * @returns 
+     */
+    UPDATE_INDEX(state, index){
+        return state.index = index;
     },
     
     /**
-    * Adds concept to concept map,
-    * Both state and database
+    * Adds concept to concept map in state,
     * @param {*} state 
-    * @param {object} concept concept to add concept map 
+    * @param {object} payload stores the concept data for adding it to concept map. 
     */
     ADD_CONCEPT_TO_CONCEPT_MAP(state, payload) {  
-        // Adding concept to the state  
-        let concept = payload.concept;
-        let index = state.index;
-        console.log(state.concept_maps)
-        console.log(concept)
-        console.log(index)
-        console.log(state.concept_maps[index])
-        state.concept_maps[index].nodes.push({
-            id: concept.id,
-            name: concept.name,
-            uuid: concept.id,        
+        state.concept_maps[state.index].nodes.push({
+            id: payload.concept.id,
+            name: payload.concept.name,
+            uuid: payload.concept.id,        
         })            
     },
     /**
@@ -431,7 +476,7 @@ const mutations = {
     * It saves first to the database and then saves relationship to state by using the id 
     * that comes with response.
     * @param {*} state 
-    * @param {array} relationship the relationship that will be added to concept map. 
+    * @param {array} payload stores the relationship that will be added to concept map. 
     */
     ADD_RELATIONSHIP_TO_STATE(state, payload) {  
         state.concept_maps[state.index].links.push({
@@ -446,7 +491,7 @@ const mutations = {
     /**
     * Deletes node from concept map. 
     * @param {*} state 
-    * @param {object} node the node that will be deleted from concept map 
+    * @param {object} payload stores the node that will be deleted from concept map 
     */
     DELETE_NODE_FROM_CONCEPT_MAP(state, payload){
         // delete node in state
@@ -460,12 +505,14 @@ const mutations = {
     /**
     * Deletes the link from concept map. 
     * @param {*} state 
-    * @param {String} nodeId The id of the node which the link associated with it, will be deleted. 
+    * @param {object} payload stores The id of the node which the link associated with it, will be deleted. 
     *  
     */
     
     DELETE_LINK_FROM_STATE(state, payload){
         // Delete relationship from state
+        console.log("payload in delete link")
+        console.log(payload);
         state.concept_maps[state.index].links.forEach(link => {     
             if(link.id == payload.linkId){
                 // Delete from state
@@ -478,22 +525,30 @@ const mutations = {
     * Loads concept map to the state
     * Loads nodes and link in the required form for vue-d3-network
     * @param {*} state 
-    * @param {object} concept_map teh concept map that we load from database. 
+    * @param {object} conceptMap the concept map that we load from database. 
     */
     INITIALIZE_CONCEPT_MAP(state, conceptMap) {
-        //TODO: Hier kode rein
-        let id = conceptMap.conceptMapCredientials.id;
-        let title = conceptMap.conceptMapCredientials.attributes.title;
-        let nodes=conceptMap.nodes;
-        let links = conceptMap.links;
-        state.concept_maps.push({id: id, title:title, nodes:nodes, links:links})
-        state.aktive_concept_map = state.concept_maps[0];
+        return state.concept_maps.push({
+            id: conceptMap.conceptMapCredientials.id, 
+            title:conceptMap.conceptMapCredientials.attributes.title, 
+            nodes:conceptMap.nodes, 
+            links:conceptMap.links
+        })
+        
         
     },
+    /**
+     * 
+     * @param {*} state, state as parameter to access and manipulation of state data 
+     * @returns state.aktive_concept_map
+     */
+    INITIALIZE_AKTIVE_CONCEPT_MAP(state){
+        
+        return state.aktive_concept_map = state.concept_maps[0];
+    },
     
-    UPDATE_INDEX(state, conceptMaps){
-        state.index = conceptMaps.length - 1;
-    }
+    
+    
     
 }
 

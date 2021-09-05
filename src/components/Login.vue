@@ -118,9 +118,6 @@ export default {
         validCredential() {
             // return true;
             // return this.$store.state.sparky_api.validCredential;
-            // When we login, it breaks the z-circle at the main page.
-            // Zircle is hidden when we double click outside of the zcircle
-
             return this.$store.state.drupal_api.validCredential;
         },
     },
@@ -152,20 +149,10 @@ export default {
             // wenn das hier genutzt wird -> password wird aus namen generiert - die "richtige" anmeldung des nutzers erfolgt beim sparky backend mit rz kennung
             //password=this.generatePassword(username)
             let authorization_token = this.encodeBasicAuth(username, password);
-            // this.$store
-            //     .dispatch("drupal_api/loginToDrupal", {
-            //         username,
-            //         password,
-            //     })
-            //     .then(() => {
-            //         this.$router.push("concept-map-page");
-            //         this.$store.dispatch(
-            //             "conceptMap/loadConceptMapFromBackend"
-            //         );
-            //         this.$store.dispatch("loadConceptListFromDb");
-            //     });
-            // It does not work so: Why?
-            this.$store.dispatch(
+
+            // HUGE PROBLEM: They are not working one by one.
+
+            await this.$store.dispatch(
                 "drupal_api/saveBasicAuth",
                 authorization_token
             );

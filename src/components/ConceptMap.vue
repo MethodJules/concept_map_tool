@@ -329,7 +329,7 @@ export default {
             this.$set(this.links, link.index, link);
         },
     },
-    // async created() {
+    // async beforeCreate() {
     //     await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
     // },
 };

@@ -1,4 +1,5 @@
-import axios from 'axios'
+// import axios from 'axios'
+import axios from "@/config/login_axios"
 
 const state = () => ({
     user: null, //TODO Should we name it current_user? Would be more semantically correct
@@ -32,10 +33,8 @@ const actions= {
         
         //eigtl csrf token, nicht sessiontoken
         console.log(state)
-        await  axios.get('https://clr-backend.x-navi.de/rest/session/token')
+        await  axios.get('rest/session/token')
         .then((response) => {
-            console.log("HELLO")
-            console.log(response.data);
             const token = response.data;
             commit('SAVE_SESSION_TOKEN', token);
             dispatch('createUser', { username, password, matrikelnummer})
@@ -82,7 +81,7 @@ const actions= {
         //TODO: state.csrf_token testen und evtl gegen rootState.drupal_api.csrf_token austauschen
         var config = {
             method: 'post',
-            url: 'https://clr-backend.x-navi.de/user/register?_format=json',
+            url: 'user/register?_format=json',
             headers: {
                 'X-CSRF-Token': state.csrf_token,
                 'Content-Type': 'application/json'
@@ -108,15 +107,10 @@ const actions= {
         //authenticate with sparky_api at sparky backend is commented out for development purposes. thus testaccounts can be used without the need of real user data
         //TODO: uncomment sparky_api/authenticate to authenticate real users when development is finished 
         //await dispatch("sparky_api/authenticate", { username, password }, { root: true })
-        const url = 'https://clr-backend.x-navi.de/user/login?_format=json';
         const data = `{"name": "${username}", "pass": "${password}"}`;
         const config = {
             method: 'post',
-            url: url,
-            headers: {
-                'Accept': 'application/vnd.api+json',
-                'Content-Type':'application/vnd.api+json'
-            },
+            url: 'user/login?_format=json',
             withCredentials: true,
             data: data
         };
@@ -137,10 +131,8 @@ const actions= {
       
         var config = {
             method: 'get',
-            url: `https://clr-backend.x-navi.de/jsonapi/user/user?filter[drupal_internal__uid]=${state.user.uid}`,
+            url: `jsonapi/user/user?filter[drupal_internal__uid]=${state.user.uid}`,
             headers: {
-                'Accept': 'application/vnd.api+json',
-                'Content-Type': 'application/vnd.api+json',
                 'Authorization': `${state.authToken}`,
                 'X-CSRF-Token': `${state.csrf_token}`
             },
@@ -179,10 +171,8 @@ const actions= {
         console.log(rootState)
         const config = {
             method: 'post',
-            url: `https://clr-backend.x-navi.de/user/logout?_format=json&token=${rootState.drupal_api.logout_token}`,
+            url: `user/logout?_format=json&token=${rootState.drupal_api.logout_token}`,
             headers: {
-                'Accept': 'application/vnd.api+json',
-                'Content-Type':'application/vnd.api+json',
                 'X-CSRF-Token': `${rootState.drupal_api.csrf_token}`,
             },                    withCredentials: true
         };
