@@ -31,9 +31,7 @@
 
                     <div class="modal-buttons">
                         <b-button
-                            @click="
-                                removeConceptFromConceptMap(clickedNode, links)
-                            "
+                            @click="deleteNode(clickedNode)"
                             variant="danger"
                             size="sm"
                         >
@@ -169,8 +167,8 @@
             </div>
 
             <d3-network
-                :net-nodes="conceptMaps[index].nodes"
-                :net-links="conceptMaps[index].links"
+                :net-nodes="activeConceptMap.nodes"
+                :net-links="activeConceptMap.links"
                 :options="options"
                 @node-click="showModal"
                 @link-click="changeColor"
@@ -296,7 +294,7 @@ export default {
          */
         showModal(event, node) {
             if (this.deleteMode) {
-                this.removeConceptFromConceptMap(node);
+                this.deleteNode(node);
             } else {
                 this.$root.$emit("bv::show::modal", "add-parent-modal");
                 this.clickedNode = node;
@@ -344,44 +342,55 @@ export default {
                 concept: targetConcept,
             });
         },
+
+        /**
+         * Deletes Node from concept map.
+         * It needs to find the related links with the node and delete them too.
+         * To find the link we have findLinksOfNode function.
+         * To delete links we have deleteLinkFromConceptMap function.
+         * To Delete Node we have deleteConceptFromConceptMap funciton
+         */
+        async deleteNode(node) {
+            this.deleteConceptFromConceptMap(node);
+            let linksToDelete = await this.findLinksOfNode(node);
+            linksToDelete.forEach(async (linkId) => {
+                await this.deleteLinkFromConceptMap(linkId);
+            });
+        },
+
         /**
          * Remove Concept From Concept Map.
          * @param node The node that we are going to delete from concept map.
          * This method both deletes the concept and the link that are associated with
          * this node.
          */
-        removeConceptFromConceptMap(node) {
+        deleteConceptFromConceptMap(node) {
             // Removes the node that is send to the methode
             this.$store.dispatch("conceptMap/deleteNodeFromConceptMap", {
                 node: node,
             });
-            // removes the link that associated with the node send.
-            // Find the link related with given node and delete them
-            let linkIds = [];
-            console.log(this.$store.state);
-            let links =
-                this.$store.state.conceptMap.concept_maps[
-                    this.$store.state.conceptMap.index
-                ].links;
-
+        },
+        /**
+         * Deletes given link from concept map
+         */
+        deleteLinkFromConceptMap(linkId) {
+            this.$store.dispatch("conceptMap/deleteLinkFromConceptMap", {
+                linkId: linkId,
+            });
+        },
+        /**
+         * Finds Links of the given node in active concept map.
+         */
+        findLinksOfNode(node) {
+            let links = this.activeConceptMap.links;
+            let linksOfNode = [];
+            console.log(links);
             links.forEach((link) => {
                 link.sid == node.id || link.tid == node.id
-                    ? linkIds.push(link.id)
+                    ? linksOfNode.push(link.id)
                     : "";
             });
-            console.log(linkIds);
-            if (linkIds.length > 0) {
-                linkIds.forEach((linkId) => {
-                    console.log("link send");
-                    console.log(linkId);
-                    this.$store.dispatch(
-                        "conceptMap/deleteLinkFromConceptMap",
-                        {
-                            linkId: linkId,
-                        }
-                    );
-                });
-            }
+            return linksOfNode;
         },
         // changes the color of the link when user click to it.
         // Can be removed....
@@ -392,9 +401,14 @@ export default {
             this.$set(this.links, link.index, link);
         },
     },
-    // async beforeCreate() {
-    //     await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
-    // },
+    mounted: function () {
+        // this.$nextTick(function () {
+        //     // Code that will run only after the
+        //     // entire view has been rendered
+        //     this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
+        // });
+        this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
+    },
 };
 </script>
 <style scoped >

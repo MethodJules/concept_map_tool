@@ -1,5 +1,6 @@
 // import axios from 'axios'
 import axios from "@/config/login_axios"
+import router from "@/router"
 
 const state = () => ({
     user: null, //TODO Should we name it current_user? Would be more semantically correct
@@ -15,7 +16,11 @@ const state = () => ({
 const getters = {
     getUser(state){
         return state.user;
+    }, 
+    getValidCredential(state){
+        return state.validCredential;
     }
+    
 } 
 const actions= {
     //TO DO: Check if a user already exists
@@ -123,18 +128,15 @@ const actions= {
         
         await axios(config)
         .then((response) => {
-            commit('SAVE_LOGIN_USER', response.data); 
-            // I need to take users concept map id from here. 
-            // Todo: Save users concept map id to the state    
+            commit('SAVE_LOGIN_USER', response.data);   
             return dispatch("loadUserFromBackend");  
         })
         .catch((error) => {
             console.log(error)
         });
     },
-
+    
     async loadUserFromBackend({ commit, state }) {
-      
         var config = {
             method: 'get',
             url: `jsonapi/user/user?filter[drupal_internal__uid]=${state.user.uid}`,
@@ -143,38 +145,44 @@ const actions= {
                 'X-CSRF-Token': `${state.csrf_token}`
             },
         };
-
+        
         await axios(config)
-            .then(function (response) {
-                // We need for now only concept map id, but I am saving the other values in case we use them later. 
-                let user = {
-                    id: response.data.data[0].id,
-                    name : response.data.data[0].attributes.name,
-                    mail : response.data.data[0].attributes.mail,
-                    concept_maps : response.data.data[0].relationships.field_concept_maps,
-                    fullname : response.data.data[0].attributes.field_fullname,
-                    matrikelnummer : response.data.data[0].attributes.field_matrikelnummer,
-                }
-                 return commit('SAVE_USER', user );
-            })
-            .catch(function (error) {
-                console.log(error)
-            })
-
+        .then(function (response) {
+            // We need for now only concept map id, but I am saving the other values in case we use them later. 
+            let user = {
+                id: response.data.data[0].id,
+                name : response.data.data[0].attributes.name,
+                mail : response.data.data[0].attributes.mail,
+                concept_maps : response.data.data[0].relationships.field_concept_maps,
+                fullname : response.data.data[0].attributes.field_fullname,
+                matrikelnummer : response.data.data[0].attributes.field_matrikelnummer,
+            }
+            return commit('SAVE_USER', user );
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+        
     },
-
-
-
+    
+    async loadTokensfromSessionStorage({ commit, dispatch }) {
+        if(sessionStorage.getItem("valid_credentials") == "true"){
+            await commit('LOAD_TOKEN_SESSION_STORAGE');
+            await dispatch('loadUserFromBackend');
+            await router.push("/")
+        }else{
+            console.log("session token")
+            router.push("/Login");
+            return false
+        }
+    },
+    
     /**
     * Connects to the Drupal Backend and request a login
     * The Backend will give csrf_token a logout token and a current_user object
     */
     async logoutDrupal({commit, rootState, state}) {
-        console.log(rootState.drupal_api.csrf_token)
-        console.log(rootState.drupal_api.logout_token)
-        console.log(state.logout_token)
-        console.log(rootState.drupal_api.authToken)
-        console.log(rootState)
+        
         const config = {
             method: 'post',
             url: `user/logout?_format=json&token=${rootState.drupal_api.logout_token}`,
@@ -186,10 +194,8 @@ const actions= {
         await axios(config)
         .then((response) => {
             console.log(response)
-            //console.log(response.data.csrf_token);
-            //console.log(response.data.current_user);
-            //console.log(response.data.logout_token);
-            commit('SAVE_LOGOUT_USER')        
+            commit('SAVE_LOGOUT_USER')
+            router.go("login");
         })
         .catch((error) => {
             state.validCredential=false;
@@ -206,6 +212,7 @@ const actions= {
 const mutations ={
     
     SAVE_BASIC_AUTH_TOKEN(state, authorization_token){
+        sessionStorage.setItem("auth_token", authorization_token);
         state.authToken=authorization_token
     },
     
@@ -238,17 +245,34 @@ const mutations ={
     * @param {*} token 
     */
     SAVE_LOGIN_USER(state, login_data) {
+        sessionStorage.setItem("csrf_token", login_data.csrf_token);
+        sessionStorage.setItem("logout_token", login_data.logout_token);
+        sessionStorage.setItem("valid_credentials", "true");
+        sessionStorage.setItem('current_user', JSON.stringify(login_data.current_user));
         state.csrf_token = login_data.csrf_token;
         state.user = login_data.current_user;
         state.logout_token = login_data.logout_token;
-        state.validCredential=true;
+        state.validCredential = true;
+    },
+    
+    
+    LOAD_TOKEN_SESSION_STORAGE(state) {
+        state.validCredential = true;
+        state.csrf_token = sessionStorage.getItem("csrf_token");
+        state.logout_token = sessionStorage.getItem("logout_token");
+        state.authToken = sessionStorage.getItem("auth_token");
+        state.user = JSON.parse(sessionStorage.getItem('current_user'));
+        return state.user;
         
     },
     
     SAVE_LOGOUT_USER(state) {
-        
         state.validCredential=false;
-        
+        sessionStorage.removeItem("csrf_token");
+        sessionStorage.removeItem("logout_token");
+        sessionStorage.removeItem("valid_credentials");
+        sessionStorage.removeItem("current_user");
+        sessionStorage.removeItem("auth_token");
     },
     SAVE_USER(state, user){
         state.user.id = user.id;

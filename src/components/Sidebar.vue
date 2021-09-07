@@ -71,7 +71,7 @@
                 <b-icon icon="x-circle" aria-hidden="true"></b-icon>
             </b-button>
             <b-row class="concept">
-                <b-button class="d-flex" size="sm" variant="primary">
+                <b-button class="concept-button" size="sm" variant="primary">
                     {{ conceptName }}
                 </b-button>
             </b-row>
@@ -84,6 +84,7 @@
                 <b-icon icon="plus-circle" aria-hidden="true"></b-icon>
             </b-button>
         </div>
+
         <div
             class="tools-conceptButtons"
             v-for="(concept, i) in concepts"
@@ -528,9 +529,14 @@ export default {
             return id;
         },
     },
-    // async created() {
-    //     await this.$store.dispatch("loadConceptListFromDb");
-    // },
+
+    mounted: function () {
+        // with this.$nextTick it waits all child components to load. Then it works.
+        // We need concept maps to load. Thats why we made it so.
+        this.$nextTick(function () {
+            this.$store.dispatch("loadConceptListFromDb");
+        });
+    },
 };
 </script>
 <style scoped>
@@ -594,6 +600,11 @@ export default {
 .tools-addNewConcept:hover {
     background-color: #6b79b2;
     color: white !important;
+}
+
+.concept-button {
+    display: flex;
+    width: 100%;
 }
 /* Tools */
 

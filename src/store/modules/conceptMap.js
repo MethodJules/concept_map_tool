@@ -25,7 +25,6 @@ const getters = {
     */
     getIsConceptMapEmpty(state){
         let result = false;
-        console.log(state.activeConceptMap);
         // console.log(state.activeConceptMap.nodes);
         (state.activeConceptMap.nodes.length == 0) ? result =  true : result = false; 
         return result;
@@ -82,6 +81,11 @@ const actions = {
         })
         
     },
+
+    deleteConceptMap(){
+        // Lets delete concept maps...
+    },
+
     /**
     * Adds concept map id to the user in database.
     * @param {rootState} rootState, it allows access to states of other modules in store
@@ -194,108 +198,54 @@ const actions = {
     * @param {*} state, state as parameter for access and manipulation of state data
     * @param {*} commit, commit is being used to call a mutation
     */
-    deleteLinkFromConceptMap({commit, state}, payload){
+    async deleteLinkFromConceptMap({commit, dispatch}, payload){
         // state delete
         commit("DELETE_LINK_FROM_STATE", payload);
         
-        // To make it seperate
-        // var data = `{"data": [{
-        //     "type": "node--relationship",
-        //     "id": "${linkId}"             
-        // }]}`;
-        // var config = {
-        //     method: 'delete',
-        //     url: `concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships`,
+        await dispatch("deleteLinkFromConceptMapSingle", payload.linkId);
+        await dispatch("deleteLinkFromRelationsTable", payload.linkId);
+           
+   
         
-        //     data: data
-        // };
-        // axios(config).then(()=>{
-        //     dispatch("deleteLinkFromRelationsTable", linkId);
-        // })
-        
-        
-        
-        
-        // Delete relationship from Concept map in database
+    },
+    async deleteLinkFromConceptMapSingle({state}, linkId){
         var data = `{"data": [{
             "type": "node--relationship",
-            "id": "${payload.linkId}"             
+            "id": "${linkId}"             
         }]}`;
         var config = {
             method: 'delete',
-            url: `concept_map/bd8c18f3-4f03-4787-ac85-48821fa3591f/relationships/field_conceptmap_relationships`,
+            url: `concept_map/${state.activeConceptMap.id}/relationships/field_conceptmap_relationships`,
             
             data: data
         };
-        axios(config)
-        .then(()=> {
-            
-            // Delete relationship from relationships in db
-            // We need to delete relationship from relationship table after we delete it from conceptmap
-            // Thats why we make it here
-            // But it does not do it in order. Thats why we had to do many extra work. 
-            // It creates relationship with no reference in conceptmap.json file. 
-            // We delete them regularly when we initialize the concept map and after this delete process. 
-            // If we could make it here in order. Then we would be released so much work.  
-            var data2 = `{"data": [{
-                "type": "node--relationship",
-                "id": "${payload.linkId}" 
-                
-            }]}`;
-            var config2 = {
-                method: 'delete',
-                url: `relationship/${payload.linkId}`,
-                
-                data: data2
-            };
-            axios(config2)
-            .then(() => {
-                
-                // Check if there is a missing created and delete it.
-                var data = `{"data": [{
-                    "type": "node--relationship",
-                    "id": "missing"                             
-                }]}`;
-                var config = {
-                    method: 'delete',
-                    url: `concept_map/${state.activeConceptMap.id}/relationships/field_conceptmap_relationships`,
-                    
-                    data: data
-                };
-                axios(config)
-                .then(() => {
-                    console.log("missing deleted")
-                })
-                .catch(function (error) {
-                    console.log(error)
-                })
-                
-            })
-            .catch(function (error) {
-                console.log(error)
-            })            
+        axios(config).then((response)=>{
+            console.log(response);
+            return response
+        }).catch((error)=>{
+            console.log(error);
         })
-        .catch(function (error) {  
-            console.log(error)
-        })
-        
     },
-    
-    deleteLinkFromRelationsTable(linkId){
-        console.log("Link ID === ????")
+    async deleteLinkFromRelationsTable({state}, linkId){
+        console.log(state);
         console.log(linkId);
-        var data2 = `{"data": [{
+        var data = `{"data": [{
             "type": "node--relationship",
             "id": "${linkId}" 
             
         }]}`;
-        var config2 = {
+        var config = {
             method: 'delete',
             url: `relationship/${linkId}`,
             
-            data: data2
+            data: data
         };
-        axios(config2)
+        axios(config).then((response)=>{
+            console.log(response);
+            return response
+        }).catch((error)=>{
+            console.log(error);
+        })
     },
     
     /**
@@ -368,7 +318,6 @@ const actions = {
         return conceptMaps.forEach( async (conceptMap) => {
             await axios.get(`concept_map/${conceptMap.id}`)
             .then(async (response) => {  
-                console.log(response)
                 const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
                 const links = response.data.data.relationships.field_conceptmap_relationships.data;
                 let newNodes = await dispatch("loadNodesOfConceptMap", nodes);
@@ -389,7 +338,7 @@ const actions = {
     * @returns {object} concepts, it stores the concept ids, titles and uuids.
     */
     async loadNodesOfConceptMap({state}, nodes){
-        console.log(state)
+        console.log(state);
         let concepts = [];
         await nodes.forEach(element => {
             axios.get(`concept/${element.id}`)
@@ -399,7 +348,6 @@ const actions = {
                 concepts.push({id: uuid, name: title, uuid: uuid});
             })     
         });
-        console.log(concepts);
         return concepts;
     },
     /**
@@ -409,7 +357,7 @@ const actions = {
     * @returns {object} concepts, it stores the links ids, names,source ids(sid) and target ids(tid)
     */
     async loadLinksOfConceptMap({state}, links){
-        console.log(state)
+        console.log(state);
         let relationships = [];
         await links.forEach(link => {
             axios.get(`relationship/${link.id}`)
@@ -422,7 +370,6 @@ const actions = {
                 relationships.push({ id: id, sid: sid, tid: tid, _color: '#c93e37', name: label})
             })
         })
-        console.log(relationships)
         return relationships;
     },
     /**
@@ -545,7 +492,6 @@ const mutations = {
      * @returns state.activeConceptMap
      */
     INITIALIZE_AKTIVE_CONCEPT_MAP(state){
-        
         return state.activeConceptMap = state.concept_maps[0];
     },
     

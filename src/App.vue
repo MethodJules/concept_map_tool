@@ -29,10 +29,11 @@ export default {
     computed: {
         ...mapGetters({ buttonClicked: "getButtonClicked" }),
     },
-    // async created() {
-    //     await this.$store.dispatch("loadConceptListFromDb");
-    //     await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
-    // },
+    mounted() {
+        // await this.$store.dispatch("loadConceptListFromDb");
+        // await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
+        this.$store.dispatch("drupal_api/loadTokensfromSessionStorage");
+    },
 };
 </script>
 
