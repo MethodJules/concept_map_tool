@@ -63,54 +63,6 @@
         </b-modal>
         <div>
             <div class="conceptMapBar">
-                <!-- <b-button
-                    id="concept-map-create-popover"
-                    variant="primary"
-                    size="sm"
-                    >+</b-button
-                >
-
-                <b-popover
-                    target="concept-map-create-popover"
-                    title="Erstelle Concept Map"
-                    triggers="focus"
-                    ref="newConceptMapPopover"
-                    placement="left"
-                >
-                    <b-input-group size="sm">
-                        <b-form-input
-                            v-model="newConceptMapName"
-                            @keydown.enter="createConceptMap(newConceptMapName)"
-                        ></b-form-input>
-
-                        <b-input-group-append>
-                            <b-button
-                                size="sm"
-                                variant="primary"
-                                @click="createConceptMap(newConceptMapName)"
-                                >Hinzufügen</b-button
-                            >
-                        </b-input-group-append>
-                    </b-input-group>
-                </b-popover> 
-                 <div
-                    class="conceptMapBar-buttons"
-                    v-for="(conceptMap, i) in conceptMaps"
-                    :key="i"
-                >
-                    <input
-                        type="radio"
-                        class="btn-check conceptMapBar-button"
-                        name="options"
-                        checked
-                        :id="i"
-                        autocomplete="off"
-                        @click="conceptMapSelect(conceptMap, i)"
-                    />
-                    <label class="btn btn-outline-primary btn-sm" :for="i">
-                        {{ conceptMap.title }}</label
-                    >
-                </div> -->
                 <div>
                     <b-dropdown
                         id="dropdown-1"
@@ -139,8 +91,74 @@
                                     aria-hidden="true"
                                 ></b-icon>
                             </b-button>
-                        </div>
 
+                            <b-button
+                                size="sm"
+                                variant="success"
+                                @click="toggleConceptMapEditModal()"
+                            >
+                                <b-icon
+                                    icon="pencil-square"
+                                    aria-hidden="true"
+                                ></b-icon>
+                            </b-button>
+                        </div>
+                        <b-modal
+                            ref="conceptMapEdit-modal"
+                            class="conceptMapBar-editModal"
+                            hide-footer
+                            hide-header
+                        >
+                            <div class="conceptMapBar-editModal-container">
+                                <div class="conceptMapBar-editModal-header">
+                                    <h3>Concept Map Edit</h3>
+                                </div>
+                                <div class="conceptMapBar-editModal-content">
+                                    <b-input-group
+                                        class="mt-3"
+                                        size="sm"
+                                        v-for="(
+                                            conceptMap, index
+                                        ) in conceptMaps"
+                                        :key="index"
+                                    >
+                                        <b-form-input
+                                            size="sm"
+                                            :placeholder="conceptMap.title"
+                                            v-model="neuName[index]"
+                                        ></b-form-input>
+                                        <b-input-group-append class="d-flex">
+                                            <b-button
+                                                variant="outline-primary"
+                                                size="md"
+                                                @click="
+                                                    changeConceptMapName(
+                                                        conceptMap,
+                                                        index
+                                                    )
+                                                "
+                                            >
+                                                <b-icon
+                                                    icon="arrow-repeat"
+                                                    size="md"
+                                                >
+                                                </b-icon>
+                                            </b-button>
+                                        </b-input-group-append>
+                                    </b-input-group>
+                                </div>
+
+                                <div class="conceptMapBar-editModal-footer">
+                                    <b-button
+                                        variant="danger"
+                                        size="sm"
+                                        block
+                                        @click="toggleConceptMapEditModal()"
+                                        >Close Me</b-button
+                                    >
+                                </div>
+                            </div>
+                        </b-modal>
                         <b-dropdown-item
                             class="dropdown-conceptMap"
                             v-for="(conceptMap, i) in conceptMaps"
@@ -149,6 +167,7 @@
                             <span @click="conceptMapSelect(conceptMap, i)">
                                 {{ conceptMap.title }}
                             </span>
+
                             <b-button
                                 class="tools-buttonsDeleteMode"
                                 size="sm"
@@ -200,6 +219,7 @@ export default {
             newConceptToAdd: "", // New concept to add map and concept list
             highlightNodes: [],
             newConceptMapName: "",
+            neuName: [],
         };
     },
     components: {
@@ -264,9 +284,30 @@ export default {
         },
     },
     methods: {
-        deleteConceptMap(conceptMap, i) {
+        changeConceptMapName(conceptMap, index) {
             console.log(conceptMap);
-            console.log(i);
+            console.log(index);
+            console.log(this.neuName[index]);
+        },
+
+        toggleConceptMapEditModal() {
+            this.$refs["conceptMapEdit-modal"].toggle();
+        },
+
+        deleteConceptMap(conceptMap, index) {
+            let payload = {
+                conceptMap: conceptMap,
+                index: index,
+            };
+            this.$store.dispatch("conceptMap/deleteConceptMap", payload);
+        },
+        editConceptMap(conceptMap, index) {
+            console.table(conceptMap, index);
+            let payload = {
+                conceptMap: conceptMap,
+                index: index,
+            };
+            this.$store.dispatch("conceptMap/editConceptMapName", payload);
         },
 
         conceptMapSelect(conceptMap, index) {
@@ -341,6 +382,7 @@ export default {
             this.$store.dispatch("conceptMap/addConceptToConceptMap", {
                 concept: targetConcept,
             });
+            console.log(this.activeConceptMap.links);
         },
 
         /**
@@ -351,11 +393,33 @@ export default {
          * To Delete Node we have deleteConceptFromConceptMap funciton
          */
         async deleteNode(node) {
+            console.log(this.activeConceptMap.links);
             this.deleteConceptFromConceptMap(node);
             let linksToDelete = await this.findLinksOfNode(node);
-            linksToDelete.forEach(async (linkId) => {
+
+            await linksToDelete.forEach(async (linkId) => {
                 await this.deleteLinkFromConceptMap(linkId);
             });
+            await linksToDelete.forEach((linkId) => {
+                this.$store.dispatch(
+                    "conceptMap/deleteLinkFromConceptMapTable",
+                    linkId
+                );
+            });
+            // .then(() => {
+            //     linksToDelete.forEach((linkId) => {
+            //         this.$store.dispatch(
+            //             "conceptMap/deleteLinkFromRelationsTable",
+            //             linkId
+            //         );
+            //     });
+            // });
+            // await linksToDelete.forEach((linkId) => {
+            //     this.$store.dispatch(
+            //         "conceptMap/deleteLinkFromRelationsTable",
+            //         linkId
+            //     );
+            // });
         },
 
         /**
@@ -383,6 +447,7 @@ export default {
          */
         findLinksOfNode(node) {
             let links = this.activeConceptMap.links;
+            console.log(this.activeConceptMap.links);
             let linksOfNode = [];
             console.log(links);
             links.forEach((link) => {
@@ -390,6 +455,7 @@ export default {
                     ? linksOfNode.push(link.id)
                     : "";
             });
+            console.log(linksOfNode);
             return linksOfNode;
         },
         // changes the color of the link when user click to it.
@@ -412,6 +478,11 @@ export default {
 };
 </script>
 <style scoped >
+button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .conceptMapBar {
     display: flex;
     flex-direction: row;
@@ -426,10 +497,14 @@ export default {
 .conceptMapBar-buttons label {
     height: 2rem;
 }
+.dropdown {
+    min-width: 16rem;
+}
 
 .dropdown-input {
     display: flex;
-    padding: 0 1rem 0 1rem;
+    padding-right: 1rem;
+    min-width: 15rem;
 }
 ::v-deep .dropdown-item {
     display: flex;
@@ -494,5 +569,39 @@ export default {
 .net {
     width: 100%;
     height: 70vh;
+}
+
+/* Recommender Modal */
+.conceptMapBar-editModal-header {
+    text-align: center;
+}
+.conceptMapBar-editModal-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+.conceptMapBar-editModal-container {
+    padding: 0.5rem 1rem;
+}
+
+.conceptMapBar-editModal-inputPrepend {
+    min-width: 5em;
+}
+.conceptMapBar-editModal-inputPrepend button {
+    width: 8em;
+}
+
+/** Font sizes:  */
+.fs-1 {
+    font-size: 1em !important;
+}
+.fs-2 {
+    font-size: 2rem;
+}
+.fs-3 {
+    font-size: 3rem;
+}
+.fs-4 {
+    font-size: 4rem;
 }
 </style>

@@ -28,11 +28,11 @@ router.beforeEach( (to, from, next) => {
     // console.log(isAuthenticated)
     
     if (to.name !== 'Login' && !isAuthenticated) {
-        // console.log("before each")
+        console.log("before each")
         next({ name: 'Login' })
     }
     else {
-        // console.log("before each else")
+        console.log("before each else")
         next()
     }    
 })

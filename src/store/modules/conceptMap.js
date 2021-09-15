@@ -81,11 +81,40 @@ const actions = {
         })
         
     },
-
-    deleteConceptMap(){
-        // Lets delete concept maps...
+    
+    deleteConceptMap({commit, rootState}, payload ){
+        commit("DELETE_CONCEPT_MAP_FROM_STATE", payload);
+        commit("UPDATE_AKTIVE_CONCEPT_MAP");
+        var data = `{
+            "data" : [{
+                "type": "node--concept_map",
+                "id": "${payload.conceptMap.id}"
+            }]
+        }`;
+        var config = {
+            method: 'delete',
+            url: `jsonapi/user/user/${rootState.drupal_api.user.id}/relationships/field_concept_maps`,
+            headers: {
+                'Authorization': rootState.drupal_api.authToken,
+                'X-CSRF-Token': `${rootState.drupal_api.csrf_token}`
+            },
+            data: data
+        };
+        loginAxios(config)
+        .then((response)=>{
+            console.log(response);
+        })
+        .catch((error)=>{
+            console.log(error);
+        })
+        
     },
-
+    
+    editConceptMapName({commit}, payload){
+        commit("EDIT_CONCEPT_MAP_NAME", payload)
+        console.log(payload)
+    }, 
+    
     /**
     * Adds concept map id to the user in database.
     * @param {rootState} rootState, it allows access to states of other modules in store
@@ -198,17 +227,19 @@ const actions = {
     * @param {*} state, state as parameter for access and manipulation of state data
     * @param {*} commit, commit is being used to call a mutation
     */
-    async deleteLinkFromConceptMap({commit, dispatch}, payload){
+    async deleteLinkFromConceptMap({commit}, payload){
         // state delete
-        commit("DELETE_LINK_FROM_STATE", payload);
+        return commit("DELETE_LINK_FROM_STATE", payload);
         
-        await dispatch("deleteLinkFromConceptMapSingle", payload.linkId);
-        await dispatch("deleteLinkFromRelationsTable", payload.linkId);
-           
-   
+        // return await dispatch("deleteLinkFromConceptMapTable", payload.linkId).then(()=>{
+            
+        //     dispatch("deleteLinkFromRelationsTable", payload.linkId);
+        // })
+        
+        
         
     },
-    async deleteLinkFromConceptMapSingle({state}, linkId){
+    async deleteLinkFromConceptMapTable({state}, linkId){
         var data = `{"data": [{
             "type": "node--relationship",
             "id": "${linkId}"             
@@ -219,9 +250,9 @@ const actions = {
             
             data: data
         };
-        axios(config).then((response)=>{
+        return axios(config).then((response)=>{
+            console.log("concept map delete")
             console.log(response);
-            return response
         }).catch((error)=>{
             console.log(error);
         })
@@ -240,9 +271,9 @@ const actions = {
             
             data: data
         };
-        axios(config).then((response)=>{
+        return axios(config).then((response)=>{
             console.log(response);
-            return response
+            console.log("relations table")
         }).catch((error)=>{
             console.log(error);
         })
@@ -397,12 +428,21 @@ const mutations = {
         // state.concept_maps.indexOf(conceptMap);
         // commit("UPDATE_INDEX", index);
     },
+    
+    DELETE_CONCEPT_MAP_FROM_STATE(state, payload){
+        state.concept_maps.splice(payload.index, 1);
+        console.log(state.concept_maps);
+    },
+    EDIT_CONCEPT_MAP_NAME(state, payload){
+        console.log(state);
+        console.log(payload)
+    },
     /**
-     * 
-     * @param {*} state, state as variable to access and manipulation of state data 
-     * @param {*} index, the new index to save
-     * @returns 
-     */
+    * 
+    * @param {*} state, state as variable to access and manipulation of state data 
+    * @param {*} index, the new index to save
+    * @returns 
+    */
     UPDATE_INDEX(state, index){
         return state.index = index;
     },
@@ -444,8 +484,6 @@ const mutations = {
     */
     DELETE_NODE_FROM_CONCEPT_MAP(state, payload){
         // delete node in state
-        console.log(payload);
-        console.log(state);
         let indexOfNode = state.concept_maps[state.index].nodes.indexOf(payload.node);
         console.log(indexOfNode);
         state.concept_maps[state.index].nodes.splice(indexOfNode, 1);
@@ -487,13 +525,16 @@ const mutations = {
         
     },
     /**
-     * 
-     * @param {*} state, state as parameter to access and manipulation of state data 
-     * @returns state.activeConceptMap
-     */
+    * 
+    * @param {*} state, state as parameter to access and manipulation of state data 
+    * @returns state.activeConceptMap
+    */
     INITIALIZE_AKTIVE_CONCEPT_MAP(state){
         return state.activeConceptMap = state.concept_maps[0];
     },
+    UPDATE_AKTIVE_CONCEPT_MAP(state, index){
+        (index) ? state.activeConceptMap = state.concept_maps[index]: state.activeConceptMap = state.concept_maps[0];
+    }
     
     
     
