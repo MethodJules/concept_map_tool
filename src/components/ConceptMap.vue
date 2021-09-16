@@ -400,26 +400,20 @@ export default {
             await linksToDelete.forEach(async (linkId) => {
                 await this.deleteLinkFromConceptMap(linkId);
             });
-            await linksToDelete.forEach((linkId) => {
-                this.$store.dispatch(
+
+            for (const linkId of linksToDelete) {
+                await this.$store.dispatch(
                     "conceptMap/deleteLinkFromConceptMapTable",
                     linkId
                 );
-            });
-            // .then(() => {
-            //     linksToDelete.forEach((linkId) => {
-            //         this.$store.dispatch(
-            //             "conceptMap/deleteLinkFromRelationsTable",
-            //             linkId
-            //         );
-            //     });
-            // });
-            // await linksToDelete.forEach((linkId) => {
-            //     this.$store.dispatch(
-            //         "conceptMap/deleteLinkFromRelationsTable",
-            //         linkId
-            //     );
-            // });
+            }
+
+            for (const linkId of linksToDelete) {
+                await this.$store.dispatch(
+                    "conceptMap/deleteLinkFromRelationsTable",
+                    linkId
+                );
+            }
         },
 
         /**
@@ -447,7 +441,6 @@ export default {
          */
         findLinksOfNode(node) {
             let links = this.activeConceptMap.links;
-            console.log(this.activeConceptMap.links);
             let linksOfNode = [];
             console.log(links);
             links.forEach((link) => {
