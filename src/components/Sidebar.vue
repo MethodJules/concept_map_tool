@@ -293,6 +293,8 @@ export default {
         ...mapGetters({
             concepts: "getConcepts",
             isEmpty: "conceptMap/getIsConceptMapEmpty", // if there is no concept in map, we change the popover content
+            nodes: "conceptMap/getNodes",
+            // activeConceptMap: "conceptMap/getActiveConceptMap",
         }),
         /**
          * Methode to enable new concept adding
@@ -349,6 +351,8 @@ export default {
             this.changeNodeColor(color);
         },
         /**
+         * TODO: Vibrate animation
+         *
          * @param {string} color, the color value that we will assign to node
          * Changes the color of node with given color
          */
@@ -363,11 +367,11 @@ export default {
 
         /**
          * Adding concept name to database.
+         * @param {string} conceptName teh name of the new concept that we are going to add
          */
         addNewConcept(conceptName) {
             this.$store.dispatch("addConceptToDb", conceptName);
             this.$store.dispatch("triggerLoading");
-
             this.conceptName = "";
         },
         /**
@@ -388,6 +392,8 @@ export default {
         /**
          * Controls if the given concept is in concept map.
          * @param {object} concept concept to control
+         * @returns {object} payload, stores if the given concept in some of concept maps,
+         * if so the names of concept map is also stored.
          */
         isConceptInMap(concept) {
             let inMap = false;
@@ -400,7 +406,11 @@ export default {
                     }
                 });
             });
-            return { inMap: inMap, consistingMapName: consistingMapName };
+            let payload = {
+                inMap: inMap,
+                consistingMapName: consistingMapName,
+            };
+            return payload;
         },
         /**
          * Updates the name of the concept.
@@ -425,8 +435,6 @@ export default {
          */
         addConceptToConceptMap(sourceConcept, targetConcept) {
             let relationship = [];
-            // We need to add the ids of the source and target concept to relationship array.
-
             if (this.isEmpty) {
                 this.$store.dispatch("conceptMap/addConceptToConceptMap", {
                     concept: sourceConcept,
@@ -436,17 +444,13 @@ export default {
                     name: sourceConcept.name + " -&- " + targetConcept.name,
                     tid: targetConcept.id,
                     sid: sourceConcept.id,
-                }); // We need to send the relationship as an array
+                });
                 this.$store.dispatch("conceptMap/addRelationshipToDatabase", {
                     relationship: relationship,
                 });
-
-                // We need to send the source concept as an object to this methode
                 this.$store.dispatch("conceptMap/addConceptToConceptMap", {
                     concept: sourceConcept,
                 });
-                // we need to send target concept as an object to this methode
-
                 this.$store.dispatch("conceptMap/addConceptToConceptMap", {
                     concept: targetConcept,
                 });
@@ -456,23 +460,26 @@ export default {
         // START! Methods for popover, taken from bootstrap vue
         // https://bootstrap-vue.org/docs/components/popover
         // Advanced <b-popover> usage with reactive content
+        /**
+         * Closes the popover which relates to the given concept.
+         * @param {object} concept is the one when we click on it, we show that popover.
+         */
         closePopover(concept) {
             let id = this.createIdForAddButton(concept);
             this.$root.$emit("bv::hide::popover", id);
         },
+
         addLabel(concept) {
             if (this.input2) {
-                console.log("Send it to the database. Wuhu...");
-
                 this.closePopover(concept);
-                // Return our popover form results
                 this.input1Return = this.input1;
                 this.input2Return = this.input2;
             }
         },
+        /**
+         * Resets the popover before it is being shown.
+         */
         onShow() {
-            // This is called just before the popover is shown
-            // Reset our popover form variables
             this.input1 = "";
             this.input2 = "";
             this.input1state = null;
@@ -539,6 +546,67 @@ export default {
     },
 };
 </script>
+<style>
+/* .node-shake {
+    animation: shake 1s ease-in-out 1s infinite alternate;
+    -webkit-animation: shake 1s ease-in-out 1s infinite alternate;
+}
+@keyframes shake {
+    0% {
+        transform: translate(1px, 1px) rotate(0deg);
+    }
+    10% {
+        transform: translate(-1px, -1.5px) rotate(-0.0000001deg);
+    }
+    20% {
+        transform: translate(-1px, -0.5px) rotate(0.0000001deg);
+    }
+    30% {
+        transform: translate(1px, 1.5px) rotate(0deg);
+    }
+    40% {
+        transform: translate(1px, 0.5px) rotate(0.0000001deg);
+    }
+    50% {
+        transform: translate(-1px, -0.5px) rotate(-0.0000001deg);
+    }
+    60% {
+        transform: translate(-3px, -2.5px) rotate(0deg);
+    }
+    70% {
+        transform: translate(3px, 2.5px) rotate(-0.0000001deg);
+    }
+    80% {
+        transform: translate(-1px, -0.5px) rotate(0.0000001deg);
+    }
+    90% {
+        transform: translate(1px, 1.5px) rotate(0deg);
+    }
+    100% {
+        transform: translate(1px, 1.5px) rotate(-0.0000001deg);
+    }
+} */
+
+/* 
+@keyframes shake {
+    from {
+        -webkit-transform: rotate(1deg);
+    }
+    to {
+        -webkit-transform-origin: center center;
+        -webkit-transform: rotate(-1deg);
+    }
+}
+@-webkit-keyframes shake {
+    from {
+        -webkit-transform: rotate(1deg);
+    }
+    to {
+        -webkit-transform-origin: center center;
+        -webkit-transform: rotate(-1deg);
+    }
+} */
+</style>
 <style scoped>
 /* Popover style start*/
 .popoverTitle {

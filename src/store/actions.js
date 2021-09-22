@@ -8,10 +8,10 @@ export const triggerLoading = ({ commit }) => {
     commit("triggerLoading")
 }
 
-    // setter for delete mode
-export const toggleDeleteMode = ({state}) => {
-        state.deleteMode = !state.deleteMode;
-    }
+// setter for delete mode
+export const toggleDeleteMode = ({ state }) => {
+    state.deleteMode = !state.deleteMode;
+}
 
 
 /**
@@ -27,6 +27,7 @@ export const loadConceptListFromDb = ({ commit }) => {
             for (var i in data) {
                 concepts.push({ name: data[i].attributes.title, nid: data[i].attributes.drupal_internal__nid, id: data[i].id });
             }
+            console.log("concepts", concepts)
             return commit("SAVE_CONCEPTS", concepts)
         }).catch(error => {
             throw new Error(`API ${error}`);
@@ -38,11 +39,11 @@ export const loadConceptListFromDb = ({ commit }) => {
  * @param {conceptName} the concept name that we send in order to save to database 
  */
 export const addConceptToDb = ({ commit }, conceptName) => {
-    
+
     var data = `{"data":{
         "type":"node--concept",
         "attributes": {"title": "${conceptName}"}}}`;
-    
+
     var config = {
         method: 'post',
         url: 'concept',

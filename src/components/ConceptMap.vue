@@ -35,28 +35,31 @@
                             variant="danger"
                             size="sm"
                         >
+                            <!-- <b-icon icon="trash" size="sm"></b-icon> -->
                             Delete <strong> {{ clickedNode.name }} !</strong>
                         </b-button>
-                        <div>
-                            <b-button
-                                variant="primary"
-                                :disabled="isOptionOrInputFull"
-                                size="sm"
-                                @click="
-                                    addConceptToConceptMap(
-                                        clickedNode,
-                                        targetConcept
-                                    )
-                                "
-                                >Hinzufügen
-                            </b-button>
-                            <b-button
-                                @click="hideModal()"
-                                variant="danger"
-                                size="sm"
-                                >Close Me
-                            </b-button>
-                        </div>
+
+                        <b-button
+                            variant="primary"
+                            :disabled="isOptionOrInputFull"
+                            size="sm"
+                            @click="
+                                addConceptToConceptMap(
+                                    clickedNode,
+                                    targetConcept
+                                )
+                            "
+                        >
+                            <!-- <b-icon icon="plus-circle" size="sm"></b-icon> -->
+                            Hinzufügen
+                            <strong>{{ targetConcept.name }} </strong>
+                        </b-button>
+                        <b-button
+                            @click="hideModal()"
+                            variant="danger"
+                            size="sm"
+                            >Close Me
+                        </b-button>
                     </div>
                 </div>
             </div>
@@ -70,6 +73,7 @@
                         variant="primary"
                         size="sm"
                         right
+                        ref="conceptMapDropdown"
                     >
                         <div class="dropdown-input">
                             <b-form-input
@@ -80,11 +84,14 @@
                                     createConceptMap(newConceptMapName)
                                 "
                             >
+                                <!-- @keydown.enter.prevent="!conceptNameEmpty" -->
+                                <!-- How to stop enter when There is no name there... -->
                             </b-form-input>
                             <b-button
                                 size="sm"
                                 variant="success"
                                 @click="createConceptMap(newConceptMapName)"
+                                :disabled="!conceptNameEmpty"
                             >
                                 <b-icon
                                     icon="plus-circle"
@@ -125,7 +132,13 @@
                                         <b-form-input
                                             size="sm"
                                             :placeholder="conceptMap.title"
-                                            v-model="neuName[index]"
+                                            v-model="newName[index]"
+                                            @keydown.enter="
+                                                changeConceptMapName(
+                                                    conceptMap,
+                                                    index
+                                                )
+                                            "
                                         ></b-form-input>
                                         <b-input-group-append class="d-flex">
                                             <b-button
@@ -219,7 +232,7 @@ export default {
             newConceptToAdd: "", // New concept to add map and concept list
             highlightNodes: [],
             newConceptMapName: "",
-            neuName: [],
+            newName: [],
         };
     },
     components: {
@@ -266,6 +279,12 @@ export default {
             if (this.newConceptToAdd !== "") return true;
             return false;
         },
+
+        conceptNameEmpty() {
+            if (this.newConceptMapName !== "") return true;
+            return false;
+        },
+
         /**
          * options of concept map.
          * For more information: https://www.npmjs.com/package/vue-d3-network
@@ -285,29 +304,45 @@ export default {
     },
     methods: {
         changeConceptMapName(conceptMap, index) {
-            console.log(conceptMap);
-            console.log(index);
-            console.log(this.neuName[index]);
+            let payload = {
+                conceptMap: conceptMap,
+                index: index,
+                newName: this.newName[index],
+            };
+            this.$store.dispatch("conceptMap/changeConceptMapName", payload);
+            this.newName = "";
         },
 
         toggleConceptMapEditModal() {
             this.$refs["conceptMapEdit-modal"].toggle();
         },
 
-        deleteConceptMap(conceptMap, index) {
+        async deleteConceptMap(conceptMap, index) {
             let payload = {
                 conceptMap: conceptMap,
                 index: index,
             };
-            this.$store.dispatch("conceptMap/deleteConceptMap", payload);
-        },
-        editConceptMap(conceptMap, index) {
-            console.table(conceptMap, index);
-            let payload = {
-                conceptMap: conceptMap,
-                index: index,
-            };
-            this.$store.dispatch("conceptMap/editConceptMapName", payload);
+            await this.$store.dispatch(
+                "conceptMap/deleteConceptMapFromUser",
+                payload
+            );
+
+            await this.$store.dispatch(
+                "conceptMap/deleteConceptMapFromDatabase",
+                conceptMap
+            );
+
+            let links = conceptMap.links;
+            console.log(links);
+
+            links.forEach((link) => {
+                console.log(link);
+                console.log(link.id);
+                this.$store.dispatch(
+                    "conceptMap/deleteLinkFromRelationsTable",
+                    link.id
+                );
+            });
         },
 
         conceptMapSelect(conceptMap, index) {
@@ -322,7 +357,7 @@ export default {
                 links: [],
             };
             this.$store.dispatch("conceptMap/createConceptMap", newConceptMap);
-            this.$refs.newConceptMapPopover.$emit("close");
+            this.$refs.conceptMapDropdown.hide(true);
             this.newConceptMapName = "";
         },
 
@@ -393,13 +428,12 @@ export default {
          * To Delete Node we have deleteConceptFromConceptMap funciton
          */
         async deleteNode(node) {
-            console.log(this.activeConceptMap.links);
-            this.deleteConceptFromConceptMap(node);
             let linksToDelete = await this.findLinksOfNode(node);
 
-            await linksToDelete.forEach(async (linkId) => {
-                await this.deleteLinkFromConceptMap(linkId);
+            linksToDelete.forEach((linkId) => {
+                this.deleteLinkFromConceptMap(linkId);
             });
+            this.deleteConceptFromConceptMap(node);
 
             for (const linkId of linksToDelete) {
                 await this.$store.dispatch(
@@ -451,6 +485,7 @@ export default {
             console.log(linksOfNode);
             return linksOfNode;
         },
+
         // changes the color of the link when user click to it.
         // Can be removed....
         changeColor(event, link) {
@@ -460,7 +495,7 @@ export default {
             this.$set(this.links, link.index, link);
         },
     },
-    mounted: function () {
+    beforeMount() {
         // this.$nextTick(function () {
         //     // Code that will run only after the
         //     // entire view has been rendered
@@ -534,10 +569,10 @@ button {
     display: flex;
     margin-top: 1rem;
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-end;
 }
-.modal-buttons div button:first-child {
-    margin-right: 0.5rem;
+.modal-buttons * {
+    margin-left: 0.5rem;
 }
 .buttonGroup {
     padding: 1rem;
