@@ -90,6 +90,11 @@
             v-for="(concept, i) in concepts"
             :key="i"
         >
+            <!-- <div
+            class="tools-conceptButtons"
+            v-for="(concept, i) in activeConceptMap.nodes"
+            :key="i"
+        > -->
             <b-button
                 class="tools-conceptButtons-deleteButton"
                 size="sm"

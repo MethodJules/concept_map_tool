@@ -28,7 +28,8 @@
                             {{ concept.name }}
                         </option>
                     </select>
-
+                    <label for="linkNameInput">Link Name: </label>
+                    <b-input id="linkNameInput" v-model="linkName"> </b-input>
                     <div class="modal-buttons">
                         <b-button
                             @click="deleteNode(clickedNode)"
@@ -46,7 +47,8 @@
                             @click="
                                 addConceptToConceptMap(
                                     clickedNode,
-                                    targetConcept
+                                    targetConcept,
+                                    linkName
                                 )
                             "
                         >
@@ -204,8 +206,52 @@
                 :options="options"
                 @node-click="showModal"
                 @link-click="changeColor"
+                ref="net"
+                :link-cb="lcb"
             />
         </div>
+        <svg>
+            <defs>
+                <marker
+                    id="m-end"
+                    markerWidth="10"
+                    markerHeight="10"
+                    refX="9"
+                    refY="3"
+                    orient="auto"
+                    markerUnits="strokeWidth"
+                >
+                    <path d="M0,0 L0,6 L9,3 z"></path>
+                </marker>
+                <marker
+                    id="m-start"
+                    markerWidth="6"
+                    markerHeight="6"
+                    refX="-4"
+                    refY="3"
+                    orient="auto"
+                    markerUnits="strokeWidth"
+                >
+                    <rect width="3" height="6"></rect>
+                </marker>
+                <marker
+                    id="markerCircle"
+                    markerWidth="4"
+                    markerHeight="4"
+                    refX="-4"
+                    refY="3"
+                    orient="auto"
+                    markerUnits="strokeWidth"
+                >
+                    <circle
+                        cx="5"
+                        cy="5"
+                        r="3"
+                        style="stroke: none; fill: #000000"
+                    />
+                </marker>
+            </defs>
+        </svg>
     </div>
 </template>
 <script>
@@ -223,16 +269,19 @@ export default {
         return {
             // variables for link options:
             nodeSize: 30, // Link Options: arranges the size of nodes
-            linkWidth: 5, // Link Options: arranges the size of the link
-            force: 5000, // Link Options: arranges how much wide the concept map
+            linkWidth: 3, // Link Options: arranges the size of the link
+            force: 15000, // Link Options: arranges how much wide the concept map
             fontSize: 15, // Link Options: arranges the font size of the node
             strLinks: true, // Link Options: decide if the links are straight or curved
+            linkLabels: true,
             clickedNode: {}, // the node that user clicked on the concept map
             targetConcept: "", // The concept that we are going to add to the map
             newConceptToAdd: "", // New concept to add map and concept list
             highlightNodes: [],
             newConceptMapName: "",
             newName: [],
+            linkName: "",
+            // symbol: "m-end",
         };
     },
     components: {
@@ -298,11 +347,25 @@ export default {
                 linkWidth: this.linkWidth,
                 fontSize: this.fontSize,
                 strLinks: this.strLinks,
+                linkLabels: this.linkLabels,
                 // size: { h: 700 },
             };
         },
     },
     methods: {
+        lcb(link) {
+            console.log(link);
+            // I need to add some variable to relationships in database,
+            // So I can change this symbol for each link
+            // such an object
+            // _svgAttrs = ...
+            link._svgAttrs = {
+                "marker-end": `url(#m-end)`,
+                "marker-start": "url(#m-end)",
+            };
+            return link;
+        },
+
         changeConceptMapName(conceptMap, index) {
             let payload = {
                 conceptMap: conceptMap,
@@ -396,12 +459,20 @@ export default {
          * @param targetConcept The target concept as an object
          *
          */
-        addConceptToConceptMap(sourceConcept, targetConcept) {
+        addConceptToConceptMap(sourceConcept, targetConcept, linkName) {
             let relationship = [];
-
+            let name = "";
+            linkName.length > 0
+                ? (name = linkName)
+                : (name =
+                      "from " +
+                      sourceConcept.name +
+                      " to " +
+                      targetConcept.name);
+            console.log(name);
             // We need to add the ids of the source and target concept to relationship array.
             relationship.push({
-                name: sourceConcept.name + " -&- " + targetConcept.name,
+                name: name,
                 tid: targetConcept.id,
                 sid: sourceConcept.id,
             });
@@ -417,7 +488,6 @@ export default {
             this.$store.dispatch("conceptMap/addConceptToConceptMap", {
                 concept: targetConcept,
             });
-            console.log(this.activeConceptMap.links);
         },
 
         /**
@@ -619,17 +689,29 @@ button {
     width: 8em;
 }
 
-/** Font sizes:  */
-.fs-1 {
-    font-size: 1em !important;
+ul.menu {
+    list-style: none;
+    position: absolute;
+    z-index: 100;
+    min-width: 20em;
+    text-align: left;
 }
-.fs-2 {
-    font-size: 2rem;
+ul.menu li {
+    margin-top: 1em;
+    position: relative;
 }
-.fs-3 {
-    font-size: 3rem;
+
+#m-end path,
+#m-start {
+    fill: rgba(18, 120, 98, 0.8);
 }
-.fs-4 {
-    font-size: 4rem;
+</style>
+
+<style>
+.link-label {
+    fill: yellow !important;
+    text-shadow: 2px 2px 2px black;
+    transform: translate(0, 0.5em) !important;
+    font-size: 0.8em !important;
 }
 </style>
