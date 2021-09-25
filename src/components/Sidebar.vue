@@ -87,7 +87,7 @@
 
         <div
             class="tools-conceptButtons"
-            v-for="(concept, i) in concepts"
+            v-for="(concept, i) in filteredConcepts"
             :key="i"
         >
             <!-- <div
@@ -198,7 +198,7 @@
                                 </option>
 
                                 <option
-                                    v-for="(concept, i) in concepts"
+                                    v-for="(concept, i) in filteredConcepts"
                                     :key="i"
                                     :value="concept"
                                 >
@@ -214,6 +214,39 @@
                             Target:
                             <strong>{{ targetConcept.name }}</strong>
                         </b-alert>
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                name="relationType"
+                                id="bidirectional"
+                                value="null"
+                                v-model="relationType"
+                                checked
+                            />
+                            <label class="form-check-label" for="bidirectional">
+                                Bidirectional
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                name="relationType"
+                                id="unidirectional"
+                                value="m-start"
+                                v-model="relationType"
+                            />
+                            <label
+                                class="form-check-label"
+                                for="unidirectional"
+                            >
+                                Unidirectional
+                            </label>
+                        </div>
+                        <label for="linkNameInput">Link Name: </label>
+                        <b-input id="linkNameInput" v-model="linkName">
+                        </b-input>
                     </div>
                     <div v-if="isEmpty">
                         <b-alert show class="small">
@@ -232,7 +265,12 @@
                         >
                         <b-button
                             @click="
-                                addConceptToConceptMap(concept, targetConcept)
+                                addConceptToConceptMap(
+                                    concept,
+                                    targetConcept,
+                                    relationType,
+                                    linkName
+                                )
                             "
                             size="sm"
                             variant="primary"
@@ -277,6 +315,8 @@ export default {
             neuConceptName: "", // new name of the concept, we are using it in the input tha tshown when we double click to the concept
             isInputOpen: false,
             isDeleteModeOn: false,
+            relationType: "",
+            linkName: "",
             // Popover datas, taken from bootstrap vue website
             // https://bootstrap-vue.org/docs/components/popover
             // Advanced <b-popover> usage with reactive content
@@ -299,6 +339,7 @@ export default {
             concepts: "getConcepts",
             isEmpty: "conceptMap/getIsConceptMapEmpty", // if there is no concept in map, we change the popover content
             nodes: "conceptMap/getNodes",
+            filteredConcepts: "getFilteredConcepts",
             // activeConceptMap: "conceptMap/getActiveConceptMap",
         }),
         /**
@@ -438,7 +479,17 @@ export default {
          * @param targetConcept The target concept as an object
          *
          */
-        addConceptToConceptMap(sourceConcept, targetConcept) {
+        addConceptToConceptMap(
+            sourceConcept,
+            targetConcept,
+            relationType,
+            linkName
+        ) {
+            let name = "";
+            linkName.length > 0
+                ? (name = linkName)
+                : (name =
+                      "von " + sourceConcept.name + " zu" + targetConcept.name);
             let relationship = [];
             if (this.isEmpty) {
                 this.$store.dispatch("conceptMap/addConceptToConceptMap", {
@@ -446,9 +497,10 @@ export default {
                 });
             } else {
                 relationship.push({
-                    name: sourceConcept.name + " -&- " + targetConcept.name,
+                    name: name,
                     tid: targetConcept.id,
                     sid: sourceConcept.id,
+                    marker: relationType,
                 });
                 this.$store.dispatch("conceptMap/addRelationshipToDatabase", {
                     relationship: relationship,

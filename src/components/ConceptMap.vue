@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="conceptMapPage">
         <b-modal id="add-parent-modal" hide-footer hide-header hide-title>
             <div class="modal-container">
                 <h5 class="modal-title">
@@ -20,7 +20,7 @@
                             Choose Concept...
                         </option>
                         <option
-                            v-for="(concept, i) in concepts"
+                            v-for="(concept, i) in filteredConcepts"
                             :key="i"
                             :value="concept"
                             :disabled="isInputFull"
@@ -28,6 +28,33 @@
                             {{ concept.name }}
                         </option>
                     </select>
+                    <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            name="relationType"
+                            id="bidirectional"
+                            value="null"
+                            v-model="relationType"
+                            checked
+                        />
+                        <label class="form-check-label" for="bidirectional">
+                            Bidirectional
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            name="relationType"
+                            id="unidirectional"
+                            value="m-start"
+                            v-model="relationType"
+                        />
+                        <label class="form-check-label" for="unidirectional">
+                            Unidirectional
+                        </label>
+                    </div>
                     <label for="linkNameInput">Link Name: </label>
                     <b-input id="linkNameInput" v-model="linkName"> </b-input>
                     <div class="modal-buttons">
@@ -48,7 +75,8 @@
                                 addConceptToConceptMap(
                                     clickedNode,
                                     targetConcept,
-                                    linkName
+                                    linkName,
+                                    relationType
                                 )
                             "
                         >
@@ -210,48 +238,39 @@
                 :link-cb="lcb"
             />
         </div>
-        <svg>
-            <defs>
-                <marker
-                    id="m-end"
-                    markerWidth="10"
-                    markerHeight="10"
-                    refX="9"
-                    refY="3"
-                    orient="auto"
-                    markerUnits="strokeWidth"
-                >
-                    <path d="M0,0 L0,6 L9,3 z"></path>
-                </marker>
-                <marker
-                    id="m-start"
-                    markerWidth="6"
-                    markerHeight="6"
-                    refX="-4"
-                    refY="3"
-                    orient="auto"
-                    markerUnits="strokeWidth"
-                >
-                    <rect width="3" height="6"></rect>
-                </marker>
-                <marker
-                    id="markerCircle"
-                    markerWidth="4"
-                    markerHeight="4"
-                    refX="-4"
-                    refY="3"
-                    orient="auto"
-                    markerUnits="strokeWidth"
-                >
-                    <circle
-                        cx="5"
-                        cy="5"
-                        r="3"
-                        style="stroke: none; fill: #000000"
-                    />
-                </marker>
-            </defs>
-        </svg>
+        <div class="markers">
+            <svg>
+                <defs>
+                    <marker
+                        id="m-end"
+                        markerWidth="10"
+                        markerHeight="7"
+                        refX="14"
+                        refY="3.5"
+                        orient="auto"
+                        markerUnits="strokeWidth"
+                    >
+                        <!-- refX="9"
+                    refY="3" -->
+                        <polygon points="0 0, 10 3.5, 0 7" fill="red" />
+                    </marker>
+                    <marker
+                        id="m-start"
+                        markerWidth="10"
+                        markerHeight="7"
+                        refX="-5"
+                        refY="3.5"
+                        orient="auto"
+                        markerUnits="strokeWidth"
+                    >
+                        <!-- refX="-4"
+                    refY="3" -->
+                        <!-- 0 0, 10 3.5, 0 7 -->
+                        <polygon points="10 0, 10 7, 0 3.5" fill="red" />
+                    </marker>
+                </defs>
+            </svg>
+        </div>
     </div>
 </template>
 <script>
@@ -270,7 +289,7 @@ export default {
             // variables for link options:
             nodeSize: 30, // Link Options: arranges the size of nodes
             linkWidth: 3, // Link Options: arranges the size of the link
-            force: 15000, // Link Options: arranges how much wide the concept map
+            force: 20000, // Link Options: arranges how much wide the concept map
             fontSize: 15, // Link Options: arranges the font size of the node
             strLinks: true, // Link Options: decide if the links are straight or curved
             linkLabels: true,
@@ -281,6 +300,7 @@ export default {
             newConceptMapName: "",
             newName: [],
             linkName: "",
+            relationType: "",
             // symbol: "m-end",
         };
     },
@@ -298,6 +318,7 @@ export default {
             conceptMaps: "conceptMap/getConceptMaps",
             index: "conceptMap/getIndex",
             activeConceptMap: "conceptMap/getActiveConceptMap",
+            filteredConcepts: "getFilteredConcepts",
         }),
 
         /**
@@ -305,7 +326,7 @@ export default {
          * We need this info in order to prevent sending an unfilled form
          */
         isOptionOrInputFull() {
-            if ((this.targetConcept == "") & (this.newConceptToAdd == "")) {
+            if ((this.newConceptToAdd == "") & (this.relationType == "")) {
                 return true;
             }
             return false;
@@ -354,14 +375,9 @@ export default {
     },
     methods: {
         lcb(link) {
-            console.log(link);
-            // I need to add some variable to relationships in database,
-            // So I can change this symbol for each link
-            // such an object
-            // _svgAttrs = ...
             link._svgAttrs = {
                 "marker-end": `url(#m-end)`,
-                "marker-start": "url(#m-end)",
+                "marker-start": `url(#${link.marker})`,
             };
             return link;
         },
@@ -445,6 +461,7 @@ export default {
          */
         hideModal() {
             this.$root.$emit("bv::hide::modal", "add-parent-modal");
+            this.clearOptions();
         },
         /**Clear Options.
          * Deletes the value of the option in the modal.
@@ -452,6 +469,7 @@ export default {
          */
         clearOptions() {
             this.targetConcept = "";
+            this.linkName = "";
         },
         /**
          * Adds given concept to concept map
@@ -459,15 +477,21 @@ export default {
          * @param targetConcept The target concept as an object
          *
          */
-        addConceptToConceptMap(sourceConcept, targetConcept, linkName) {
+        addConceptToConceptMap(
+            sourceConcept,
+            targetConcept,
+            linkName,
+            relationType
+        ) {
+            console.log(relationType);
             let relationship = [];
             let name = "";
             linkName.length > 0
                 ? (name = linkName)
                 : (name =
-                      "from " +
+                      "von " +
                       sourceConcept.name +
-                      " to " +
+                      " zu " +
                       targetConcept.name);
             console.log(name);
             // We need to add the ids of the source and target concept to relationship array.
@@ -475,6 +499,7 @@ export default {
                 name: name,
                 tid: targetConcept.id,
                 sid: sourceConcept.id,
+                marker: relationType,
             });
             // We need to send the relationship as an array
             this.$store.dispatch("conceptMap/addRelationshipToDatabase", {
@@ -576,6 +601,9 @@ export default {
 };
 </script>
 <style scoped >
+.markers {
+    height: 5px;
+}
 button {
     display: flex;
     justify-content: center;

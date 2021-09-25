@@ -16,8 +16,8 @@ export const triggerLoading = (state) => {
  * @param {*} state 
  * @param {object} concepts concept to save. 
  */
- export const SAVE_CONCEPTS = (state, concepts) => {
-    
+export const SAVE_CONCEPTS = (state, concepts) => {
+
     state.concepts = concepts;
 }
 
@@ -30,7 +30,7 @@ export const triggerLoading = (state) => {
 export const UPDATE_CONCEPT = (state, payload) => {
     let index = state.concepts.indexOf(payload.concept);
     // State update
-    state.concepts[index].name = payload.neuConceptName;  
+    state.concepts[index].name = payload.neuConceptName;
 }
 /**
  * Saves concept name to database.

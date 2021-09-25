@@ -322,12 +322,15 @@ const actions = {
     */
     addRelationshipToDatabase({ commit, state }, payload) {
         // send it to state
+        console.log(payload)
+        console.log(state)
         commit('ADD_RELATIONSHIP_TO_STATE', payload)
         var data = `{"data":{
             "type": "node--relationship", 
             "attributes":{"title": "${payload.relationship[0].name}", 
             "field_sid": "${payload.relationship[0].sid}", 
-            "field_tid": "${payload.relationship[0].tid}" 
+            "field_tid": "${payload.relationship[0].tid}",
+            "field_marker": "${payload.relationship[0].marker}" 
         }}}`;
         var config = {
             method: 'post',
@@ -371,8 +374,8 @@ const actions = {
     */
     async loadConceptMapFromBackend({ commit, rootState, dispatch }) {
         let conceptMaps = rootState.drupal_api.user.concept_maps;
-        let index = conceptMaps.length - 1;
-        commit("UPDATE_INDEX", index);
+        // let index = conceptMaps.length - 1;
+        // commit("UPDATE_INDEX", index);
         return conceptMaps.forEach(async (conceptMap) => {
             await axios.get(`concept_map/${conceptMap.id}`)
                 .then(async (response) => {
@@ -397,14 +400,17 @@ const actions = {
     */
     async loadNodesOfConceptMap({ state }, nodes) {
         console.log(state);
+
         let concepts = [];
         await nodes.forEach(element => {
             axios.get(`concept/${element.id}`)
                 .then((response) => {
+                    console.log(response)
                     const title = response.data.data.attributes.title;
                     const uuid = response.data.data.id;
-                    concepts.push({ id: uuid, name: title, uuid: uuid });
-                    nodes.push({ id: uuid, name: title, uuid: uuid });
+                    const conceptMapId = response.data.data.attributes.field_concept_map_id;
+                    concepts.push({ id: uuid, name: title, uuid: uuid, conceptMapId });
+                    nodes.push({ id: uuid, name: title, uuid: uuid, conceptMapId });
                 })
         });
         return concepts;
@@ -426,8 +432,8 @@ const actions = {
                     const id = response.data.data.id;
                     const sid = response.data.data.attributes.field_sid;
                     const tid = response.data.data.attributes.field_tid;
-                    // state.links.push({ id: id, sid: sid, tid: tid, _color: '#c93e37', name: label})
-                    relationships.push({ id: id, sid: sid, tid: tid, _color: '#c93e37', name: label })
+                    const marker = response.data.data.attributes.field_marker;
+                    relationships.push({ id: id, sid: sid, tid: tid, _color: '#c93e37', name: label, marker: marker })
                 })
         })
         return relationships;
@@ -479,7 +485,8 @@ const mutations = {
     * @returns index, the index value in the state
     */
     UPDATE_INDEX(state, index) {
-        return state.index = index;
+        state.index = index;
+        return state.index;
     },
 
     /**
@@ -509,7 +516,9 @@ const mutations = {
             tid: payload.relationship[0].tid,
             _color: '#FFFFFF',
             name: payload.relationship[0].name,
+            marker: payload.relationship[0].marker,
         })
+        console.log("rel added to state")
     },
 
     /**
@@ -560,11 +569,14 @@ const mutations = {
     * @returns state.activeConceptMap
     */
     INITIALIZE_AKTIVE_CONCEPT_MAP(state) {
-        return state.activeConceptMap = state.concept_maps[0];
+
+        state.activeConceptMap = state.concept_maps[0];
+        console.log(state.activeConceptMap)
+        return state.activeConceptMap
     },
     /**
     * Updates the active concept map in state.
-    * @param {state} state as parameter to access and manipulation of state data 
+    * @param {object} state as parameter to access and manipulation of state data 
     * @param {int} index the index value of the active concept map in concept_maps array  
     */
     UPDATE_AKTIVE_CONCEPT_MAP(state, index) {

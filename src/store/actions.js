@@ -1,9 +1,9 @@
 import axios from '@/config/custom_axios'
 
 /**
- * Triggers loading bar.
- * @param {*} commit 
- */
+* Triggers loading bar.
+* @param {*} commit 
+*/
 export const triggerLoading = ({ commit }) => {
     commit("triggerLoading")
 }
@@ -15,17 +15,23 @@ export const toggleDeleteMode = ({ state }) => {
 
 
 /**
- * Loads the concepts from database and send them to mutation with commit. 
- * @param {commit}
- *  
- */
+* Loads the concepts from database and send them to mutation with commit. 
+* @param {commit}
+*  
+*/
 export const loadConceptListFromDb = ({ commit }) => {
     axios.get('concept')
         .then((response) => {
             const data = response.data.data;
             let concepts = [];
             for (var i in data) {
-                concepts.push({ name: data[i].attributes.title, nid: data[i].attributes.drupal_internal__nid, id: data[i].id });
+                console.log(data[i])
+                concepts.push({
+                    name: data[i].attributes.title,
+                    nid: data[i].attributes.drupal_internal__nid,
+                    id: data[i].id,
+                    conceptMapId: data[i].attributes.field_concept_map_id
+                });
             }
             console.log("concepts", concepts)
             return commit("SAVE_CONCEPTS", concepts)
@@ -34,15 +40,20 @@ export const loadConceptListFromDb = ({ commit }) => {
         });
 }
 /**
- * Commits to add concepts to the database. 
- * @param {commit}  
- * @param {conceptName} the concept name that we send in order to save to database 
- */
-export const addConceptToDb = ({ commit }, conceptName) => {
-
+* Commits to add concepts to the database. 
+* @param {commit}  
+* @param {conceptName} the concept name that we send in order to save to database 
+*/
+export const addConceptToDb = ({ commit, rootState }, conceptName) => {
+    console.log(rootState.conceptMap.activeConceptMap.id);
+    console.log(commit)
     var data = `{"data":{
         "type":"node--concept",
-        "attributes": {"title": "${conceptName}"}}}`;
+        "attributes": {
+            "title": "${conceptName}", 
+            "field_concept_map_id": "${rootState.conceptMap.activeConceptMap.id}" 
+        }
+    }}`;
 
     var config = {
         method: 'post',
@@ -52,7 +63,12 @@ export const addConceptToDb = ({ commit }, conceptName) => {
 
     axios(config)
         .then(function (response) {
-            commit("ADD_NEW_CONCEPT", { name: conceptName, id: response.data.data.id, nid: response.data.data.attributes.drupal_internal__nid });
+            commit("ADD_NEW_CONCEPT", {
+                name: conceptName,
+                id: response.data.data.id,
+                nid: response.data.data.attributes.drupal_internal__nid,
+                conceptMapId: rootState.conceptMap.activeConceptMap.id
+            });
         })
         .catch(function (error) {
             console.log(error);
@@ -60,10 +76,10 @@ export const addConceptToDb = ({ commit }, conceptName) => {
 }
 
 /**
- * Deletes concept from Database and trigger mutation in order to delete it from state.
- * @param {commit} commit we need it for mutation 
- * @param {concept} concept that we are going to delete from both database and state 
- */
+* Deletes concept from Database and trigger mutation in order to delete it from state.
+* @param {commit} commit we need it for mutation 
+* @param {concept} concept that we are going to delete from both database and state 
+*/
 export const deleteConcept = ({ commit }, concept) => {
     // Deletes it from database
     var config = {
@@ -75,10 +91,10 @@ export const deleteConcept = ({ commit }, concept) => {
     commit('DELETE_CONCEPT', concept);
 }
 /**
- * Commits to update the name of the concept.
- * @param {*} commit 
- * @param {object} payload includes concept as an object and new concept name as string 
- */
+* Commits to update the name of the concept.
+* @param {*} commit 
+* @param {object} payload includes concept as an object and new concept name as string 
+*/
 export const updateConcept = ({ commit }, payload) => {
     commit("UPDATE_CONCEPT", payload);
     var data = `{"data":{"type":"node--concept", "id": "${payload.concept.id}", "attributes": {"title": "${payload.neuConceptName}"}}}`;
