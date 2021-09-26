@@ -46,7 +46,7 @@
                     </div>
                     <div class="recommender-modal-content"></div>
 
-                    <p v-for="(concept, i) in concepts" :key="i">
+                    <p v-for="(concept, i) in filteredConcepts" :key="i">
                         {{ concept.name }}
                     </p>
                     <div class="recommender-modal-footer">
@@ -621,9 +621,10 @@ export default {
 .buttonGroupPopover {
     display: flex;
     justify-content: flex-end;
+    margin-top: 1rem;
 }
 .buttonGroupPopover button {
-    margin-left: rem;
+    margin-left: 0.5rem;
 }
 /* Popover style end*/
 

@@ -393,6 +393,7 @@ export default {
 
         toggleConceptMapEditModal() {
             this.$refs["conceptMapEdit-modal"].toggle();
+            this.newName = [];
         },
 
         async deleteConceptMap(conceptMap, index) {
@@ -469,6 +470,7 @@ export default {
         clearOptions() {
             this.targetConcept = "";
             this.linkName = "";
+            this.relationType = "";
         },
         /**
          * Adds given concept to concept map

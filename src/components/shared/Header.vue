@@ -5,10 +5,7 @@
         </b-navbar-brand>
         <!-- <b-navbar-brand to="/login"> Login</b-navbar-brand> -->
         <b-row class="menu-avatar" v-if="validCredential">
-            <b-avatar
-                variant="info"
-                src="https://placekitten.com/300/300"
-            ></b-avatar>
+            <b-avatar variant="info" :src="user.pictureLink"></b-avatar>
             <span>{{ user.name }}</span>
             <b-button
                 class="menu-logoutButton"
