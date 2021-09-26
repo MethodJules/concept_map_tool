@@ -6,6 +6,7 @@ const state = () => ({
     concept_maps: [], // Stores the concept maps of the user
     index: 0, // the index of concept_maps. We use it for D3-network in ConceptMap.vue
     activeConceptMap: [], // the selected concept map from radio button which are at the top right of the concept map page
+    finishedLoading: false,
 
 
 })
@@ -54,6 +55,10 @@ const getters = {
     getActiveConceptMap(state) {
         return state.activeConceptMap;
     },
+
+    getFinishedLoading(state) {
+        return state.finishedLoading;
+    }
 
 
 }
@@ -374,8 +379,6 @@ const actions = {
     */
     async loadConceptMapFromBackend({ commit, rootState, dispatch }) {
         let conceptMaps = rootState.drupal_api.user.concept_maps;
-        // let index = conceptMaps.length - 1;
-        // commit("UPDATE_INDEX", index);
         return conceptMaps.forEach(async (conceptMap) => {
             await axios.get(`concept_map/${conceptMap.id}`)
                 .then(async (response) => {
@@ -405,7 +408,6 @@ const actions = {
         await nodes.forEach(element => {
             axios.get(`concept/${element.id}`)
                 .then((response) => {
-                    console.log(response)
                     const title = response.data.data.attributes.title;
                     const uuid = response.data.data.id;
                     const conceptMapId = response.data.data.attributes.field_concept_map_id;
@@ -562,6 +564,8 @@ const mutations = {
         })
 
 
+
+
     },
     /**
     * Initializes the active concept map. 
@@ -569,9 +573,8 @@ const mutations = {
     * @returns state.activeConceptMap
     */
     INITIALIZE_AKTIVE_CONCEPT_MAP(state) {
-
         state.activeConceptMap = state.concept_maps[0];
-        console.log(state.activeConceptMap)
+        state.finishedLoading = true;
         return state.activeConceptMap
     },
     /**

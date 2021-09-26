@@ -25,7 +25,6 @@ export const loadConceptListFromDb = ({ commit }) => {
             const data = response.data.data;
             let concepts = [];
             for (var i in data) {
-                console.log(data[i])
                 concepts.push({
                     name: data[i].attributes.title,
                     nid: data[i].attributes.drupal_internal__nid,
@@ -33,7 +32,6 @@ export const loadConceptListFromDb = ({ commit }) => {
                     conceptMapId: data[i].attributes.field_concept_map_id
                 });
             }
-            console.log("concepts", concepts)
             return commit("SAVE_CONCEPTS", concepts)
         }).catch(error => {
             throw new Error(`API ${error}`);
@@ -45,8 +43,6 @@ export const loadConceptListFromDb = ({ commit }) => {
 * @param {conceptName} the concept name that we send in order to save to database 
 */
 export const addConceptToDb = ({ commit, rootState }, conceptName) => {
-    console.log(rootState.conceptMap.activeConceptMap.id);
-    console.log(commit)
     var data = `{"data":{
         "type":"node--concept",
         "attributes": {

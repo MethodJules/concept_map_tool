@@ -94,150 +94,147 @@
                 </div>
             </div>
         </b-modal>
-        <div>
-            <div class="conceptMapBar">
-                <div>
-                    <b-dropdown
-                        id="dropdown-1"
-                        :text="activeConceptMap.title"
-                        variant="primary"
-                        size="sm"
-                        right
-                        ref="conceptMapDropdown"
-                    >
-                        <div class="dropdown-input">
-                            <b-form-input
-                                size="sm"
-                                placeholder="Neu Concept Map"
-                                v-model="newConceptMapName"
-                                @keydown.enter="
-                                    createConceptMap(newConceptMapName)
-                                "
-                            >
-                                <!-- @keydown.enter.prevent="!conceptNameEmpty" -->
-                                <!-- How to stop enter when There is no name there... -->
-                            </b-form-input>
-                            <b-button
-                                size="sm"
-                                variant="success"
-                                @click="createConceptMap(newConceptMapName)"
-                                :disabled="!conceptNameEmpty"
-                            >
-                                <b-icon
-                                    icon="plus-circle"
-                                    aria-hidden="true"
-                                ></b-icon>
-                            </b-button>
 
-                            <b-button
-                                size="sm"
-                                variant="success"
-                                @click="toggleConceptMapEditModal()"
-                            >
-                                <b-icon
-                                    icon="pencil-square"
-                                    aria-hidden="true"
-                                ></b-icon>
-                            </b-button>
-                        </div>
-                        <b-modal
-                            ref="conceptMapEdit-modal"
-                            class="conceptMapBar-editModal"
-                            hide-footer
-                            hide-header
+        <div class="conceptMapBar">
+            <div>
+                <b-dropdown
+                    id="dropdown-1"
+                    :text="activeConceptMap.title"
+                    variant="primary"
+                    size="sm"
+                    right
+                    ref="conceptMapDropdown"
+                >
+                    <div class="dropdown-input">
+                        <b-form-input
+                            size="sm"
+                            placeholder="Neu Concept Map"
+                            v-model="newConceptMapName"
+                            @keydown.enter="createConceptMap(newConceptMapName)"
                         >
-                            <div class="conceptMapBar-editModal-container">
-                                <div class="conceptMapBar-editModal-header">
-                                    <h3>Concept Map Edit</h3>
-                                </div>
-                                <div class="conceptMapBar-editModal-content">
-                                    <b-input-group
-                                        class="mt-3"
+                            <!-- @keydown.enter.prevent="!conceptNameEmpty" -->
+                            <!-- How to stop enter when There is no name there... -->
+                        </b-form-input>
+                        <b-button
+                            size="sm"
+                            variant="success"
+                            @click="createConceptMap(newConceptMapName)"
+                            :disabled="!conceptNameEmpty"
+                        >
+                            <b-icon
+                                icon="plus-circle"
+                                aria-hidden="true"
+                            ></b-icon>
+                        </b-button>
+
+                        <b-button
+                            size="sm"
+                            variant="success"
+                            @click="toggleConceptMapEditModal()"
+                        >
+                            <b-icon
+                                icon="pencil-square"
+                                aria-hidden="true"
+                            ></b-icon>
+                        </b-button>
+                    </div>
+                    <b-modal
+                        ref="conceptMapEdit-modal"
+                        class="conceptMapBar-editModal"
+                        hide-footer
+                        hide-header
+                    >
+                        <div class="conceptMapBar-editModal-container">
+                            <div class="conceptMapBar-editModal-header">
+                                <h3>Concept Map Edit</h3>
+                            </div>
+                            <div class="conceptMapBar-editModal-content">
+                                <b-input-group
+                                    class="mt-3"
+                                    size="sm"
+                                    v-for="(conceptMap, index) in conceptMaps"
+                                    :key="index"
+                                >
+                                    <b-form-input
                                         size="sm"
-                                        v-for="(
-                                            conceptMap, index
-                                        ) in conceptMaps"
-                                        :key="index"
-                                    >
-                                        <b-form-input
-                                            size="sm"
-                                            :placeholder="conceptMap.title"
-                                            v-model="newName[index]"
-                                            @keydown.enter="
+                                        :placeholder="conceptMap.title"
+                                        v-model="newName[index]"
+                                        @keydown.enter="
+                                            changeConceptMapName(
+                                                conceptMap,
+                                                index
+                                            )
+                                        "
+                                    ></b-form-input>
+                                    <b-input-group-append class="d-flex">
+                                        <b-button
+                                            variant="outline-primary"
+                                            size="md"
+                                            @click="
                                                 changeConceptMapName(
                                                     conceptMap,
                                                     index
                                                 )
                                             "
-                                        ></b-form-input>
-                                        <b-input-group-append class="d-flex">
-                                            <b-button
-                                                variant="outline-primary"
+                                        >
+                                            <b-icon
+                                                icon="arrow-repeat"
                                                 size="md"
-                                                @click="
-                                                    changeConceptMapName(
-                                                        conceptMap,
-                                                        index
-                                                    )
-                                                "
                                             >
-                                                <b-icon
-                                                    icon="arrow-repeat"
-                                                    size="md"
-                                                >
-                                                </b-icon>
-                                            </b-button>
-                                        </b-input-group-append>
-                                    </b-input-group>
-                                </div>
-
-                                <div class="conceptMapBar-editModal-footer">
-                                    <b-button
-                                        variant="danger"
-                                        size="sm"
-                                        block
-                                        @click="toggleConceptMapEditModal()"
-                                        >Close Me</b-button
-                                    >
-                                </div>
+                                            </b-icon>
+                                        </b-button>
+                                    </b-input-group-append>
+                                </b-input-group>
                             </div>
-                        </b-modal>
-                        <b-dropdown-item
-                            class="dropdown-conceptMap"
-                            v-for="(conceptMap, i) in conceptMaps"
-                            :key="i"
-                        >
-                            <span @click="conceptMapSelect(conceptMap, i)">
-                                {{ conceptMap.title }}
-                            </span>
 
-                            <b-button
-                                class="tools-buttonsDeleteMode"
-                                size="sm"
-                                variant="danger"
-                                @click.stop="deleteConceptMap(conceptMap, i)"
-                            >
-                                <b-icon
-                                    icon="trash"
+                            <div class="conceptMapBar-editModal-footer">
+                                <b-button
+                                    variant="danger"
                                     size="sm"
-                                    font-scale="1"
-                                ></b-icon>
-                            </b-button>
-                        </b-dropdown-item>
-                    </b-dropdown>
-                </div>
-            </div>
+                                    block
+                                    @click="toggleConceptMapEditModal()"
+                                    >Close Me</b-button
+                                >
+                            </div>
+                        </div>
+                    </b-modal>
+                    <b-dropdown-item
+                        class="dropdown-conceptMap"
+                        v-for="(conceptMap, i) in conceptMaps"
+                        :key="i"
+                    >
+                        <span @click="conceptMapSelect(conceptMap, i)">
+                            {{ conceptMap.title }}
+                        </span>
 
-            <d3-network
-                :net-nodes="activeConceptMap.nodes"
-                :net-links="activeConceptMap.links"
-                :options="options"
-                @node-click="showModal"
-                @link-click="changeColor"
-                ref="net"
-                :link-cb="lcb"
-            />
+                        <b-button
+                            class="tools-buttonsDeleteMode"
+                            size="sm"
+                            variant="danger"
+                            @click.stop="deleteConceptMap(conceptMap, i)"
+                        >
+                            <b-icon
+                                icon="trash"
+                                size="sm"
+                                font-scale="1"
+                            ></b-icon>
+                        </b-button>
+                    </b-dropdown-item>
+                </b-dropdown>
+            </div>
         </div>
+
+        <d3-network
+            v-if="finishedLoading"
+            :net-nodes="activeConceptMap.nodes"
+            :net-links="activeConceptMap.links"
+            :options="options"
+            @node-click="showModal"
+            @link-click="changeColor"
+            ref="net"
+            :link-cb="lcb"
+        />
+
         <div class="markers">
             <svg>
                 <defs>
@@ -301,6 +298,7 @@ export default {
             newName: [],
             linkName: "",
             relationType: "",
+            isDataLoaded: false,
             // symbol: "m-end",
         };
     },
@@ -319,6 +317,7 @@ export default {
             index: "conceptMap/getIndex",
             activeConceptMap: "conceptMap/getActiveConceptMap",
             filteredConcepts: "getFilteredConcepts",
+            finishedLoading: "conceptMap/getFinishedLoading",
         }),
 
         /**
@@ -590,13 +589,13 @@ export default {
             this.$set(this.links, link.index, link);
         },
     },
-    beforeMount() {
+    async created() {
         // this.$nextTick(function () {
         //     // Code that will run only after the
         //     // entire view has been rendered
         //     this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
         // });
-        this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
+        await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
     },
 };
 </script>
