@@ -160,8 +160,8 @@ export default {
                 username,
                 password,
             });
-            await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
-            await this.$store.dispatch("loadConceptListFromDb");
+            // await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
+            // await this.$store.dispatch("loadConceptListFromDb");
             await this.$router.push("concept-map-page");
 
             //remove so username and password arent saved after login
@@ -176,7 +176,7 @@ export default {
             return "Basic " + base64;
         },
     },
-    // mounted() {
+    // created() {
     //     this.$store.dispatch("drupal_api/loadTokensfromSessionStorage");
     // },
 };

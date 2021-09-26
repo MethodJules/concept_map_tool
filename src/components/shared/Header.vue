@@ -1,28 +1,31 @@
 <template>
     <b-navbar toggleable="lg" type="dark" class="menu">
         <b-navbar-brand to="/" class="menu-item">
-            Concept Mapping Tool</b-navbar-brand
-        >
+            Concept Mapping Tool
+        </b-navbar-brand>
         <!-- <b-navbar-brand to="/login"> Login</b-navbar-brand> -->
         <b-row class="menu-avatar" v-if="validCredential">
-            <b-avatar
-                variant="info"
-                src="https://placekitten.com/300/300"
-            ></b-avatar>
-            <b-nav-item-dropdown class="menu-dropdown" text="User Name" right>
-                <b-dropdown-item>Account</b-dropdown-item>
-                <b-dropdown-item>Settings</b-dropdown-item>
-                <b-dropdown-item>
-                    Logout
-                    <b-icon @click="logout()" icon="box-arrow-right"></b-icon>
-                </b-dropdown-item>
-            </b-nav-item-dropdown>
+            <b-avatar variant="info" :src="user.pictureLink"></b-avatar>
+            <span>{{ user.name }}</span>
+            <b-button
+                class="menu-logoutButton"
+                size="sm"
+                variant="secondary"
+                @click="logout()"
+            >
+                <b-icon icon="box-arrow-right"></b-icon>
+            </b-button>
         </b-row>
     </b-navbar>
 </template>
 <script>
+import { mapGetters } from "vuex";
+
 export default {
     computed: {
+        ...mapGetters({
+            user: "drupal_api/getUser", // getter to take datas of the user.
+        }),
         account() {
             return this.$store.state.sparky_api.account;
         },
@@ -42,14 +45,8 @@ export default {
 };
 </script>
 <style scoped>
-.logoutButton {
-    color: white;
-    background-color: #3949b3;
-    border: none;
-}
-
 .menu {
-    background-color: #3949b3 !important;
+    background-color: #6c757d !important;
     display: flex;
     justify-content: space-between;
     padding: 0.7rem 2rem;
@@ -62,20 +59,29 @@ export default {
     list-style-type: none;
 }
 
-.menu-avatar li {
-    width: 70%;
-    padding: 0;
+.menu-avatar {
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
 .menu-avatar span {
     width: 25%;
     padding: 0;
     margin-right: 0.5rem;
+    color: white;
 }
-::v-deep .nav-link {
+.menu-logoutButton {
+    color: white;
+    border: none;
+    width: 20%;
+}
+/* ::v-deep .nav-link {
     color: white !important;
     font-size: 1.2rem;
     padding-left: 0;
-}
+} */
 
 /* START!! Menu items style is useless now. But I am keeping it in case we use them later or another page */
 /* .menu-items ul {

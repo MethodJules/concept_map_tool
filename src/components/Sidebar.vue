@@ -1,29 +1,34 @@
 <template>
     <div>
         <div class="tools">
-            <b-button
-                variant="warning"
-                class="tools-recommender"
-                @click="toggleRecommenderModal"
-            >
-                Recommender
-                <b-icon icon="person-lines-fill"></b-icon>
-            </b-button>
-            <b-button
-                class="tools-deleteMode"
-                variant="danger"
-                @click="toggleDeleteMode()"
-            >
-                Delete Mode
-                <b-icon
-                    v-if="isDeleteModeOn"
-                    icon="circle-fill"
-                    animation="throb"
-                    font-scale="1"
-                ></b-icon>
-            </b-button>
+            <div class="tools-buttons">
+                <b-button
+                    class="tools-buttonsRecommender"
+                    size="sm"
+                    variant="warning"
+                    @click="toggleRecommenderModal"
+                >
+                    Recommender
+                    <b-icon icon="person-lines-fill" font-scale="1"></b-icon>
+                </b-button>
+                <b-button
+                    class="tools-buttonsDeleteMode"
+                    size="sm"
+                    variant="danger"
+                    @click="toggleDeleteMode()"
+                >
+                    Delete Mode
+                    <b-icon
+                        v-if="isDeleteModeOn"
+                        icon="circle-fill"
+                        animation="throb"
+                        font-scale="1"
+                    ></b-icon>
+                </b-button>
+            </div>
             <b-form-input
                 class="tools-newConceptName"
+                size="sm"
                 placeholder="Neu Concept Name..."
                 v-model="conceptName"
                 @keydown.enter="addNewConcept(conceptName)"
@@ -41,7 +46,7 @@
                     </div>
                     <div class="recommender-modal-content"></div>
 
-                    <p v-for="(concept, i) in concepts" :key="i">
+                    <p v-for="(concept, i) in filteredConcepts" :key="i">
                         {{ concept.name }}
                     </p>
                     <div class="recommender-modal-footer">
@@ -66,22 +71,23 @@
                 <b-icon icon="x-circle" aria-hidden="true"></b-icon>
             </b-button>
             <b-row class="concept">
-                <b-button class="d-flex" size="sm" variant="primary">
+                <b-button class="concept-button" size="sm" variant="primary">
                     {{ conceptName }}
                 </b-button>
             </b-row>
             <b-button
                 class="tools-conceptAdding-add"
                 size="sm"
-                variant="success"
+                variant="primary"
                 @click="addNewConcept(conceptName)"
             >
                 <b-icon icon="plus-circle" aria-hidden="true"></b-icon>
             </b-button>
         </div>
+
         <div
             class="tools-conceptButtons"
-            v-for="(concept, i) in concepts"
+            v-for="(concept, i) in filteredConcepts"
             :key="i"
         >
             <b-button
@@ -187,7 +193,7 @@
                                 </option>
 
                                 <option
-                                    v-for="(concept, i) in concepts"
+                                    v-for="(concept, i) in filteredConcepts"
                                     :key="i"
                                     :value="concept"
                                 >
@@ -203,6 +209,39 @@
                             Target:
                             <strong>{{ targetConcept.name }}</strong>
                         </b-alert>
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                name="relationType"
+                                id="bidirectional"
+                                value="null"
+                                v-model="relationType"
+                                checked
+                            />
+                            <label class="form-check-label" for="bidirectional">
+                                Bidirectional
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                name="relationType"
+                                id="unidirectional"
+                                value="m-start"
+                                v-model="relationType"
+                            />
+                            <label
+                                class="form-check-label"
+                                for="unidirectional"
+                            >
+                                Unidirectional
+                            </label>
+                        </div>
+                        <label for="linkNameInput">Link Name: </label>
+                        <b-input id="linkNameInput" v-model="linkName">
+                        </b-input>
                     </div>
                     <div v-if="isEmpty">
                         <b-alert show class="small">
@@ -221,7 +260,12 @@
                         >
                         <b-button
                             @click="
-                                addConceptToConceptMap(concept, targetConcept)
+                                addConceptToConceptMap(
+                                    concept,
+                                    targetConcept,
+                                    relationType,
+                                    linkName
+                                )
                             "
                             size="sm"
                             variant="primary"
@@ -266,6 +310,8 @@ export default {
             neuConceptName: "", // new name of the concept, we are using it in the input tha tshown when we double click to the concept
             isInputOpen: false,
             isDeleteModeOn: false,
+            relationType: "",
+            linkName: "",
             // Popover datas, taken from bootstrap vue website
             // https://bootstrap-vue.org/docs/components/popover
             // Advanced <b-popover> usage with reactive content
@@ -287,6 +333,9 @@ export default {
         ...mapGetters({
             concepts: "getConcepts",
             isEmpty: "conceptMap/getIsConceptMapEmpty", // if there is no concept in map, we change the popover content
+            nodes: "conceptMap/getNodes",
+            filteredConcepts: "getFilteredConcepts",
+            // activeConceptMap: "conceptMap/getActiveConceptMap",
         }),
         /**
          * Methode to enable new concept adding
@@ -343,6 +392,8 @@ export default {
             this.changeNodeColor(color);
         },
         /**
+         * TODO: Vibrate animation
+         *
          * @param {string} color, the color value that we will assign to node
          * Changes the color of node with given color
          */
@@ -357,11 +408,11 @@ export default {
 
         /**
          * Adding concept name to database.
+         * @param {string} conceptName teh name of the new concept that we are going to add
          */
         addNewConcept(conceptName) {
             this.$store.dispatch("addConceptToDb", conceptName);
             this.$store.dispatch("triggerLoading");
-
             this.conceptName = "";
         },
         /**
@@ -382,6 +433,8 @@ export default {
         /**
          * Controls if the given concept is in concept map.
          * @param {object} concept concept to control
+         * @returns {object} payload, stores if the given concept in some of concept maps,
+         * if so the names of concept map is also stored.
          */
         isConceptInMap(concept) {
             let inMap = false;
@@ -394,7 +447,11 @@ export default {
                     }
                 });
             });
-            return { inMap: inMap, consistingMapName: consistingMapName };
+            let payload = {
+                inMap: inMap,
+                consistingMapName: consistingMapName,
+            };
+            return payload;
         },
         /**
          * Updates the name of the concept.
@@ -417,30 +474,35 @@ export default {
          * @param targetConcept The target concept as an object
          *
          */
-        addConceptToConceptMap(sourceConcept, targetConcept) {
+        addConceptToConceptMap(
+            sourceConcept,
+            targetConcept,
+            relationType,
+            linkName
+        ) {
+            let name = "";
+            linkName.length > 0
+                ? (name = linkName)
+                : (name =
+                      "von " + sourceConcept.name + " zu" + targetConcept.name);
             let relationship = [];
-            // We need to add the ids of the source and target concept to relationship array.
-
             if (this.isEmpty) {
                 this.$store.dispatch("conceptMap/addConceptToConceptMap", {
                     concept: sourceConcept,
                 });
             } else {
                 relationship.push({
-                    name: sourceConcept.name + " -&- " + targetConcept.name,
+                    name: name,
                     tid: targetConcept.id,
                     sid: sourceConcept.id,
-                }); // We need to send the relationship as an array
+                    marker: relationType,
+                });
                 this.$store.dispatch("conceptMap/addRelationshipToDatabase", {
                     relationship: relationship,
                 });
-
-                // We need to send the source concept as an object to this methode
                 this.$store.dispatch("conceptMap/addConceptToConceptMap", {
                     concept: sourceConcept,
                 });
-                // we need to send target concept as an object to this methode
-
                 this.$store.dispatch("conceptMap/addConceptToConceptMap", {
                     concept: targetConcept,
                 });
@@ -450,23 +512,26 @@ export default {
         // START! Methods for popover, taken from bootstrap vue
         // https://bootstrap-vue.org/docs/components/popover
         // Advanced <b-popover> usage with reactive content
+        /**
+         * Closes the popover which relates to the given concept.
+         * @param {object} concept is the one when we click on it, we show that popover.
+         */
         closePopover(concept) {
             let id = this.createIdForAddButton(concept);
             this.$root.$emit("bv::hide::popover", id);
         },
+
         addLabel(concept) {
             if (this.input2) {
-                console.log("Send it to the database. Wuhu...");
-
                 this.closePopover(concept);
-                // Return our popover form results
                 this.input1Return = this.input1;
                 this.input2Return = this.input2;
             }
         },
+        /**
+         * Resets the popover before it is being shown.
+         */
         onShow() {
-            // This is called just before the popover is shown
-            // Reset our popover form variables
             this.input1 = "";
             this.input2 = "";
             this.input1state = null;
@@ -523,11 +588,17 @@ export default {
             return id;
         },
     },
-    // async created() {
-    //     await this.$store.dispatch("loadConceptListFromDb");
-    // },
+
+    mounted: function () {
+        // with this.$nextTick it waits all child components to load. Then it works.
+        // We need concept maps to load. Thats why we made it so.
+        this.$nextTick(function () {
+            this.$store.dispatch("loadConceptListFromDb");
+        });
+    },
 };
 </script>
+
 <style scoped>
 /* Popover style start*/
 .popoverTitle {
@@ -550,32 +621,36 @@ export default {
 .buttonGroupPopover {
     display: flex;
     justify-content: flex-end;
+    margin-top: 1rem;
 }
 .buttonGroupPopover button {
-    margin-left: rem;
+    margin-left: 0.5rem;
 }
 /* Popover style end*/
 
 /* Tools */
 .tools {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     flex-direction: column;
     margin-bottom: 1rem;
-    height: 9rem;
 }
 
-.tools-newConceptName,
-.tools-recommender {
+.tools-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.tools-newConceptName {
     width: 100%;
     text-align: center;
     display: flex;
     justify-content: space-between;
 }
-.tools-deleteMode {
+.tools-buttonsDeleteMode {
     display: flex;
     justify-content: space-between;
-    margin-top: 0.5rem;
 }
 .tools-addNewConcept {
     color: #8795b0 !important;
@@ -586,6 +661,11 @@ export default {
 .tools-addNewConcept:hover {
     background-color: #6b79b2;
     color: white !important;
+}
+
+.concept-button {
+    display: flex;
+    width: 100%;
 }
 /* Tools */
 

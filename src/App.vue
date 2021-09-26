@@ -29,10 +29,11 @@ export default {
     computed: {
         ...mapGetters({ buttonClicked: "getButtonClicked" }),
     },
-    // async created() {
-    //     await this.$store.dispatch("loadConceptListFromDb");
-    //     await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
-    // },
+    mounted() {
+        // await this.$store.dispatch("loadConceptListFromDb");
+        // await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
+        this.$store.dispatch("drupal_api/loadTokensfromSessionStorage");
+    },
 };
 </script>
 
@@ -48,7 +49,7 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     height: 100%;
-    background-color: #394173;
+    background-color: white;
 }
 .fade-enter {
     opacity: 0.05;
@@ -63,6 +64,6 @@ body {
 }
 
 .page-container {
-    background-color: #394173;
+    background-color: white;
 }
 </style>

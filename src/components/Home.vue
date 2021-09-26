@@ -3,7 +3,7 @@
         <b-col md="2" class="pageContainer-sidebar">
             <Sidebar />
         </b-col>
-        <b-col md="10" class="border pageContainer-mapContainer">
+        <b-col md="10" class="pageContainer-mapContainer">
             <ConceptMap />
         </b-col>
     </b-row>

@@ -23,10 +23,18 @@ const router = new VueRouter({
 })
 
 
-router.beforeEach((to, from, next) => {
-    let isAuthenticated = store.state.drupal_api.validCredential;
-    if (to.name !== 'Login' && !isAuthenticated) next({ name: 'Login' })
-    else next()    
+router.beforeEach( (to, from, next) => {
+    let isAuthenticated = store.getters["drupal_api/getValidCredential"]; 
+    // console.log(isAuthenticated)
+    
+    if (to.name !== 'Login' && !isAuthenticated) {
+        console.log("before each")
+        next({ name: 'Login' })
+    }
+    else {
+        console.log("before each else")
+        next()
+    }    
 })
 
 export default router
