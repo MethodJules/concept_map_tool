@@ -78,7 +78,7 @@
             <b-button
                 class="tools-conceptAdding-add"
                 size="sm"
-                variant="success"
+                variant="primary"
                 @click="addNewConcept(conceptName)"
             >
                 <b-icon icon="plus-circle" aria-hidden="true"></b-icon>
@@ -90,11 +90,6 @@
             v-for="(concept, i) in filteredConcepts"
             :key="i"
         >
-            <!-- <div
-            class="tools-conceptButtons"
-            v-for="(concept, i) in activeConceptMap.nodes"
-            :key="i"
-        > -->
             <b-button
                 class="tools-conceptButtons-deleteButton"
                 size="sm"
@@ -603,67 +598,7 @@ export default {
     },
 };
 </script>
-<style>
-/* .node-shake {
-    animation: shake 1s ease-in-out 1s infinite alternate;
-    -webkit-animation: shake 1s ease-in-out 1s infinite alternate;
-}
-@keyframes shake {
-    0% {
-        transform: translate(1px, 1px) rotate(0deg);
-    }
-    10% {
-        transform: translate(-1px, -1.5px) rotate(-0.0000001deg);
-    }
-    20% {
-        transform: translate(-1px, -0.5px) rotate(0.0000001deg);
-    }
-    30% {
-        transform: translate(1px, 1.5px) rotate(0deg);
-    }
-    40% {
-        transform: translate(1px, 0.5px) rotate(0.0000001deg);
-    }
-    50% {
-        transform: translate(-1px, -0.5px) rotate(-0.0000001deg);
-    }
-    60% {
-        transform: translate(-3px, -2.5px) rotate(0deg);
-    }
-    70% {
-        transform: translate(3px, 2.5px) rotate(-0.0000001deg);
-    }
-    80% {
-        transform: translate(-1px, -0.5px) rotate(0.0000001deg);
-    }
-    90% {
-        transform: translate(1px, 1.5px) rotate(0deg);
-    }
-    100% {
-        transform: translate(1px, 1.5px) rotate(-0.0000001deg);
-    }
-} */
 
-/* 
-@keyframes shake {
-    from {
-        -webkit-transform: rotate(1deg);
-    }
-    to {
-        -webkit-transform-origin: center center;
-        -webkit-transform: rotate(-1deg);
-    }
-}
-@-webkit-keyframes shake {
-    from {
-        -webkit-transform: rotate(1deg);
-    }
-    to {
-        -webkit-transform-origin: center center;
-        -webkit-transform: rotate(-1deg);
-    }
-} */
-</style>
 <style scoped>
 /* Popover style start*/
 .popoverTitle {

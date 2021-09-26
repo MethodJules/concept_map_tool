@@ -379,7 +379,9 @@ const actions = {
     */
     async loadConceptMapFromBackend({ commit, rootState, dispatch }) {
         let conceptMaps = rootState.drupal_api.user.concept_maps;
-        return conceptMaps.forEach(async (conceptMap) => {
+
+        for (const conceptMap of conceptMaps) {
+
             await axios.get(`concept_map/${conceptMap.id}`)
                 .then(async (response) => {
                     const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
@@ -387,12 +389,27 @@ const actions = {
                     let newNodes = await dispatch("loadNodesOfConceptMap", nodes);
                     let newLinks = await dispatch("loadLinksOfConceptMap", links);
                     await dispatch("loadConceptMap", { conceptMapCredientials: response.data.data, nodes: newNodes, links: newLinks });
-                    await commit("INITIALIZE_AKTIVE_CONCEPT_MAP");
                 })
                 .catch(error => {
                     throw new Error(`API ${error}`);
                 });
-        })
+        }
+        await commit("INITIALIZE_AKTIVE_CONCEPT_MAP");
+        console.log("hello")
+        // await conceptMaps.forEach(async (conceptMap) => {
+        //     await axios.get(`concept_map/${conceptMap.id}`)
+        //         .then(async (response) => {
+        //             const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
+        //             const links = response.data.data.relationships.field_conceptmap_relationships.data;
+        //             let newNodes = await dispatch("loadNodesOfConceptMap", nodes);
+        //             let newLinks = await dispatch("loadLinksOfConceptMap", links);
+        //             await dispatch("loadConceptMap", { conceptMapCredientials: response.data.data, nodes: newNodes, links: newLinks });
+        //             await commit("INITIALIZE_AKTIVE_CONCEPT_MAP");
+        //         })
+        //         .catch(error => {
+        //             throw new Error(`API ${error}`);
+        //         });
+        // })
     },
 
     /**
@@ -516,7 +533,7 @@ const mutations = {
         state.concept_maps[state.index].links.push({
             sid: payload.relationship[0].sid,
             tid: payload.relationship[0].tid,
-            _color: '#FFFFFF',
+            _color: 'red',
             name: payload.relationship[0].name,
             marker: payload.relationship[0].marker,
         })

@@ -49,7 +49,7 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     height: 100%;
-    background-color: #394173;
+    background-color: white;
 }
 .fade-enter {
     opacity: 0.05;
@@ -64,6 +64,6 @@ body {
 }
 
 .page-container {
-    background-color: #394173;
+    background-color: white;
 }
 </style>

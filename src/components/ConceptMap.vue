@@ -100,7 +100,7 @@
                 <b-dropdown
                     id="dropdown-1"
                     :text="activeConceptMap.title"
-                    variant="primary"
+                    variant="secondary"
                     size="sm"
                     right
                     ref="conceptMapDropdown"
@@ -117,7 +117,7 @@
                         </b-form-input>
                         <b-button
                             size="sm"
-                            variant="success"
+                            variant="primary"
                             @click="createConceptMap(newConceptMapName)"
                             :disabled="!conceptNameEmpty"
                         >
@@ -129,7 +129,7 @@
 
                         <b-button
                             size="sm"
-                            variant="success"
+                            variant="primary"
                             @click="toggleConceptMapEditModal()"
                         >
                             <b-icon
@@ -736,9 +736,9 @@ ul.menu li {
 
 <style>
 .link-label {
-    fill: yellow !important;
-    text-shadow: 2px 2px 2px black;
+    fill: black !important;
+    text-shadow: 2px 2px 2px white;
     transform: translate(0, 0.5em) !important;
-    font-size: 0.8em !important;
+    font-size: 0.8 em !important;
 }
 </style>

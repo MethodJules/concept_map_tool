@@ -13,7 +13,7 @@
             <b-button
                 class="menu-logoutButton"
                 size="sm"
-                variant="primary"
+                variant="secondary"
                 @click="logout()"
             >
                 <b-icon icon="box-arrow-right"></b-icon>
@@ -49,7 +49,7 @@ export default {
 </script>
 <style scoped>
 .menu {
-    background-color: #3949b3 !important;
+    background-color: #6c757d !important;
     display: flex;
     justify-content: space-between;
     padding: 0.7rem 2rem;
@@ -77,7 +77,6 @@ export default {
 }
 .menu-logoutButton {
     color: white;
-    background-color: #3949b3;
     border: none;
     width: 20%;
 }
