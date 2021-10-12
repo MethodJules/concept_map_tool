@@ -1,5 +1,5 @@
 import axios from '@/config/custom_axios'
-
+import logger from '@/logger/index'
 /**
 * Triggers loading bar.
 * @param {*} commit 
@@ -36,6 +36,11 @@ export const loadConceptListFromDb = ({ commit }) => {
         }).catch(error => {
             throw new Error(`API ${error}`);
         });
+    logger.info("info");
+    logger.warn("warn");
+    logger.debug("debug");
+    logger.error("error");
+
 }
 /**
 * Commits to add concepts to the database. 

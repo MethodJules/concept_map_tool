@@ -201,25 +201,22 @@ const actions = {
     * commits to save concepts to the concept map in state.
     * @param {object} concept the concept that will be added to concept map 
     */
-    addConceptToConceptMap({ commit, state }, payload) {
+    async addConceptToConceptMap({ commit, state }, payload) {
+
+
+
         let id = state.activeConceptMap.id;
         let concept = payload.concept;
-
-        // We need to control if our concept is already in the map. 
-        // Thats why We need the variables below
         let nodesInMap = state.activeConceptMap.nodes;
         let isMapConsist = false;
-        console.log(nodesInMap);
-        // If our concept is in map, this loop returns isMapConsist true
         nodesInMap.forEach(node => {
             if (node.id == concept.id) isMapConsist = true;
         });
-        // If concept is not in the concept map, we are adding it to the concept map. 
+
+        // let isMapConsist = await dispatch("isMapConsist", concept);
+        // console.log(isMapConsist)
         if (!isMapConsist) {
-            // send it to mutations to save to the state
             commit('ADD_CONCEPT_TO_CONCEPT_MAP', payload);
-            // save to db
-            // It is now working. We send the concept to the conept map. 
             var data = `{"data": [{
                 "type": "node--concept", 
                 "id": "${concept.id}"
@@ -240,7 +237,21 @@ const actions = {
 
         }
 
+        return isMapConsist;
+
     },
+
+    // async isMapConsist({ state }, concept) {
+    //     let nodesInMap = state.activeConceptMap.nodes;
+    //     let isMapConsist = false;
+
+    //     await nodesInMap.forEach(node => {
+    //         if (node.id == concept.id) isMapConsist = true;
+    //     });
+    //     console.log(isMapConsist)
+    //     return isMapConsist;
+    // },
+
     /** Deletes node from concept map in concept map database and
     * commits to delete node from concept map in state. 
     * @param {object} node the node that will be deleted from concept map.
@@ -326,9 +337,8 @@ const actions = {
     * @param {object} payload it stores the link that will be added to the concept map 
     */
     addRelationshipToDatabase({ commit, state }, payload) {
-        // send it to state
+
         console.log(payload)
-        console.log(state)
         commit('ADD_RELATIONSHIP_TO_STATE', payload)
         var data = `{"data":{
             "type": "node--relationship", 
@@ -350,7 +360,6 @@ const actions = {
                     if (link.name == payload.relationship[0].name) {
                         link.id = response.data.data.id;
                     }
-
                 });
                 // Adding Realtionship to our concept map in database
                 var data = `{"data": [{
@@ -363,7 +372,6 @@ const actions = {
                     data: data
                 };
                 axios(config)
-
             })
             .catch(function (error) {
                 console.log(error)

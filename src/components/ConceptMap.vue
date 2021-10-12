@@ -34,7 +34,7 @@
                             type="radio"
                             name="relationType"
                             id="bidirectional"
-                            value="null"
+                            value="m-start"
                             v-model="relationType"
                             checked
                         />
@@ -48,7 +48,7 @@
                             type="radio"
                             name="relationType"
                             id="unidirectional"
-                            value="m-start"
+                            value="null"
                             v-model="relationType"
                         />
                         <label class="form-check-label" for="unidirectional">
@@ -85,7 +85,7 @@
                             <strong>{{ targetConcept.name }} </strong>
                         </b-button>
                         <b-button
-                            @click="hideModal()"
+                            @click="hideModal('add-parent-modal')"
                             variant="danger"
                             size="sm"
                             >Close Me
@@ -224,6 +224,58 @@
             </div>
         </div>
 
+        <div v-if="finishedLoading && isEmpty" class="emptyMap">
+            <b-card
+                bg-variant="info"
+                text-variant="white"
+                header=""
+                class="text-center"
+                @click="showAnyModal('add-first-concept-modal')"
+            >
+                <b-card-text
+                    >No concept in map. Click here to add first
+                    one..</b-card-text
+                >
+            </b-card>
+        </div>
+
+        <div>
+            <b-modal
+                centered
+                id="add-first-concept-modal"
+                title="Add Your First Concept"
+                hide-footer
+            >
+                <b-form-group v-for="(concept, i) in filteredConcepts" :key="i">
+                    <b-form-radio
+                        v-model="selectedNode"
+                        name="some-radios"
+                        :value="concept"
+                    >
+                        {{ concept.name }}
+                    </b-form-radio>
+                </b-form-group>
+
+                <div class="modal-buttons">
+                    <b-button
+                        variant="primary"
+                        size="sm"
+                        :disabled="isSelectedNodeEmpty"
+                        @click="addSingleConceptToMap(selectedNode)"
+                    >
+                        <!-- <b-icon icon="plus-circle" size="sm"></b-icon> -->
+                        Hinzufügen
+                    </b-button>
+                    <b-button
+                        @click="hideModal('add-first-concept-modal')"
+                        variant="danger"
+                        size="sm"
+                        >Close Me
+                    </b-button>
+                </div>
+            </b-modal>
+        </div>
+
         <d3-network
             v-if="finishedLoading"
             :net-nodes="activeConceptMap.nodes"
@@ -299,6 +351,7 @@ export default {
             linkName: "",
             relationType: "",
             isDataLoaded: false,
+            selectedNode: "",
             // symbol: "m-end",
         };
     },
@@ -306,8 +359,6 @@ export default {
         D3Network,
     },
     computed: {
-        // Getters for link concepts and nodes.
-        // The values taken form state.
         ...mapGetters({
             links: "conceptMap/getLinks",
             nodes: "conceptMap/getNodes",
@@ -318,6 +369,7 @@ export default {
             activeConceptMap: "conceptMap/getActiveConceptMap",
             filteredConcepts: "getFilteredConcepts",
             finishedLoading: "conceptMap/getFinishedLoading",
+            isEmpty: "conceptMap/getIsConceptMapEmpty",
         }),
 
         /**
@@ -370,6 +422,12 @@ export default {
                 linkLabels: this.linkLabels,
                 // size: { h: 700 },
             };
+        },
+
+        isSelectedNodeEmpty() {
+            console.log(this.selectedNode);
+            if (this.selectedNode !== "") return false;
+            return true;
         },
     },
     methods: {
@@ -439,6 +497,9 @@ export default {
             this.$refs.conceptMapDropdown.hide(true);
             this.newConceptMapName = "";
         },
+        showAnyModal(modalId) {
+            this.$root.$emit("bv::show::modal", modalId);
+        },
 
         /**
          * Show Modal.
@@ -455,12 +516,13 @@ export default {
                 this.clickedNode = node;
             }
         },
+
         /**
          * Hide Modal.
          * Hides modal when this methode is called.
          */
-        hideModal() {
-            this.$root.$emit("bv::hide::modal", "add-parent-modal");
+        hideModal(modalId) {
+            this.$root.$emit("bv::hide::modal", modalId);
             this.clearOptions();
         },
         /**Clear Options.
@@ -472,19 +534,28 @@ export default {
             this.linkName = "";
             this.relationType = "";
         },
+
+        addSingleConceptToMap(concept) {
+            this.$store.dispatch("conceptMap/addConceptToConceptMap", {
+                concept: concept,
+            });
+        },
         /**
-         * Adds given concept to concept map
+         * Adds given concept to concept map.
+         * It controls if the given concepts are in the concept map already.
+         * If so it does not save the link.
+         * In action "addConceptToConceptMap" we are checking if the given concepts are already in the concept map.
+         * Then we return a value.
          * @param sourceConcept The source concept as an object
          * @param targetConcept The target concept as an object
          *
          */
-        addConceptToConceptMap(
+        async addConceptToConceptMap(
             sourceConcept,
             targetConcept,
             linkName,
             relationType
         ) {
-            console.log(relationType);
             let relationship = [];
             let name = "";
             linkName.length > 0
@@ -494,7 +565,6 @@ export default {
                       sourceConcept.name +
                       " zu " +
                       targetConcept.name);
-            console.log(name);
             // We need to add the ids of the source and target concept to relationship array.
             relationship.push({
                 name: name,
@@ -502,18 +572,27 @@ export default {
                 sid: sourceConcept.id,
                 marker: relationType,
             });
-            // We need to send the relationship as an array
-            this.$store.dispatch("conceptMap/addRelationshipToDatabase", {
-                relationship: relationship,
-            });
+            let isConceptInMap = false;
             // We need to send the source concept as an object to this methode
-            this.$store.dispatch("conceptMap/addConceptToConceptMap", {
-                concept: sourceConcept,
-            });
+            isConceptInMap = await this.$store.dispatch(
+                "conceptMap/addConceptToConceptMap",
+                {
+                    concept: sourceConcept,
+                }
+            );
             // we need to send target concept as an object to this methode
-            this.$store.dispatch("conceptMap/addConceptToConceptMap", {
-                concept: targetConcept,
-            });
+            isConceptInMap = await this.$store.dispatch(
+                "conceptMap/addConceptToConceptMap",
+                {
+                    concept: targetConcept,
+                }
+            );
+            if (!isConceptInMap) {
+                // We need to send the relationship as an array
+                this.$store.dispatch("conceptMap/addRelationshipToDatabase", {
+                    relationship: relationship,
+                });
+            }
         },
 
         /**
@@ -592,22 +671,33 @@ export default {
         },
     },
     async created() {
-        // this.$nextTick(function () {
-        //     // Code that will run only after the
-        //     // entire view has been rendered
-        //     this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
-        // });
         await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
     },
 };
 </script>
 <style scoped >
+.emptyMap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+}
+
+.emptyMap .card {
+    border: 1px solid red;
+    padding: 4rem;
+    font-size: 2rem;
+}
+.emptyMap .card:hover {
+    cursor: pointer;
+}
+
 .markers {
     height: 5px;
 }
 button {
-    display: flex;
-    justify-content: center;
+    display: flex !important;
+    justify-content: center !important;
     align-items: center;
 }
 .conceptMapBar {
@@ -633,6 +723,7 @@ button {
     padding-right: 1rem;
     min-width: 15rem;
 }
+
 ::v-deep .dropdown-item {
     display: flex;
     justify-content: space-between;

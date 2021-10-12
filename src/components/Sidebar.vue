@@ -142,14 +142,14 @@
                 </div>
             </b-row>
 
-            <b-button
+            <!-- <b-button
                 :id="createIdForAddButton(concept)"
                 class="tools-conceptButtons-addButton"
                 size="sm"
                 variant="secondary"
             >
                 <b-icon icon="box-arrow-right" aria-hidden="true"></b-icon>
-            </b-button>
+            </b-button> -->
             <!-- POPOVER START-->
 
             <b-popover
@@ -701,7 +701,7 @@ export default {
 }
 
 .concept {
-    width: 65%;
+    width: 80%;
     padding: 0;
     margin: 0;
 }
