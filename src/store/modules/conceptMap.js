@@ -202,9 +202,6 @@ const actions = {
     * @param {object} concept the concept that will be added to concept map 
     */
     async addConceptToConceptMap({ commit, state }, payload) {
-
-
-
         let id = state.activeConceptMap.id;
         let concept = payload.concept;
         let nodesInMap = state.activeConceptMap.nodes;
@@ -212,9 +209,6 @@ const actions = {
         nodesInMap.forEach(node => {
             if (node.id == concept.id) isMapConsist = true;
         });
-
-        // let isMapConsist = await dispatch("isMapConsist", concept);
-        // console.log(isMapConsist)
         if (!isMapConsist) {
             commit('ADD_CONCEPT_TO_CONCEPT_MAP', payload);
             var data = `{"data": [{
@@ -240,17 +234,6 @@ const actions = {
         return isMapConsist;
 
     },
-
-    // async isMapConsist({ state }, concept) {
-    //     let nodesInMap = state.activeConceptMap.nodes;
-    //     let isMapConsist = false;
-
-    //     await nodesInMap.forEach(node => {
-    //         if (node.id == concept.id) isMapConsist = true;
-    //     });
-    //     console.log(isMapConsist)
-    //     return isMapConsist;
-    // },
 
     /** Deletes node from concept map in concept map database and
     * commits to delete node from concept map in state. 
@@ -394,9 +377,10 @@ const actions = {
                 .then(async (response) => {
                     const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
                     const links = response.data.data.relationships.field_conceptmap_relationships.data;
+                    const tags = response.data.data.attributes.field_conceptmap_tags;
                     let newNodes = await dispatch("loadNodesOfConceptMap", nodes);
                     let newLinks = await dispatch("loadLinksOfConceptMap", links);
-                    await dispatch("loadConceptMap", { conceptMapCredientials: response.data.data, nodes: newNodes, links: newLinks });
+                    await dispatch("loadConceptMap", { conceptMapCredientials: response.data.data, nodes: newNodes, links: newLinks, tags: tags });
                 })
                 .catch(error => {
                     throw new Error(`API ${error}`);
@@ -404,20 +388,6 @@ const actions = {
         }
         await commit("INITIALIZE_AKTIVE_CONCEPT_MAP");
         console.log("hello")
-        // await conceptMaps.forEach(async (conceptMap) => {
-        //     await axios.get(`concept_map/${conceptMap.id}`)
-        //         .then(async (response) => {
-        //             const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
-        //             const links = response.data.data.relationships.field_conceptmap_relationships.data;
-        //             let newNodes = await dispatch("loadNodesOfConceptMap", nodes);
-        //             let newLinks = await dispatch("loadLinksOfConceptMap", links);
-        //             await dispatch("loadConceptMap", { conceptMapCredientials: response.data.data, nodes: newNodes, links: newLinks });
-        //             await commit("INITIALIZE_AKTIVE_CONCEPT_MAP");
-        //         })
-        //         .catch(error => {
-        //             throw new Error(`API ${error}`);
-        //         });
-        // })
     },
 
     /**
@@ -476,7 +446,22 @@ const actions = {
         return await commit('INITIALIZE_CONCEPT_MAP', conceptMap);
     },
 
-
+    addTagToConceptMap({ state }, tags) {
+        let conceptMapId = state.activeConceptMap.id;
+        var data = `{"data":{"type":"node--concept-map", "id": "${conceptMapId}", "attributes": {"field_conceptmap_tags": "${tags}"}}}`;
+        var config = {
+            method: 'patch',
+            url: `concept_map/${conceptMapId}`,
+            data: data
+        };
+        axios(config)
+            .then((response) => {
+                console.log(response);
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+    }
 }
 
 const mutations = {
@@ -585,7 +570,8 @@ const mutations = {
             id: conceptMap.conceptMapCredientials.id,
             title: conceptMap.conceptMapCredientials.attributes.title,
             nodes: conceptMap.nodes,
-            links: conceptMap.links
+            links: conceptMap.links,
+            tags: conceptMap.tags
         })
 
 
