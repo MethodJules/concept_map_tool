@@ -387,7 +387,6 @@ const actions = {
                 });
         }
         await commit("INITIALIZE_AKTIVE_CONCEPT_MAP");
-        console.log("hello")
     },
 
     /**
@@ -448,7 +447,8 @@ const actions = {
 
     addTagToConceptMap({ state }, tags) {
         let conceptMapId = state.activeConceptMap.id;
-        var data = `{"data":{"type":"node--concept-map", "id": "${conceptMapId}", "attributes": {"field_conceptmap_tags": "${tags}"}}}`;
+
+        var data = `{"data":{"type":"node--concept-map", "id": "${conceptMapId}", "attributes": {"field_conceptmap_tags": ${JSON.stringify(tags)}}}}`;
         var config = {
             method: 'patch',
             url: `concept_map/${conceptMapId}`,
@@ -461,6 +461,34 @@ const actions = {
             .catch((error) => {
                 console.log(error)
             })
+    },
+
+
+
+
+
+
+
+
+
+    deleteTagFromConceptMap({ state }, tags) {
+        let conceptMapId = state.activeConceptMap.id;
+        let tagsToSend = JSON.stringify(tags);
+        console.log(tagsToSend)
+        var data = `{"data":{"type":"node--concept-map", "id": "${conceptMapId}", "attributes": {"field_conceptmap_tags": ${tagsToSend}}}}`;
+        var config = {
+            method: 'patch',
+            url: `concept_map/${conceptMapId}`,
+            data: data
+        };
+        axios(config)
+            .then((response) => {
+                console.log(response);
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+
     }
 }
 

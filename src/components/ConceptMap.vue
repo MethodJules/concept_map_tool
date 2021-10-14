@@ -107,17 +107,21 @@
                         icon="x-circle"
                         scale="1"
                         variant="secondary"
-                        @click="deleteTag()"
+                        @click="deleteTag(tag)"
                     ></b-icon>
                 </span>
 
                 <span>
                     <input
                         type="text"
-                        @keydown.enter="addTag"
-                        @keydown.backspace="removeTag"
+                        @keydown.enter="addTag(newTag)"
+                        @keydown.backspace="deleteLastTag()"
+                        v-model="newTag"
                     />
                 </span>
+                <b-button size="sm" variant="primary" @click="addTag(newTag)">
+                    <b-icon icon="plus-circle" sm aria-hidden="true"></b-icon>
+                </b-button>
             </div>
             <b-dropdown
                 id="dropdown-1"
@@ -361,6 +365,7 @@ export default {
             relationType: "",
             isDataLoaded: false,
             selectedNode: "",
+            newTag: "",
             // symbol: "m-end",
         };
     },
@@ -685,18 +690,30 @@ export default {
             tags.forEach((tag) => {
                 if (tag == newTag) tagExists = true;
             });
-            console.log(tagExists);
             return tagExists;
         },
-        addTag(event) {
-            let tag = event.target.value;
-
-            if (!this.tagExists(tag)) {
+        addTag(newTag) {
+            if (!this.tagExists(newTag)) {
                 let tags = this.activeConceptMap.tags;
-                tags.push(tag);
+                tags.push(newTag);
                 this.$store.dispatch("conceptMap/addTagToConceptMap", tags);
             }
-            event.target.value = "";
+            this.newTag = "";
+        },
+        deleteTag(tag) {
+            console.log(tag);
+            let tags = this.activeConceptMap.tags;
+            let index = tags.indexOf(tag);
+            console.log(index);
+            tags.splice(index, 1);
+            console.log(tags);
+            this.$store.dispatch("conceptMap/deleteTagFromConceptMap", tags);
+        },
+        deleteLastTag() {
+            let tags = this.activeConceptMap.tags;
+            tags.splice(-1, 1);
+            console.log(tags);
+            this.$store.dispatch("conceptMap/deleteTagFromConceptMap", tags);
         },
     },
     async created() {
