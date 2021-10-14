@@ -174,7 +174,7 @@ export default {
                 index: index,
                 newName: this.newName[index],
             };
-            this.$store.dispatch("conceptMap/changeConceptMapName", payload);
+            this.$store.dispatch("conceptMapBar/changeConceptMapName", payload);
             this.newName = "";
         },
 
@@ -189,12 +189,12 @@ export default {
                 index: index,
             };
             await this.$store.dispatch(
-                "conceptMap/deleteConceptMapFromUser",
+                "conceptMapBar/deleteConceptMapFromUser",
                 payload
             );
 
             await this.$store.dispatch(
-                "conceptMap/deleteConceptMapFromDatabase",
+                "conceptMapBar/deleteConceptMapFromDatabase",
                 conceptMap
             );
 
@@ -257,12 +257,16 @@ export default {
         },
         deleteLastTag() {
             let tags = this.activeConceptMap.tags;
-            tags.splice(-1, 1);
-            console.log(tags);
-            this.$store.dispatch("conceptMapBar/deleteTagFromConceptMap", tags);
+            if (this.newTag.length <= 0) {
+                tags.splice(-1, 1);
+                console.log(tags);
+                this.$store.dispatch(
+                    "conceptMapBar/deleteTagFromConceptMap",
+                    tags
+                );
+            }
         },
     },
-    async created() {},
 };
 </script>
 

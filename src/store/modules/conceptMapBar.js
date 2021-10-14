@@ -13,7 +13,7 @@ const actions = {
     * @param {*} dispatch, dispatch is being used to call an aciton
     * @param {object} conceptMap,the concept map, to save in database and state
     */
-    async createConceptMap({ rootState, commit, dispatch }, conceptMap) {
+    async createConceptMap({ rootState, dispatch }, conceptMap) {
         var data = `{"data": {"type": "node--concept_map",
         "attributes": {"title": "${conceptMap.title}"}}}`;
         var config = {
@@ -25,15 +25,47 @@ const actions = {
             .then(async (response) => {
                 dispatch("addConceptMapToUser", response.data.data)
                 conceptMap.id = response.data.data.id;
-                await commit("CREATE_CONCEPT_MAP", conceptMap);
+                await rootState.conceptMap.concept_maps.push(conceptMap);
                 let index = rootState.conceptMap.concept_maps.indexOf(conceptMap);
-                await commit("UPDATE_INDEX", index);
-                await commit("UPDATE_AKTIVE_CONCEPT_MAP", index)
+                rootState.conceptMap.index = index;
+                (index) ? rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[index] : rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[0];
             })
             .catch((error) => {
                 console.log(error)
             })
     },
+
+    /** Adds concept map id to the user in database.
+    * @param {rootState} rootState, it allows access to states of other modules in store
+    * @param {object} conceptMap, the concept map to save to user in database. 
+    */
+    addConceptMapToUser({ rootState }, conceptMap) {
+        let userId = rootState.drupal_api.user.id;
+        var data = `{
+            "data": [{
+                "type": "node--concept_map",
+                "id": "${conceptMap.id}"
+            }]
+        }`;
+        var config = {
+            method: 'post',
+            url: `jsonapi/user/user/${userId}/relationships/field_concept_maps`,
+            headers: {
+                'Authorization': rootState.drupal_api.authToken,
+                'X-CSRF-Token': `${rootState.drupal_api.csrf_token}`
+            },
+            data: data
+        };
+        loginAxios(config)
+            .then(function (response) {
+                console.log(response);
+            })
+            .catch(function (error) {
+                console.log(error)
+            })
+    },
+
+
     /** Deletes Concept map from database.
     * Commits a mutation to delete it from state
     * Commits a mutation to update active concept map
@@ -41,9 +73,10 @@ const actions = {
     * @param {rootState} rootState to reach the state of other modules. 
     * @param {object} payload it stores the id of the concept map that we are going to delete 
     */
-    deleteConceptMapFromUser({ commit, rootState }, payload) {
-        commit("DELETE_CONCEPT_MAP_FROM_STATE", payload);
-        commit("UPDATE_AKTIVE_CONCEPT_MAP");
+    deleteConceptMapFromUser({ rootState }, payload) {
+        rootState.conceptMap.concept_maps.splice(payload.index, 1);
+        rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[0];
+        console.log(rootState.conceptMap)
         var data = `{
             "data" : [{
                 "type": "node--concept_map",
@@ -95,8 +128,8 @@ const actions = {
     * @param {commit} commit to call mutation 
     * @param {object} payload stores the concept map to change name and the index of it. 
     */
-    changeConceptMapName({ commit }, payload) {
-        commit("CHANGE_CONCEPT_MAP_NAME", payload)
+    changeConceptMapName({ rootState }, payload) {
+        rootState.conceptMap.concept_maps[payload.index].title = payload.newName;
         var data = `{"data":{"type":"node--concept-map", "id": "${payload.conceptMap.id}", "attributes": {"title": "${payload.newName}"}}}`;
         var config = {
             method: 'patch',
@@ -154,53 +187,7 @@ const actions = {
     }
 }
 
-const mutations = {
-    /**
-    * Saves the given concept map to the state.
-    * @param {*} state 
-    * @param {*} conceptMap 
-    */
-    CREATE_CONCEPT_MAP(rootState, conceptMap) {
-        return rootState.conceptMap.concept_maps.push(conceptMap);
-    },
 
-    /**
-    * Deletes concept map from state.
-    * @param {object} state as parameter to access and manipulation of state data  
-    * @param {object} payload stores the concept map to delete
-    */
-    DELETE_CONCEPT_MAP_FROM_STATE(rootState, payload) {
-        rootState.conceptMap.concept_maps.splice(payload.index, 1);
-    },
-    /**
-    * Changes the name of the concept map in state
-    * @param {object} state as parameter to access and manipulation of state data 
-    * @param {object} payload stores the new name and index of the concept map and concept map itself  
-    */
-    CHANGE_CONCEPT_MAP_NAME(rootState, payload) {
-        rootState.conceptMap.concept_maps[payload.index].title = payload.newName;
-    },
-    /**
-    * Updates the index value
-    * @param {object} state, state as variable to access and manipulation of state data 
-    * @param {int} index, the new index to save
-    * @returns index, the index value in the state
-    */
-    UPDATE_INDEX(rootState, index) {
-        rootState.conceptMap.index = index;
-        return rootState.conceptMap.index;
-    },
-
-    /**
-    * Updates the active concept map in state.
-    * @param {object} state as parameter to access and manipulation of state data 
-    * @param {int} index the index value of the active concept map in concept_maps array  
-    */
-    UPDATE_AKTIVE_CONCEPT_MAP(rootState, index) {
-        (index) ? rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[index] : rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[0];
-    }
-
-}
 
 
 
@@ -208,5 +195,4 @@ export default {
     namespaced: true,
     state,
     actions,
-    mutations
 }
