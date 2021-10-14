@@ -141,140 +141,6 @@
                     </div>
                 </div>
             </b-row>
-
-            <!-- <b-button
-                :id="createIdForAddButton(concept)"
-                class="tools-conceptButtons-addButton"
-                size="sm"
-                variant="secondary"
-            >
-                <b-icon icon="box-arrow-right" aria-hidden="true"></b-icon>
-            </b-button> -->
-            <!-- POPOVER START-->
-
-            <b-popover
-                :target="createIdForAddButton(concept)"
-                triggers="focus"
-                placement="auto"
-                container="my-container"
-                ref="popover"
-                @show="onShow"
-            >
-                <div class="popoverTitle">
-                    <span> <b> Add to concept map </b> </span>
-                    <b-button
-                        @click="closePopover(concept)"
-                        variant="secondary"
-                        size="sm"
-                        aria-label="Close"
-                    >
-                        <span>&times;</span>
-                    </b-button>
-                </div>
-
-                <div>
-                    <!-- User choose the concept to create link with -->
-                    <div v-if="!isEmpty">
-                        <b-form-group
-                            label="Concept"
-                            label-for="popover-input-2"
-                            label-cols="6"
-                            :state="input2state"
-                            class="mb-1"
-                            description="Concept to link with"
-                            invalid-feedback="This field is required"
-                        >
-                            <select
-                                id="popover-input-2"
-                                v-model="targetConcept"
-                            >
-                                <option value="" disabled selected hidden>
-                                    Choose Concept...
-                                </option>
-
-                                <option
-                                    v-for="(concept, i) in filteredConcepts"
-                                    :key="i"
-                                    :value="concept"
-                                >
-                                    {{ concept.name }}
-                                </option>
-                            </select>
-                        </b-form-group>
-
-                        <b-alert show class="small">
-                            <strong>New Label</strong><br />
-                            Source: <strong>{{ concept.name }}</strong
-                            ><br />
-                            Target:
-                            <strong>{{ targetConcept.name }}</strong>
-                        </b-alert>
-                        <div class="form-check">
-                            <input
-                                class="form-check-input"
-                                type="radio"
-                                name="relationType"
-                                id="bidirectional"
-                                value="null"
-                                v-model="relationType"
-                                checked
-                            />
-                            <label class="form-check-label" for="bidirectional">
-                                Bidirectional
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input
-                                class="form-check-input"
-                                type="radio"
-                                name="relationType"
-                                id="unidirectional"
-                                value="m-start"
-                                v-model="relationType"
-                            />
-                            <label
-                                class="form-check-label"
-                                for="unidirectional"
-                            >
-                                Unidirectional
-                            </label>
-                        </div>
-                        <label for="linkNameInput">Link Name: </label>
-                        <b-input id="linkNameInput" v-model="linkName">
-                        </b-input>
-                    </div>
-                    <div v-if="isEmpty">
-                        <b-alert show class="small">
-                            <strong>There is no concept in map. </strong><br />
-                            First concept is:
-                            <strong>{{ concept.name }}</strong>
-                        </b-alert>
-                    </div>
-
-                    <div class="buttonGroupPopover">
-                        <b-button
-                            @click="closePopover(concept)"
-                            size="sm"
-                            variant="danger"
-                            >Cancel</b-button
-                        >
-                        <b-button
-                            @click="
-                                addConceptToConceptMap(
-                                    concept,
-                                    targetConcept,
-                                    relationType,
-                                    linkName
-                                )
-                            "
-                            size="sm"
-                            variant="primary"
-                            >Ok</b-button
-                        >
-                    </div>
-                </div>
-            </b-popover>
-            <!-- POPOVER END-->
         </div>
     </div>
 </template>
@@ -287,16 +153,11 @@ function toggleButtonInput(concept, e) {
     // select button
     let buttonId = "button_" + concept.nid;
     let myButton = document.getElementById(buttonId);
-
     if (e) {
-        // hide button
         e.target.classList.add("hide");
-        // show input
         myInput.classList.remove("hide");
     } else {
-        // hide input
         myInput.classList.add("hide");
-        // show button
         myButton.classList.remove("hide");
     }
 }
@@ -312,20 +173,6 @@ export default {
             isDeleteModeOn: false,
             relationType: "",
             linkName: "",
-            // Popover datas, taken from bootstrap vue website
-            // https://bootstrap-vue.org/docs/components/popover
-            // Advanced <b-popover> usage with reactive content
-
-            targetConcept: "",
-            input2state: null,
-            options: [
-                { text: "- Choose 1 -", value: "" },
-                "Red",
-                "Green",
-                "Blue",
-            ],
-            input2Return: "",
-            // Popover datas, taken from bootstrap vue website
         };
     },
     computed: {
@@ -335,30 +182,8 @@ export default {
             isEmpty: "conceptMap/getIsConceptMapEmpty", // if there is no concept in map, we change the popover content
             nodes: "conceptMap/getNodes",
             filteredConcepts: "getFilteredConcepts",
-            // activeConceptMap: "conceptMap/getActiveConceptMap",
         }),
-        /**
-         * Methode to enable new concept adding
-         * If something is written in the new concept input,
-         * then it makes the "hinzufügen" button enabled, vice versa...
-         *
-         */
-        saveEnabled() {
-            let result = true;
-            this.conceptName ? (result = false) : (result = true);
-            return result;
-        },
-        /**
-         * returns the names for the options in popover select box.
-         */
-        selectOptions() {
-            let names = [];
-            this.concepts.forEach((concept) => {
-                names.push(concept.name);
-            });
 
-            return names;
-        },
         isWriting() {
             let result = false;
             this.conceptName.length > 0 ? (result = true) : "";
@@ -392,8 +217,6 @@ export default {
             this.changeNodeColor(color);
         },
         /**
-         * TODO: Vibrate animation
-         *
          * @param {string} color, the color value that we will assign to node
          * Changes the color of node with given color
          */
@@ -468,79 +291,6 @@ export default {
             toggleButtonInput(concept);
             this.isInputOpen = !this.isInputOpen;
         },
-        /**
-         * Adds given concept to concept map
-         * @param sourceConcept The source concept as an object
-         * @param targetConcept The target concept as an object
-         *
-         */
-        addConceptToConceptMap(
-            sourceConcept,
-            targetConcept,
-            relationType,
-            linkName
-        ) {
-            let name = "";
-            linkName.length > 0
-                ? (name = linkName)
-                : (name =
-                      "von " + sourceConcept.name + " zu" + targetConcept.name);
-            let relationship = [];
-            if (this.isEmpty) {
-                this.$store.dispatch("conceptMap/addConceptToConceptMap", {
-                    concept: sourceConcept,
-                });
-            } else {
-                relationship.push({
-                    name: name,
-                    tid: targetConcept.id,
-                    sid: sourceConcept.id,
-                    marker: relationType,
-                });
-                this.$store.dispatch("conceptMap/addRelationshipToDatabase", {
-                    relationship: relationship,
-                });
-                this.$store.dispatch("conceptMap/addConceptToConceptMap", {
-                    concept: sourceConcept,
-                });
-                this.$store.dispatch("conceptMap/addConceptToConceptMap", {
-                    concept: targetConcept,
-                });
-            }
-        },
-
-        // START! Methods for popover, taken from bootstrap vue
-        // https://bootstrap-vue.org/docs/components/popover
-        // Advanced <b-popover> usage with reactive content
-        /**
-         * Closes the popover which relates to the given concept.
-         * @param {object} concept is the one when we click on it, we show that popover.
-         */
-        closePopover(concept) {
-            let id = this.createIdForAddButton(concept);
-            this.$root.$emit("bv::hide::popover", id);
-        },
-
-        addLabel(concept) {
-            if (this.input2) {
-                this.closePopover(concept);
-                this.input1Return = this.input1;
-                this.input2Return = this.input2;
-            }
-        },
-        /**
-         * Resets the popover before it is being shown.
-         */
-        onShow() {
-            this.input1 = "";
-            this.input2 = "";
-            this.input1state = null;
-            this.input2state = null;
-            this.input1Return = "";
-            this.input2Return = "";
-        },
-
-        // END! Methods for popover, taken from bootstrap vue
 
         /** Opens the input.
          * @concept the concept that we double clicked on it.
@@ -548,6 +298,7 @@ export default {
          * Usage: when we double click to a concept.
          */
         openInput(concept, e) {
+            console.log("hel");
             if (!this.isInputOpen) {
                 toggleButtonInput(concept, e);
                 this.isInputOpen = !this.isInputOpen;
@@ -571,14 +322,7 @@ export default {
             let id = "button_" + concept.nid;
             return id;
         },
-        /**
-         * We need to create some unique id for buttons to
-         * make some unique works on them.
-         */
-        createIdForAddButton(concept) {
-            let id = "button_add_" + concept.nid;
-            return id;
-        },
+
         /**
          * We need to create some unique id for inputs to
          * make some unique works on them.
@@ -600,34 +344,6 @@ export default {
 </script>
 
 <style scoped>
-/* Popover style start*/
-.popoverTitle {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    margin-bottom: 0;
-    font-size: 1rem;
-    background-color: #f0f0f0;
-    border-bottom: 1px solid #d8d8d8;
-    border-top-left-radius: calc(0.3rem - 1px);
-    border-top-right-radius: calc(0.3rem - 1px);
-}
-
-#popover-input-2 {
-    width: 100%;
-}
-.buttonGroupPopover {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 1rem;
-}
-.buttonGroupPopover button {
-    margin-left: 0.5rem;
-}
-/* Popover style end*/
-
 /* Tools */
 .tools {
     display: flex;
