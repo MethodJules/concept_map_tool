@@ -84,7 +84,6 @@
                                 v-for="(concept, i) in filteredConcepts"
                                 :key="i"
                                 :value="concept"
-                                :disabled="isInputFull"
                             >
                                 {{ concept.name }}
                             </option>
@@ -135,7 +134,7 @@
 
                             <b-button
                                 variant="primary"
-                                :disabled="isOptionOrInputFull"
+                                :disabled="isSelectBoxOrRadioButtonFull"
                                 size="sm"
                                 @click="
                                     addConceptToConceptMap(
@@ -215,7 +214,6 @@ export default {
         return {
             clickedNode: {}, // the node that user clicked on the concept map
             targetConcept: "", // The concept that we are going to add to the map
-            newConceptToAdd: "", // New concept to add map and concept list
             linkName: "",
             relationType: "",
             selectedNode: "",
@@ -227,12 +225,7 @@ export default {
     },
     computed: {
         ...mapGetters({
-            links: "conceptMap/getLinks",
-            nodes: "conceptMap/getNodes",
             deleteMode: "getDeleteMode",
-            concepts: "getConcepts",
-            conceptMaps: "conceptMap/getConceptMaps",
-            index: "conceptMap/getIndex",
             activeConceptMap: "conceptMap/getActiveConceptMap",
             filteredConcepts: "getFilteredConcepts",
             finishedLoading: "conceptMap/getFinishedLoading",
@@ -243,36 +236,12 @@ export default {
          * It controls if option or input is full or not.
          * We need this info in order to prevent sending an unfilled form
          */
-        isOptionOrInputFull() {
-            if ((this.newConceptToAdd == "") & (this.relationType == "")) {
-                return true;
+        isSelectBoxOrRadioButtonFull() {
+            if ((this.targetConcept !== "") & (this.relationType !== "")) {
+                return false;
             }
-            return false;
-        },
-        /**
-         * It controls if option is full or not
-         * We disable the input if option is full.
-         * Otherweise we send extra info to our methodes.
-         */
-        isOptionFull() {
-            if (this.targetConcept !== "") return false;
             return true;
         },
-        /**
-         * It controls if input is full or not
-         * We disable the options if input is full.
-         * Otherweise we send extra info to our methodes.
-         */
-        isInputFull() {
-            if (this.newConceptToAdd !== "") return true;
-            return false;
-        },
-
-        conceptNameEmpty() {
-            if (this.newConceptMapName !== "") return true;
-            return false;
-        },
-
         /**
          * options of concept map.
          * For more information: https://www.npmjs.com/package/vue-d3-network
@@ -287,18 +256,20 @@ export default {
                 fontSize: 15,
                 strLinks: true,
                 linkLabels: true,
-
-                // size: { h: 700 },
             };
         },
-
+        /**
+         * Controls if there is a node selected in the modal with id "add-first-concept-modal"
+         */
         isSelectedNodeEmpty() {
-            console.log(this.selectedNode);
             if (this.selectedNode !== "") return false;
             return true;
         },
     },
     methods: {
+        /**
+         * Arranges the arrows on the links.
+         */
         lcb(link) {
             link._svgAttrs = {
                 "marker-end": `url(#m-end)`,
@@ -306,7 +277,10 @@ export default {
             };
             return link;
         },
-
+        /**
+         * Shows the modal with the given id.
+         * @param {string} modalId the id of the modal that is being shown
+         */
         showAnyModal(modalId) {
             this.$root.$emit("bv::show::modal", modalId);
         },
@@ -328,8 +302,8 @@ export default {
         },
 
         /**
-         * Hide Modal.
-         * Hides modal when this methode is called.
+         * Hides Modal with the given id.
+         * @param {string} modalId  the id of the modal that is being hide
          */
         hideModal(modalId) {
             this.$root.$emit("bv::hide::modal", modalId);
@@ -344,7 +318,10 @@ export default {
             this.linkName = "";
             this.relationType = "";
         },
-
+        /**
+         * Adds the given concept to the concept map.
+         * @param concept {object}
+         */
         addSingleConceptToMap(concept) {
             this.$store.dispatch("conceptMap/addConceptToConceptMap", {
                 concept: concept,
@@ -356,8 +333,10 @@ export default {
          * If so it does not save the link.
          * In action "addConceptToConceptMap" we are checking if the given concepts are already in the concept map.
          * Then we return a value.
-         * @param sourceConcept The source concept as an object
-         * @param targetConcept The target concept as an object
+         * @param {object} sourceConcept The source concept
+         * @param {object} targetConcept The target concept
+         * @param {string} linkName      The name of the link
+         * @param {string} relationType  The type of the link; null or m-start
          *
          */
         async addConceptToConceptMap(
@@ -411,6 +390,7 @@ export default {
          * To find the link we have findLinksOfNode function.
          * To delete links we have deleteLinkFromConceptMap function.
          * To Delete Node we have deleteConceptFromConceptMap funciton
+         * @param {object} node The node that we are goint to delete
          */
         async deleteNode(node) {
             let linksToDelete = await this.findLinksOfNode(node);
@@ -437,7 +417,7 @@ export default {
 
         /**
          * Remove Concept From Concept Map.
-         * @param node The node that we are going to delete from concept map.
+         * @param {object} node The node that we are going to delete from concept map.
          * This method both deletes the concept and the link that are associated with
          * this node.
          */
@@ -457,6 +437,7 @@ export default {
         },
         /**
          * Finds Links of the given node in active concept map.
+         * @param {object} node The node that we are going to find the links of it.
          */
         findLinksOfNode(node) {
             let links = this.activeConceptMap.links;
@@ -494,7 +475,7 @@ export default {
 }
 
 .markers {
-    height: 5px;
+    height: 0px;
 }
 button {
     display: flex !important;

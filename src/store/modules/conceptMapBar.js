@@ -138,7 +138,8 @@ const actions = {
         };
         axios(config)
     },
-    /** Loads concept map from backend. 
+    /** 
+     * Loads concept map from backend. 
     * It takes the concept map from backend and this concept maps stores the ids of nodes and links.
     * It calls another actions to take the datas of the nodes and links. 
     * Then it makes them together and sends it to mutation to save it in state.
@@ -147,7 +148,11 @@ const actions = {
     *  @param {*} dispatch, it is being used to call an action
     */
 
-
+    /**
+     * Adds tag to concept map. 
+     * @param {object} rootState, it allows access to states of other modules in store 
+     * @param {array} tags, all tags on the concept map
+     */
     addTagToConceptMap({ rootState }, tags) {
         let conceptMapId = rootState.conceptMap.activeConceptMap.id;
 
@@ -165,7 +170,11 @@ const actions = {
                 console.log(error)
             })
     },
-
+    /**
+     * Deletes a tag from concept map. 
+     * @param {object} rootState, it allows access to states of other modules. 
+     * @param {array} tags, all tags on the concept map, without the one that we deleted.
+     */
     deleteTagFromConceptMap({ rootState }, tags) {
         let conceptMapId = rootState.conceptMap.activeConceptMap.id;
         let tagsToSend = JSON.stringify(tags);

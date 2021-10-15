@@ -43,8 +43,6 @@
                     v-model="newConceptMapName"
                     @keydown.enter="createConceptMap(newConceptMapName)"
                 >
-                    <!-- @keydown.enter.prevent="!conceptNameEmpty" -->
-                    <!-- How to stop enter when There is no name there... -->
                 </b-form-input>
                 <b-button
                     size="sm"
@@ -154,7 +152,6 @@ export default {
             newTag: "",
         };
     },
-    components: {},
     computed: {
         ...mapGetters({
             conceptMaps: "conceptMap/getConceptMaps",
@@ -168,6 +165,11 @@ export default {
         },
     },
     methods: {
+        /**
+         * Changes the name of the concept map.
+         * @param {object} conceptMap, the concept map that its name is going to be changed.
+         * @param {integer} index, the index value of the concept map. It is the same with the index of inputs on the modal.
+         */
         changeConceptMapName(conceptMap, index) {
             let payload = {
                 conceptMap: conceptMap,
@@ -177,12 +179,18 @@ export default {
             this.$store.dispatch("conceptMapBar/changeConceptMapName", payload);
             this.newName = "";
         },
-
+        /**
+         * Opens and closes the concept map edit modal.
+         */
         toggleConceptMapEditModal() {
             this.$refs["conceptMapEdit-modal"].toggle();
             this.newName = [];
         },
-
+        /**
+         * Deletes the concept map.
+         * @param {object} conceptMap, concept map that is going to be deleted
+         * @param {integer} index, index of the concept map
+         */
         async deleteConceptMap(conceptMap, index) {
             let payload = {
                 conceptMap: conceptMap,
@@ -199,23 +207,27 @@ export default {
             );
 
             let links = conceptMap.links;
-            console.log(links);
 
             links.forEach((link) => {
-                console.log(link);
-                console.log(link.id);
                 this.$store.dispatch(
                     "conceptMap/deleteLinkFromRelationsTable",
                     link.id
                 );
             });
         },
-
+        /**
+         * Arranges the concept map that users see both on the dropdown and the page.
+         * @param {object} conceptMap, concept map that is going to be shown
+         * @param {integer} index, index of the concept map
+         */
         conceptMapSelect(conceptMap, index) {
             this.$store.state.conceptMap.index = index;
             this.$store.state.conceptMap.activeConceptMap = conceptMap;
         },
-
+        /**
+         * Creates new concept map.
+         * @param {string} newConceptMapName, the name of the new concept map.
+         */
         createConceptMap(newConceptMapName) {
             let newConceptMap = {
                 title: newConceptMapName,
@@ -229,7 +241,10 @@ export default {
             this.$refs.conceptMapDropdown.hide(true);
             this.newConceptMapName = "";
         },
-
+        /**
+         * Controls if the given tag is exists.
+         * @param {string} newTag, the tag name is going to be controlled if it exists
+         */
         tagExists(newTag) {
             let tagExists = false;
             let tags = this.activeConceptMap.tags;
@@ -238,28 +253,37 @@ export default {
             });
             return tagExists;
         },
+        /**
+         * Adds new tag.
+         * @param {string} newTag, the new tag is going to ne added.
+         */
         addTag(newTag) {
             if (!this.tagExists(newTag)) {
                 let tags = this.activeConceptMap.tags;
                 tags.push(newTag);
                 this.$store.dispatch("conceptMapBar/addTagToConceptMap", tags);
+            } else {
+                alert("Tag name steht schon.");
             }
             this.newTag = "";
         },
+        /**
+         * Deletes tag.
+         * @param {string} tag, the tag that is going to be deleted.
+         */
         deleteTag(tag) {
-            console.log(tag);
             let tags = this.activeConceptMap.tags;
             let index = tags.indexOf(tag);
-            console.log(index);
             tags.splice(index, 1);
-            console.log(tags);
             this.$store.dispatch("conceptMapBar/deleteTagFromConceptMap", tags);
         },
+        /**
+         * Deletes last tag.
+         */
         deleteLastTag() {
             let tags = this.activeConceptMap.tags;
             if (this.newTag.length <= 0) {
                 tags.splice(-1, 1);
-                console.log(tags);
                 this.$store.dispatch(
                     "conceptMapBar/deleteTagFromConceptMap",
                     tags

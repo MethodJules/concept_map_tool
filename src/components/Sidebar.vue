@@ -298,7 +298,6 @@ export default {
          * Usage: when we double click to a concept.
          */
         openInput(concept, e) {
-            console.log("hel");
             if (!this.isInputOpen) {
                 toggleButtonInput(concept, e);
                 this.isInputOpen = !this.isInputOpen;
