@@ -1,5 +1,4 @@
 import axios from '@/config/custom_axios'
-
 /**
 * Triggers loading bar.
 * @param {*} commit 
@@ -36,6 +35,8 @@ export const loadConceptListFromDb = ({ commit }) => {
         }).catch(error => {
             throw new Error(`API ${error}`);
         });
+
+
 }
 /**
 * Commits to add concepts to the database. 

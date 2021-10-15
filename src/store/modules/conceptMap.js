@@ -65,108 +65,6 @@ const getters = {
 
 const actions = {
 
-    /** Sends concept map to database.
-    * It also triggers the action to save it in the user.
-    * @param {*} commit, commit is being used to call a mutation
-    * @param {*} dispatch, dispatch is being used to call an aciton
-    * @param {object} conceptMap,the concept map, to save in database and state
-    */
-    async createConceptMap({ state, commit, dispatch }, conceptMap) {
-        // await commit("CREATE_CONCEPT_MAP", conceptMap)
-        // let index = state.concept_maps.indexOf(conceptMap);
-        // await commit("UPDATE_INDEX", index);
-        var data = `{"data": {"type": "node--concept_map",
-        "attributes": {"title": "${conceptMap.title}"}}}`;
-        var config = {
-            method: 'post',
-            url: 'concept_map',
-            data: data
-        };
-        axios(config)
-            .then(async (response) => {
-                dispatch("addConceptMapToUser", response.data.data)
-                conceptMap.id = response.data.data.id;
-                await commit("CREATE_CONCEPT_MAP", conceptMap);
-                let index = state.concept_maps.indexOf(conceptMap);
-                await commit("UPDATE_INDEX", index);
-                await commit("UPDATE_AKTIVE_CONCEPT_MAP", index)
-            })
-            .catch((error) => {
-                console.log(error)
-            })
-    },
-    /** Deletes Concept map from database.
-    * Commits a mutation to delete it from state
-    * Commits a mutation to update active concept map
-    * @param {commit} commit to call a mutation
-    * @param {rootState} rootState to reach the state of other modules. 
-    * @param {object} payload it stores the id of the concept map that we are going to delete 
-    */
-    deleteConceptMapFromUser({ commit, rootState }, payload) {
-        commit("DELETE_CONCEPT_MAP_FROM_STATE", payload);
-        commit("UPDATE_AKTIVE_CONCEPT_MAP");
-        var data = `{
-            "data" : [{
-                "type": "node--concept_map",
-                "id": "${payload.conceptMap.id}"
-            }]
-        }`;
-        var config = {
-            method: 'delete',
-            url: `jsonapi/user/user/${rootState.drupal_api.user.id}/relationships/field_concept_maps`,
-            headers: {
-                'Authorization': rootState.drupal_api.authToken,
-                'X-CSRF-Token': `${rootState.drupal_api.csrf_token}`
-            },
-            data: data
-        };
-
-        loginAxios(config)
-            .then((response) => {
-                console.log(response);
-            })
-            .catch((error) => {
-                console.log(error);
-            })
-
-
-    },
-
-    /** Deletes concept map from database.
-    * @param {object} state as parameter to access and manipulation of state data 
-    * @param {object} conceptMap concept map that we are going to delete from database.  
-    */
-    deleteConceptMapFromDatabase({ state }, conceptMap) {
-        console.log(state);
-        var data = `{"data": {"type": "node--concept_map",
-        "id": ${conceptMap.id}}}`;
-        var config = {
-            method: 'delete',
-            url: `concept_map/${conceptMap.id}`,
-            data: data
-        };
-        axios(config).then((response) => {
-            console.log(response)
-        }).catch((error) => {
-            console.log(error)
-        })
-    },
-
-    /** Changes the name of concept map in database. 
-    * @param {commit} commit to call mutation 
-    * @param {object} payload stores the concept map to change name and the index of it. 
-    */
-    changeConceptMapName({ commit }, payload) {
-        commit("CHANGE_CONCEPT_MAP_NAME", payload)
-        var data = `{"data":{"type":"node--concept-map", "id": "${payload.conceptMap.id}", "attributes": {"title": "${payload.newName}"}}}`;
-        var config = {
-            method: 'patch',
-            url: `concept_map/${payload.conceptMap.id}`,
-            data: data
-        };
-        axios(config)
-    },
-
     /** Adds concept map id to the user in database.
     * @param {rootState} rootState, it allows access to states of other modules in store
     * @param {object} conceptMap, the concept map to save to user in database. 
@@ -201,25 +99,16 @@ const actions = {
     * commits to save concepts to the concept map in state.
     * @param {object} concept the concept that will be added to concept map 
     */
-    addConceptToConceptMap({ commit, state }, payload) {
+    async addConceptToConceptMap({ commit, state }, payload) {
         let id = state.activeConceptMap.id;
         let concept = payload.concept;
-
-        // We need to control if our concept is already in the map. 
-        // Thats why We need the variables below
         let nodesInMap = state.activeConceptMap.nodes;
         let isMapConsist = false;
-        console.log(nodesInMap);
-        // If our concept is in map, this loop returns isMapConsist true
         nodesInMap.forEach(node => {
             if (node.id == concept.id) isMapConsist = true;
         });
-        // If concept is not in the concept map, we are adding it to the concept map. 
         if (!isMapConsist) {
-            // send it to mutations to save to the state
             commit('ADD_CONCEPT_TO_CONCEPT_MAP', payload);
-            // save to db
-            // It is now working. We send the concept to the conept map. 
             var data = `{"data": [{
                 "type": "node--concept", 
                 "id": "${concept.id}"
@@ -240,7 +129,10 @@ const actions = {
 
         }
 
+        return isMapConsist;
+
     },
+
     /** Deletes node from concept map in concept map database and
     * commits to delete node from concept map in state. 
     * @param {object} node the node that will be deleted from concept map.
@@ -326,9 +218,8 @@ const actions = {
     * @param {object} payload it stores the link that will be added to the concept map 
     */
     addRelationshipToDatabase({ commit, state }, payload) {
-        // send it to state
+
         console.log(payload)
-        console.log(state)
         commit('ADD_RELATIONSHIP_TO_STATE', payload)
         var data = `{"data":{
             "type": "node--relationship", 
@@ -350,7 +241,6 @@ const actions = {
                     if (link.name == payload.relationship[0].name) {
                         link.id = response.data.data.id;
                     }
-
                 });
                 // Adding Realtionship to our concept map in database
                 var data = `{"data": [{
@@ -363,7 +253,6 @@ const actions = {
                     data: data
                 };
                 axios(config)
-
             })
             .catch(function (error) {
                 console.log(error)
@@ -386,30 +275,16 @@ const actions = {
                 .then(async (response) => {
                     const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
                     const links = response.data.data.relationships.field_conceptmap_relationships.data;
+                    const tags = response.data.data.attributes.field_conceptmap_tags;
                     let newNodes = await dispatch("loadNodesOfConceptMap", nodes);
                     let newLinks = await dispatch("loadLinksOfConceptMap", links);
-                    await dispatch("loadConceptMap", { conceptMapCredientials: response.data.data, nodes: newNodes, links: newLinks });
+                    await dispatch("loadConceptMap", { conceptMapCredientials: response.data.data, nodes: newNodes, links: newLinks, tags: tags });
                 })
                 .catch(error => {
                     throw new Error(`API ${error}`);
                 });
         }
         await commit("INITIALIZE_AKTIVE_CONCEPT_MAP");
-        console.log("hello")
-        // await conceptMaps.forEach(async (conceptMap) => {
-        //     await axios.get(`concept_map/${conceptMap.id}`)
-        //         .then(async (response) => {
-        //             const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
-        //             const links = response.data.data.relationships.field_conceptmap_relationships.data;
-        //             let newNodes = await dispatch("loadNodesOfConceptMap", nodes);
-        //             let newLinks = await dispatch("loadLinksOfConceptMap", links);
-        //             await dispatch("loadConceptMap", { conceptMapCredientials: response.data.data, nodes: newNodes, links: newLinks });
-        //             await commit("INITIALIZE_AKTIVE_CONCEPT_MAP");
-        //         })
-        //         .catch(error => {
-        //             throw new Error(`API ${error}`);
-        //         });
-        // })
     },
 
     /**
@@ -467,36 +342,9 @@ const actions = {
 
         return await commit('INITIALIZE_CONCEPT_MAP', conceptMap);
     },
-
-
 }
 
 const mutations = {
-    /**
-    * Saves the given concept map to the state.
-    * @param {*} state 
-    * @param {*} conceptMap 
-    */
-    CREATE_CONCEPT_MAP(state, conceptMap) {
-        return state.concept_maps.push(conceptMap);
-    },
-
-    /**
-    * Deletes concept map from state.
-    * @param {object} state as parameter to access and manipulation of state data  
-    * @param {object} payload stores the concept map to delete
-    */
-    DELETE_CONCEPT_MAP_FROM_STATE(state, payload) {
-        state.concept_maps.splice(payload.index, 1);
-    },
-    /**
-    * Changes the name of the concept map in state
-    * @param {object} state as parameter to access and manipulation of state data 
-    * @param {object} payload stores the new name and index of the concept map and concept map itself  
-    */
-    CHANGE_CONCEPT_MAP_NAME(state, payload) {
-        state.concept_maps[payload.index].title = payload.newName;
-    },
     /**
     * Updates the index value
     * @param {object} state, state as variable to access and manipulation of state data 
@@ -577,7 +425,8 @@ const mutations = {
             id: conceptMap.conceptMapCredientials.id,
             title: conceptMap.conceptMapCredientials.attributes.title,
             nodes: conceptMap.nodes,
-            links: conceptMap.links
+            links: conceptMap.links,
+            tags: conceptMap.tags
         })
 
 
@@ -606,35 +455,11 @@ const mutations = {
 }
 
 
-// How will I use it from vue file? 
-const functions = {
-    deleteLinkFromRelationsTable(linkId) {
-        var data = `{"data": [{
-            "type": "node--relationship",
-            "id": "${linkId}" 
-            
-        }]}`;
-        var config = {
-            method: 'delete',
-            url: `relationship/${linkId}`,
-
-            data: data
-        };
-        return axios(config).then((response) => {
-            console.log(response);
-            console.log("relations table")
-        }).catch((error) => {
-            console.log(error);
-        })
-
-    }
-}
 
 export default {
     namespaced: true,
     state,
     getters,
     actions,
-    mutations,
-    functions
+    mutations
 }
