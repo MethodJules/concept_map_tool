@@ -19,7 +19,8 @@ const getters = {
     },
     getValidCredential(state) {
         return state.validCredential;
-    }
+    },
+
 
 }
 const actions = {
@@ -137,6 +138,7 @@ const actions = {
     },
 
     async loadUserFromBackend({ commit, state }) {
+        console.log("load user")
         var config = {
             method: 'get',
             url: `jsonapi/user/user?filter[drupal_internal__uid]=${state.user.uid}`,
@@ -171,10 +173,11 @@ const actions = {
         if (sessionStorage.getItem("valid_credentials") == "true") {
             await commit('LOAD_TOKEN_SESSION_STORAGE');
             await dispatch('loadUserFromBackend');
-            await router.push("/")
+            router.push("/")
+            console.log("hello")
         } else {
             console.log("session token")
-            router.push("/Login");
+            router.redirect("/Login");
             return false
         }
     },
@@ -259,6 +262,7 @@ const mutations = {
 
 
     LOAD_TOKEN_SESSION_STORAGE(state) {
+        console.log("load token session storage")
         state.validCredential = true;
         state.csrf_token = sessionStorage.getItem("csrf_token");
         state.logout_token = sessionStorage.getItem("logout_token");

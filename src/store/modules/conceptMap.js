@@ -205,7 +205,6 @@ const actions = {
         };
         axios(config).then((response) => {
             console.log(response);
-            console.log("deleted from relations table")
         }).catch((error) => {
             console.log(error);
         })
@@ -219,7 +218,6 @@ const actions = {
     */
     addRelationshipToDatabase({ commit, state }, payload) {
 
-        console.log(payload)
         commit('ADD_RELATIONSHIP_TO_STATE', payload)
         var data = `{"data":{
             "type": "node--relationship", 
@@ -362,14 +360,11 @@ const mutations = {
     * @param {object} payload stores the concept data for adding it to concept map. 
     */
     ADD_CONCEPT_TO_CONCEPT_MAP(state, payload) {
-        console.log("state.index");
-        console.log(state.index);
         state.concept_maps[state.index].nodes.push({
             id: payload.concept.id,
             name: payload.concept.name,
             uuid: payload.concept.id,
         })
-        console.log("COncept added")
     },
     /**
     * Adds relationships to the concept map in state . 
@@ -385,7 +380,6 @@ const mutations = {
             name: payload.relationship[0].name,
             marker: payload.relationship[0].marker,
         })
-        console.log("rel added to state")
     },
 
     /**
