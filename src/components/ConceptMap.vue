@@ -17,6 +17,7 @@
         </div>
 
         <d3-network
+            id="map"
             v-if="finishedLoading"
             :net-nodes="activeConceptMap.nodes"
             :net-links="activeConceptMap.links"
@@ -208,7 +209,7 @@ import D3Network from "vue-d3-network";
 import ConceptMapBar from "@/components/ConceptMapBar.vue";
 
 import { mapGetters } from "vuex";
-
+import { gsap } from "gsap";
 export default {
     data() {
         return {
@@ -455,9 +456,47 @@ export default {
     async created() {
         await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
     },
+    watch: {
+        activeConceptMap: () => {
+            const map = document.querySelector("#map");
+            const pageContainer = document.querySelector(".pageContainer");
+
+            console.log(pageContainer);
+            console.log(map);
+            const body = document.querySelector("body");
+            body.style.overflow = "hidden";
+
+            const tl = gsap.timeline({
+                defaults: {
+                    duration: 0.6,
+                    ease: "ease-out",
+                },
+            });
+
+            tl.to(pageContainer, { opacity: 0 }, 0)
+                .to(pageContainer, { opacity: 1 }, 0.6)
+                .from(
+                    map,
+                    { translateX: 1000, clearProps: "all", duration: 1 },
+                    0.6
+                );
+        },
+    },
 };
 </script>
 <style scoped >
+.map-enter {
+    opacity: 0;
+}
+.map-enter-active {
+    transition: opacity 0.3s ease-out;
+}
+
+.map-leave-active {
+    transition: opacity 0.3s ease-out;
+    opacity: 0;
+}
+
 .emptyMap {
     display: flex;
     justify-content: center;

@@ -25,10 +25,10 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
     let isAuthenticated = store.getters["drupal_api/getValidCredential"];
-    let isAuthenticated2 = Boolean(sessionStorage.getItem("valid_credentials"));
+    // let isAuthenticated2 = Boolean(sessionStorage.getItem("valid_credentials"));
     console.log(isAuthenticated)
 
-    if (to.name !== 'Login' && !isAuthenticated2) {
+    if (to.name !== 'Login' && !isAuthenticated) {
         console.log("before each")
         next({ name: 'Login' })
     }

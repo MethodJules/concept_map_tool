@@ -177,7 +177,7 @@ const actions = {
             console.log("hello")
         } else {
             console.log("session token")
-            router.redirect("/Login");
+            router.push("/Login");
             return false
         }
     },

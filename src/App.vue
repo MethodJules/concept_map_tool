@@ -9,7 +9,7 @@
         <Header />
         <div class="page-container">
             <transition name="fade" mode="out-in">
-                <router-view></router-view>
+                <router-view v-if="finishedLoading"></router-view>
             </transition>
         </div>
     </div>
@@ -20,7 +20,9 @@ import Header from "./components/shared/Header.vue";
 import { mapGetters } from "vuex";
 export default {
     data() {
-        return {};
+        return {
+            finishedLoading: false,
+        };
     },
     name: "App",
     components: {
@@ -29,10 +31,11 @@ export default {
     computed: {
         ...mapGetters({ buttonClicked: "getButtonClicked" }),
     },
-    mounted() {
+    async mounted() {
         // await this.$store.dispatch("loadConceptListFromDb");
         // await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
-        this.$store.dispatch("drupal_api/loadTokensfromSessionStorage");
+        await this.$store.dispatch("drupal_api/loadTokensfromSessionStorage");
+        this.finishedLoading = true;
     },
 };
 </script>
