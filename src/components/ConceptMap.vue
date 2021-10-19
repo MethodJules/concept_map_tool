@@ -10,8 +10,7 @@
                 @click="showAnyModal('add-first-concept-modal')"
             >
                 <b-card-text
-                    >No concept in map. Click here to add first
-                    one..</b-card-text
+                    >Noch kein Konzept vorhanden. Klicke hier, um das erste hinzuzufügen.</b-card-text
                 >
             </b-card>
         </div>
@@ -64,22 +63,23 @@
             <b-modal id="add-parent-modal" hide-footer hide-header hide-title>
                 <div class="modal-container">
                     <h5 class="modal-title">
-                        Add a parent to
-                        <strong> {{ clickedNode.name }} !</strong>
+                        Füge ein übergeordnetes Konzept zu 
+                        <strong> {{ clickedNode.name }}</strong>
+                        hinzu!
                     </h5>
                     <div class="modal-body">
                         <p>
-                            Choose one of the below
+                            Wähle eines der folgenden Konzepte
                             <b-button
                                 variant="secondary"
                                 size="sm"
                                 @click="clearOptions()"
-                                >Clear Options</b-button
+                                >Auswahl zurücksetzen</b-button
                             >
                         </p>
                         <select v-model="targetConcept">
                             <option value="" disabled selected hidden>
-                                Choose Concept...
+                                Konzept auswählen...
                             </option>
                             <option
                                 v-for="(concept, i) in filteredConcepts"
@@ -100,7 +100,7 @@
                                 checked
                             />
                             <label class="form-check-label" for="bidirectional">
-                                Bidirectional
+                                Bidirektional: {{ clickedNode.name }} ⇔ {{ targetConcept.name }}
                             </label>
                         </div>
                         <div class="form-check">
@@ -116,23 +116,13 @@
                                 class="form-check-label"
                                 for="unidirectional"
                             >
-                                Unidirectional
+                                Unidirektional: {{ clickedNode.name }} ⇨ {{ targetConcept.name }}
                             </label>
                         </div>
-                        <label for="linkNameInput">Link Name: </label>
+                        <label for="linkNameInput">Kantenbeschriftung: </label>
                         <b-input id="linkNameInput" v-model="linkName">
                         </b-input>
                         <div class="modal-buttons">
-                            <b-button
-                                @click="deleteNode(clickedNode)"
-                                variant="danger"
-                                size="sm"
-                            >
-                                <!-- <b-icon icon="trash" size="sm"></b-icon> -->
-                                Delete
-                                <strong> {{ clickedNode.name }} !</strong>
-                            </b-button>
-
                             <b-button
                                 variant="primary"
                                 :disabled="isSelectBoxOrRadioButtonFull"
@@ -147,14 +137,25 @@
                                 "
                             >
                                 <!-- <b-icon icon="plus-circle" size="sm"></b-icon> -->
-                                Hinzufügen
-                                <strong>{{ targetConcept.name }} </strong>
+                                Füge hinzu
+                                <strong> {{ targetConcept.name }} </strong>
                             </b-button>
+
+                            <b-button
+                                @click="deleteNode(clickedNode)"
+                                variant="danger"
+                                size="sm"
+                            >
+                                <!-- <b-icon icon="trash" size="sm"></b-icon> -->
+                                Lösche 
+                                <strong> {{ clickedNode.name }} </strong>
+                            </b-button>
+
                             <b-button
                                 @click="hideModal('add-parent-modal')"
                                 variant="danger"
                                 size="sm"
-                                >Close Me
+                                >Schließen
                             </b-button>
                         </div>
                     </div>
@@ -164,7 +165,7 @@
             <b-modal
                 centered
                 id="add-first-concept-modal"
-                title="Add Your First Concept"
+                title="Füge dein erstes Konzept hinzu"
                 hide-footer
             >
                 <b-form-group v-for="(concept, i) in filteredConcepts" :key="i">
@@ -191,7 +192,7 @@
                         @click="hideModal('add-first-concept-modal')"
                         variant="danger"
                         size="sm"
-                        >Close Me
+                        >Schließen
                     </b-button>
                 </div>
             </b-modal>

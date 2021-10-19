@@ -5,7 +5,7 @@
         </b-navbar-brand>
         <!-- <b-navbar-brand to="/login"> Login</b-navbar-brand> -->
         <b-row class="menu-avatar" v-if="validCredential">
-            <b-avatar variant="info" :src="user.pictureLink"></b-avatar>
+            <!-- <b-avatar variant="info" :src="user.pictureLink"></b-avatar> removed; there is no function to add/change avatar planned -->
             <span>{{ user.name }}</span>
             <b-button
                 class="menu-logoutButton"

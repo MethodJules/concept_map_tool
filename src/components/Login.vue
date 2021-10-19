@@ -7,10 +7,10 @@
                     <!-- Tab 1 -->
                     <b-tab title="Login">
                         <div class="login-header">
-                            <h5>Melde dich hier mit deinem Uni-Account an</h5>
+                            <h5>Melde dich hier mit deinem Uni-Account an.</h5>
                             <p>
-                                Wenn du dich noch nicht registriert hast, bitte
-                                registriere dich mit deinem Uni-Account
+                                Wenn du dich noch nicht registriert hast,
+                                registriere dich bitte mit deinem Uni-Account.
                             </p>
                         </div>
                         <table>
@@ -51,11 +51,11 @@
                     <b-tab title="Registrierung">
                         <div class="registrierung-header">
                             <h5>
-                                Registriere dich hier mit deinem Uni-Account
+                                Registriere dich hier mit deinem Uni-Account.
                             </h5>
                             <p>
                                 Falls du Hilfe benötigst, wende dich an
-                                mail@uni-hildesheim.de
+                                maren.stadtlaender@uni-hildesheim.de.
                             </p>
                         </div>
                         <table>
