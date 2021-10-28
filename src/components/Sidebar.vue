@@ -17,7 +17,7 @@
                     variant="danger"
                     @click="toggleDeleteMode()"
                 >
-                    Delete Mode
+                    Löschen-Modus
                     <b-icon
                         v-if="isDeleteModeOn"
                         icon="circle-fill"
@@ -29,7 +29,7 @@
             <b-form-input
                 class="tools-newConceptName"
                 size="sm"
-                placeholder="Neu Concept Name..."
+                placeholder="Neues Konzept..."
                 v-model="conceptName"
                 @keydown.enter="addNewConcept(conceptName)"
             >
@@ -55,7 +55,7 @@
                             size="sm"
                             block
                             @click="toggleRecommenderModal"
-                            >Close Me</b-button
+                            >Schließen</b-button
                         >
                     </div>
                 </div>
@@ -114,7 +114,7 @@
                     placement="right"
                     variant="secondary"
                     noninteractive
-                    >Double click to change the concept name</b-tooltip
+                    >Doppelt klicken, um den Konzept-Namen zu ändern</b-tooltip
                 >
 
                 <div

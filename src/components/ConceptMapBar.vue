@@ -19,9 +19,9 @@
                 <input
                     type="text"
                     @keydown.enter="addTag(newTag)"
-                    @keydown.backspace="deleteLastTag()"
                     v-model="newTag"
                 />
+                <!-- @keydown.backspace="deleteTag(tag)" removed, users will likely delete their tags by accident -->
             </span>
             <b-button size="sm" variant="primary" @click="addTag(newTag)">
                 <b-icon icon="plus-circle" sm aria-hidden="true"></b-icon>
@@ -57,7 +57,7 @@
             <div class="dropdown-input">
                 <b-form-input
                     size="sm"
-                    placeholder="Neu Concept Map"
+                    placeholder="Neue Concept Map"
                     v-model="newConceptMapName"
                     @keydown.enter="createConceptMap(newConceptMapName)"
                 >
@@ -87,7 +87,7 @@
             >
                 <div class="conceptMapBar-editModal-container">
                     <div class="conceptMapBar-editModal-header">
-                        <h3>Concept Map Edit</h3>
+                        <h3>Concept Map-Namen ändern</h3>
                     </div>
                     <div class="conceptMapBar-editModal-content">
                         <b-input-group
@@ -125,7 +125,7 @@
                             size="sm"
                             block
                             @click="toggleConceptMapEditModal()"
-                            >Close Me</b-button
+                            >Schließen</b-button
                         >
                     </div>
                 </div>
