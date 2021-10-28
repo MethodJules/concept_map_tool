@@ -14,22 +14,16 @@ const state = () => ({
 })
 
 const getters = {
+    /**
+     * Getter for user datas. 
+     * @param {object} state, to allow access to the state values 
+     * @returns user, the values of user as object
+     */
     getUser(state) {
         return state.user;
     },
-    getValidCredential(state) {
-        return state.validCredential;
-    },
-
-
 }
 const actions = {
-    //TO DO: Check if a user already exists
-
-    /*1. session token von drupal holen
-    2. user json bauen -> mit feldern wie namen, sparky id, matrikelnummer etc
-    3. user json mit token an drupal um user zu registrierenn -> response ist user objekt mit uuid, namen, felder etc
-    */
 
     /**
     * gets a session token which is used for subsequent registration of a user
@@ -137,6 +131,11 @@ const actions = {
             });
     },
 
+    /**
+     * Loads user datas from backend.
+     * @param {object} state, to allow access to state values
+     * @param {object} commit, is being used to call a mutation.  
+     */
     async loadUserFromBackend({ commit, state }) {
         console.log("load user")
         var config = {
@@ -168,13 +167,18 @@ const actions = {
             })
 
     },
-
+    /**
+     * Loads tolen called valid_credientials from session storage. 
+     * @param {object} commit, to call a mutation
+     * @param {object} dispatch, to call an action
+     * @returns 
+     */
     async loadTokensfromSessionStorage({ commit, dispatch }) {
         if (sessionStorage.getItem("valid_credentials") == "true") {
             await commit('LOAD_TOKEN_SESSION_STORAGE');
             await dispatch('loadUserFromBackend');
-            router.push("/")
-            console.log("hello")
+            // router.push("/")
+            // console.log("hello")
         } else {
             console.log("session token")
             router.push("/Login");
@@ -185,6 +189,9 @@ const actions = {
     /**
     * Connects to the Drupal Backend and request a login
     * The Backend will give csrf_token a logout token and a current_user object
+    * @param {object} commit to call a mutation
+    * @param {object} state allows access to state values
+    * @param {object} rootState allows access to rootState values
     */
     async logoutDrupal({ commit, rootState, state }) {
 
@@ -207,7 +214,11 @@ const actions = {
                 console.log(error)
             });
     },
-
+    /**
+     * Sends a mutation to save authorization token to the state.
+     * @param {object} commit to call a mutation 
+     * @param {string} authorization_token token for access
+     */
     saveBasicAuth({ commit }, authorization_token) {
         commit('SAVE_BASIC_AUTH_TOKEN', authorization_token)
     }
