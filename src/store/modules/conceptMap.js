@@ -58,8 +58,18 @@ const getters = {
 
     getFinishedLoading(state) {
         return state.finishedLoading;
+    },
+    getIsActiveConceptMapExists(state) {
+        console.log(state.activeConceptMap)
+        let isExists = true;
+        if (state.activeConceptMap == "") {
+            isExists = false;
+            console.log("empty")
+        } else {
+            console.log("full")
+        }
+        return isExists;
     }
-
 
 }
 

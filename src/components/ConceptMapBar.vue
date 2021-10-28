@@ -27,7 +27,25 @@
                 <b-icon icon="plus-circle" sm aria-hidden="true"></b-icon>
             </b-button>
         </div>
+        <div v-if="!isActiveConceptMapExists">
+            <b-form-input
+                size="sm"
+                placeholder="Neu Concept Map"
+                v-model="newConceptMapName"
+                @keydown.enter="createConceptMap(newConceptMapName)"
+            >
+            </b-form-input>
+            <b-button
+                size="sm"
+                variant="primary"
+                @click="createConceptMap(newConceptMapName)"
+                :disabled="!conceptNameEmpty"
+            >
+                <b-icon icon="plus-circle" aria-hidden="true"></b-icon>
+            </b-button>
+        </div>
         <b-dropdown
+            v-if="isActiveConceptMapExists"
             id="dropdown-1"
             :text="activeConceptMap.title"
             variant="secondary"
@@ -156,6 +174,7 @@ export default {
             conceptMaps: "conceptMap/getConceptMaps",
             index: "conceptMap/getIndex",
             activeConceptMap: "conceptMap/getActiveConceptMap",
+            isActiveConceptMapExists: "conceptMap/getIsActiveConceptMapExists",
         }),
 
         conceptNameEmpty() {

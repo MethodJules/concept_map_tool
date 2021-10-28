@@ -1,5 +1,5 @@
 <template>
-    <b-row class="pageContainer">
+    <b-row class="pageContainer" v-if="isThereAnyConceptMap">
         <b-col md="2" class="pageContainer-sidebar">
             <Sidebar />
         </b-col>
@@ -11,11 +11,16 @@
 <script>
 import ConceptMap from "@/components/ConceptMap.vue";
 import Sidebar from "@/components/Sidebar.vue";
-
+import { mapGetters } from "vuex";
 export default {
     components: {
         ConceptMap,
         Sidebar,
+    },
+    computed: {
+        ...mapGetters({
+            isThereAnyConceptMap: "drupal_api/getIsThereAnyConceptMap",
+        }),
     },
 };
 </script>

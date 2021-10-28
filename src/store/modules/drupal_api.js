@@ -22,6 +22,14 @@ const getters = {
     getUser(state) {
         return state.user;
     },
+
+    getIsThereAnyConceptMap(state) {
+        let isThereAnyConceptMap = false;
+        // how can I check the concept maps of user. 
+        // user.concept_maps is changing when it is empty and when it contains something
+        (state.user.concept_maps.length > 0) ? isThereAnyConceptMap = true : "";
+        return isThereAnyConceptMap;
+    }
 }
 const actions = {
 
@@ -292,6 +300,7 @@ const mutations = {
         sessionStorage.removeItem("auth_token");
     },
     SAVE_USER(state, user) {
+        console.log(user)
         state.user.id = user.id;
         state.user.mail = user.mail;
         state.user.matrikelnummer = user.matrikelnummer;
