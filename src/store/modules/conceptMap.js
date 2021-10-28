@@ -101,6 +101,9 @@ const actions = {
     */
     async addConceptToConceptMap({ commit, state }, payload) {
         let id = state.activeConceptMap.id;
+
+        console.log(payload)
+
         let concept = payload.concept;
         let nodesInMap = state.activeConceptMap.nodes;
         let isMapConsist = false;
@@ -218,13 +221,15 @@ const actions = {
     */
     addRelationshipToDatabase({ commit, state }, payload) {
 
+
         commit('ADD_RELATIONSHIP_TO_STATE', payload)
         var data = `{"data":{
             "type": "node--relationship", 
             "attributes":{"title": "${payload.relationship[0].name}", 
             "field_sid": "${payload.relationship[0].sid}", 
             "field_tid": "${payload.relationship[0].tid}",
-            "field_marker": "${payload.relationship[0].marker}" 
+            "field_marker_start": "${payload.relationship[0].marker_start}", 
+            "field_marker_end": "${payload.relationship[0].marker_end}" 
         }}}`;
         var config = {
             method: 'post',
@@ -324,8 +329,9 @@ const actions = {
                     const id = response.data.data.id;
                     const sid = response.data.data.attributes.field_sid;
                     const tid = response.data.data.attributes.field_tid;
-                    const marker = response.data.data.attributes.field_marker;
-                    relationships.push({ id: id, sid: sid, tid: tid, _color: '#c93e37', name: label, marker: marker })
+                    const marker_start = response.data.data.attributes.field_marker_start;
+                    const marker_end = response.data.data.attributes.field_marker_end;
+                    relationships.push({ id, sid, tid, _color: '#c93e37', name: label, marker_start, marker_end })
                 })
         })
         return relationships;
@@ -337,7 +343,6 @@ const actions = {
     * @returns 
     */
     async loadConceptMap({ commit }, conceptMap) {
-
         return await commit('INITIALIZE_CONCEPT_MAP', conceptMap);
     },
 }
@@ -378,7 +383,8 @@ const mutations = {
             tid: payload.relationship[0].tid,
             _color: 'red',
             name: payload.relationship[0].name,
-            marker: payload.relationship[0].marker,
+            marker_start: payload.relationship[0].marker_start,
+            marker_end: payload.relationship[0].marker_end,
         })
     },
 
@@ -398,9 +404,6 @@ const mutations = {
     *  
     */
     DELETE_LINK_FROM_STATE(state, payload) {
-        console.log(payload)
-        console.log(state.concept_maps)
-        console.log(state.index)
         state.concept_maps[state.index].links.forEach(link => {
             if (link.id == payload.linkId) {
                 state.concept_maps[state.index].links.splice(state.concept_maps[state.index].links.indexOf(link), 1);

@@ -243,26 +243,40 @@ export default {
         /**
          * Controls if the given tag is exists.
          * @param {string} newTag, the tag name is going to be controlled if it exists
+         * @return {object} payload, it consist if tag is valid and a message when there is a problem.
          */
-        tagExists(newTag) {
-            let tagExists = false;
+        tagValidation(newTag) {
+            let isValid = false;
+            let errorMessage = "";
             let tags = this.activeConceptMap.tags;
+            if (newTag.length <= 0) {
+                isValid = true;
+                errorMessage = "Tag Name ist leer.";
+            }
             tags.forEach((tag) => {
-                if (tag == newTag) tagExists = true;
+                if (tag == newTag) {
+                    isValid = true;
+                    errorMessage = "Tag name steht schon.";
+                }
             });
-            return tagExists;
+            let payload = {
+                isValid,
+                errorMessage,
+            };
+            return payload;
         },
         /**
          * Adds new tag.
          * @param {string} newTag, the new tag is going to ne added.
          */
         addTag(newTag) {
-            if (!this.tagExists(newTag)) {
+            let auth = this.tagValidation(newTag);
+            if (!auth.isValid) {
                 let tags = this.activeConceptMap.tags;
                 tags.push(newTag);
                 this.$store.dispatch("conceptMapBar/addTagToConceptMap", tags);
             } else {
-                alert("Tag name steht schon.");
+                alert(auth.errorMessage);
             }
             this.newTag = "";
         },
