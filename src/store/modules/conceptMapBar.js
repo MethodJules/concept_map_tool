@@ -28,6 +28,7 @@ const actions = {
                 await rootState.conceptMap.concept_maps.push(conceptMap);
                 let index = rootState.conceptMap.concept_maps.indexOf(conceptMap);
                 rootState.conceptMap.index = index;
+
                 (index) ? rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[index] : rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[0];
             })
             .catch((error) => {
