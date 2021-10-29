@@ -26,6 +26,7 @@ const actions = {
                 dispatch("addConceptMapToUser", response.data.data)
                 conceptMap.id = response.data.data.id;
                 await rootState.conceptMap.concept_maps.push(conceptMap);
+                // rootState.drupal_api.user.concept_maps.push(conceptMap);
                 let index = rootState.conceptMap.concept_maps.indexOf(conceptMap);
                 rootState.conceptMap.index = index;
 
@@ -80,11 +81,12 @@ const actions = {
     */
     deleteConceptMapFromUser({ rootState }, payload) {
         rootState.conceptMap.concept_maps.splice(payload.index, 1);
+        rootState.drupal_api.user.concept_maps.splice(payload.index, 1);
         rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[0];
-        console.log(rootState.conceptMap);
-        console.log(rootState.drupal_api);
+        console.log(rootState.drupal_api.user.concept_maps);
         // If there is no concept map, we need to change isThereAnyConceptMap to false to show the opening card to add first concept map
         (rootState.conceptMap.concept_maps.length <= 0) ? rootState.drupal_api.isThereAnyConceptMap = false : "";
+        console.log(rootState.drupal_api.isThereAnyConceptMap);
         var data = `{
             "data" : [{
                 "type": "node--concept_map",
@@ -104,6 +106,11 @@ const actions = {
         loginAxios(config)
             .then((response) => {
                 console.log(response);
+                // If there is no concept map, we need to change isThereAnyConceptMap to false to show the opening card to add first concept map
+                console.log(rootState.conceptMap.concept_maps.length);
+                console.log(rootState.drupal_api.isThereAnyConceptMap);
+                (rootState.conceptMap.concept_maps.length <= 0) ? rootState.drupal_api.isThereAnyConceptMap = false : "";
+                console.log(rootState.drupal_api.isThereAnyConceptMap);
             })
             .catch((error) => {
                 console.log(error);

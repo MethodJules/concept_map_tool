@@ -42,6 +42,7 @@ export default {
     data() {
         return {
             newConceptMapName: "",
+            firstMapCreated: false,
         };
     },
     components: {
@@ -64,6 +65,7 @@ export default {
                 title: newConceptMapName,
                 nodes: [],
                 links: [],
+                tags: [],
             };
             this.$store.dispatch(
                 "conceptMapBar/createConceptMap",

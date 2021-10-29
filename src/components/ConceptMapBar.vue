@@ -157,7 +157,6 @@ export default {
             conceptMaps: "conceptMap/getConceptMaps",
             index: "conceptMap/getIndex",
             activeConceptMap: "conceptMap/getActiveConceptMap",
-            isActiveConceptMapExists: "conceptMap/getIsActiveConceptMapExists",
         }),
 
         conceptNameEmpty() {
@@ -234,6 +233,7 @@ export default {
                 title: newConceptMapName,
                 nodes: [],
                 links: [],
+                tags: [],
             };
             this.$store.dispatch(
                 "conceptMapBar/createConceptMap",
@@ -250,17 +250,21 @@ export default {
         tagValidation(newTag) {
             let isValid = false;
             let errorMessage = "";
+            console.log(this.activeConceptMap);
             let tags = this.activeConceptMap.tags;
+            console.log(tags);
             if (newTag.length <= 0) {
                 isValid = true;
                 errorMessage = "Tag Name ist leer.";
             }
-            tags.forEach((tag) => {
-                if (tag == newTag) {
-                    isValid = true;
-                    errorMessage = "Tag name steht schon.";
-                }
-            });
+            if (tags.length > 0) {
+                tags.forEach((tag) => {
+                    if (tag == newTag) {
+                        isValid = true;
+                        errorMessage = "Tag name steht schon.";
+                    }
+                });
+            }
             let payload = {
                 isValid,
                 errorMessage,

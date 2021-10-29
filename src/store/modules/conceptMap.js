@@ -37,7 +37,6 @@ const getters = {
     * @returns concept_maps, concept maps from state
     */
     getConceptMaps(state) {
-        console.log(state.concept_maps)
         return state.concept_maps;
     },
     /** Getter for index value in state
@@ -59,18 +58,8 @@ const getters = {
 
     getFinishedLoading(state) {
         return state.finishedLoading;
-    },
-    getIsActiveConceptMapExists(state) {
-        console.log(state.activeConceptMap)
-        let isExists = true;
-        if (state.activeConceptMap == "") {
-            isExists = false;
-            console.log("empty")
-        } else {
-            console.log("full")
-        }
-        return isExists;
     }
+
 
 }
 
@@ -447,7 +436,9 @@ const mutations = {
     * @returns state.activeConceptMap
     */
     INITIALIZE_AKTIVE_CONCEPT_MAP(state) {
+        console.log(state.concept_maps)
         state.activeConceptMap = state.concept_maps[0];
+
         state.finishedLoading = true;
         return state.activeConceptMap
     },

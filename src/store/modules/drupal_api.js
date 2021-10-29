@@ -27,7 +27,9 @@ const getters = {
     getIsThereAnyConceptMap(state) {
         // how can I check the concept maps of user. 
         // user.concept_maps is changing when it is empty and when it contains something
+        console.log(state.user.concept_maps.length);
         (state.user.concept_maps.length > 0) ? state.isThereAnyConceptMap = true : "";
+        console.log(state.isThereAnyConceptMap)
         return state.isThereAnyConceptMap;
     }
 }
