@@ -37,6 +37,7 @@ const getters = {
     * @returns concept_maps, concept maps from state
     */
     getConceptMaps(state) {
+        console.log(state.concept_maps)
         return state.concept_maps;
     },
     /** Getter for index value in state

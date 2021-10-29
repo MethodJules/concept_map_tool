@@ -8,7 +8,8 @@ const state = () => ({
     logout_token: null,
     validCredential: false,
     authToken: null,
-    concept_map_ids: null
+    concept_map_ids: null,
+    isThereAnyConceptMap: false,
 
 
 })
@@ -24,11 +25,10 @@ const getters = {
     },
 
     getIsThereAnyConceptMap(state) {
-        let isThereAnyConceptMap = false;
         // how can I check the concept maps of user. 
         // user.concept_maps is changing when it is empty and when it contains something
-        (state.user.concept_maps.length > 0) ? isThereAnyConceptMap = true : "";
-        return isThereAnyConceptMap;
+        (state.user.concept_maps.length > 0) ? state.isThereAnyConceptMap = true : "";
+        return state.isThereAnyConceptMap;
     }
 }
 const actions = {
@@ -157,7 +157,7 @@ const actions = {
 
         await axios(config)
             .then(function (response) {
-                // console.log(response)
+                console.log(response)
                 // We need for now only concept map id, but I am saving the other values in case we use them later. 
                 let user = {
                     id: response.data.data[0].id,

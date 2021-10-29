@@ -30,6 +30,8 @@ const actions = {
                 rootState.conceptMap.index = index;
 
                 (index) ? rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[index] : rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[0];
+                // when the concept map created, if it is the first one we need to change isThereAnyConceptMap to true to show the main page.
+                (rootState.drupal_api.user.concept_maps.length <= 0) ? rootState.drupal_api.isThereAnyConceptMap = true : "";
             })
             .catch((error) => {
                 console.log(error)
@@ -41,6 +43,7 @@ const actions = {
     * @param {object} conceptMap, the concept map to save to user in database. 
     */
     addConceptMapToUser({ rootState }, conceptMap) {
+
         let userId = rootState.drupal_api.user.id;
         var data = `{
             "data": [{
@@ -60,6 +63,7 @@ const actions = {
         loginAxios(config)
             .then(function (response) {
                 console.log(response);
+
             })
             .catch(function (error) {
                 console.log(error)
@@ -77,7 +81,10 @@ const actions = {
     deleteConceptMapFromUser({ rootState }, payload) {
         rootState.conceptMap.concept_maps.splice(payload.index, 1);
         rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[0];
-        console.log(rootState.conceptMap)
+        console.log(rootState.conceptMap);
+        console.log(rootState.drupal_api);
+        // If there is no concept map, we need to change isThereAnyConceptMap to false to show the opening card to add first concept map
+        (rootState.conceptMap.concept_maps.length <= 0) ? rootState.drupal_api.isThereAnyConceptMap = false : "";
         var data = `{
             "data" : [{
                 "type": "node--concept_map",
