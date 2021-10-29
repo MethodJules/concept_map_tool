@@ -75,7 +75,7 @@ export const addConceptToDb = ({ commit, rootState }, conceptName) => {
 /**
 * Deletes concept from Database and trigger mutation in order to delete it from state.
 * @param {commit} commit we need it for mutation 
-* @param {concept} concept that we are going to delete from both database and state 
+* @param {object} concept that we are going to delete from both database and state 
 */
 export const deleteConcept = ({ commit }, concept) => {
     // Deletes it from database

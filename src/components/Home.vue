@@ -19,7 +19,11 @@
                     </b-card-text>
 
                     <b-row class="buttons">
-                        <b-input class="card-input" v-model="newConceptMapName">
+                        <b-input
+                            class="card-input"
+                            v-model="newConceptMapName"
+                            @keydown.enter="createConceptMap(newConceptMapName)"
+                        >
                         </b-input>
                         <b-button
                             variant="secondary"

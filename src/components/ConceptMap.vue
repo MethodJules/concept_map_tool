@@ -10,7 +10,8 @@
                 @click="showAnyModal('add-first-concept-modal')"
             >
                 <b-card-text
-                    >Noch kein Konzept vorhanden. Klicke hier, um das erste hinzuzufügen.</b-card-text
+                    >Noch kein Konzept vorhanden. Klicke hier, um das erste
+                    hinzuzufügen.</b-card-text
                 >
             </b-card>
         </div>
@@ -63,7 +64,7 @@
             <b-modal id="add-parent-modal" hide-footer hide-header hide-title>
                 <div class="modal-container">
                     <h5 class="modal-title">
-                        Füge ein übergeordnetes Konzept zu 
+                        Füge ein übergeordnetes Konzept zu
                         <strong> {{ clickedNode.name }}</strong>
                         hinzu!
                     </h5>
@@ -101,7 +102,8 @@
                                 checked
                             />
                             <label class="form-check-label" for="bidirectional">
-                                Bidirektional: {{ clickedNode.name }} ⇔ {{ targetConcept.name }}
+                                Bidirektional: {{ clickedNode.name }} ⇔
+                                {{ targetConcept.name }}
                             </label>
                         </div>
                         <div class="form-check">
@@ -173,7 +175,7 @@
                                 size="sm"
                             >
                                 <!-- <b-icon icon="trash" size="sm"></b-icon> -->
-                                Lösche 
+                                Lösche
                                 <strong> {{ clickedNode.name }} </strong>
                             </b-button>
 
@@ -366,6 +368,7 @@ export default {
             this.$store.dispatch("conceptMap/addConceptToConceptMap", {
                 concept: concept,
             });
+            this.hideModal("add-first-concept-modal");
         },
 
         /**
