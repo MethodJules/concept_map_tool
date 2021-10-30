@@ -1,16 +1,24 @@
 <template>
     <div id="app">
-        <div class="loading" v-if="buttonClicked">
-            <div class="lds-ripple">
-                <div></div>
-                <div></div>
-            </div>
+        <div
+            class="app-loading-bar"
+            v-if="!finishedLoading && !finishedActiveConceptMapLoading"
+        >
+            <b-spinner label="Loading..."></b-spinner>
         </div>
-        <Header />
-        <div class="page-container">
-            <transition name="fade" mode="out-in">
-                <router-view v-if="finishedLoading"></router-view>
-            </transition>
+        <div class="app-container" v-if="finishedLoading">
+            <div class="loading" v-if="buttonClicked">
+                <div class="lds-ripple">
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+            <Header />
+            <div class="page-container" v-if="finishedLoading">
+                <transition name="fade" mode="out-in">
+                    <router-view v-if="finishedLoading"></router-view>
+                </transition>
+            </div>
         </div>
     </div>
 </template>
@@ -29,7 +37,10 @@ export default {
         Header,
     },
     computed: {
-        ...mapGetters({ buttonClicked: "getButtonClicked" }),
+        ...mapGetters({
+            buttonClicked: "getButtonClicked",
+            finishedActiveConceptMapLoading: "conceptMap/getFinishedLoading",
+        }),
     },
     async mounted() {
         // await this.$store.dispatch("loadConceptListFromDb");
@@ -63,5 +74,12 @@ body {
 .fade-leave-active {
     transition: opacity 0.3s ease-in-out;
     opacity: 0.05;
+}
+
+.app-loading-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 </style>

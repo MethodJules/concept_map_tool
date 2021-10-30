@@ -288,6 +288,7 @@ const actions = {
                 });
         }
         await commit("INITIALIZE_AKTIVE_CONCEPT_MAP");
+
     },
 
     /**
@@ -438,9 +439,9 @@ const mutations = {
     INITIALIZE_AKTIVE_CONCEPT_MAP(state) {
         console.log(state.concept_maps)
         state.activeConceptMap = state.concept_maps[0];
-
         state.finishedLoading = true;
         return state.activeConceptMap
+
     },
     /**
     * Updates the active concept map in state.

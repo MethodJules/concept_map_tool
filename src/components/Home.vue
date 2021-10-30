@@ -56,6 +56,7 @@ export default {
     computed: {
         ...mapGetters({
             isThereAnyConceptMap: "drupal_api/getIsThereAnyConceptMap",
+            // finishedLoading: "conceptMap/getFinishedLoading",
         }),
     },
     methods: {

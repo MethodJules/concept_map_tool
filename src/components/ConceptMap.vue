@@ -195,6 +195,7 @@
                 id="add-first-concept-modal"
                 title="Füge dein erstes Konzept hinzu"
                 hide-footer
+                hide-header-close
             >
                 <b-card
                     v-if="filteredConcepts.length <= 0"
@@ -212,7 +213,9 @@
                         name="some-radios"
                         :value="concept"
                     >
-                        {{ concept.name }}
+                        <span>
+                            {{ concept.name }}
+                        </span>
                     </b-form-radio>
                 </b-form-group>
 
@@ -538,29 +541,28 @@ export default {
         await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
     },
     watch: {
+        /**
+         * To make transition when switching concept maps.
+         * Actually we are changing the activeConceptMap when we change the concept maps from dropdown
+         * So we are applying transition whenever we change the value of activeConceptMap
+         */
         activeConceptMap: () => {
             const map = document.querySelector("#map");
-            const pageContainer = document.querySelector(".pageContainer");
-
-            console.log(pageContainer);
-            console.log(map);
             const body = document.querySelector("body");
             body.style.overflow = "hidden";
-
             const tl = gsap.timeline({
                 defaults: {
-                    duration: 0.6,
+                    duration: 0.5,
                     ease: "ease-out",
                 },
             });
-
-            tl.to(pageContainer, { opacity: 0 }, 0)
-                .to(pageContainer, { opacity: 1 }, 0.6)
-                .from(
+            if (map) {
+                tl.from(
                     map,
                     { translateX: 1000, clearProps: "all", duration: 1 },
                     0.6
                 );
+            }
         },
     },
 };
@@ -634,6 +636,10 @@ button {
     justify-content: flex-end;
 }
 .modal-buttons * {
+    margin-left: 0.5rem;
+}
+
+#add-first-concept-modal span {
     margin-left: 0.5rem;
 }
 
