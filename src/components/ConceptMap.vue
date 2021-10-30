@@ -552,7 +552,7 @@ export default {
             body.style.overflow = "hidden";
             const tl = gsap.timeline({
                 defaults: {
-                    duration: 0.5,
+                    duration: 0.6,
                     ease: "ease-out",
                 },
             });
@@ -560,7 +560,7 @@ export default {
                 tl.from(
                     map,
                     { translateX: 1000, clearProps: "all", duration: 1 },
-                    0.6
+                    0.3
                 );
             }
         },
