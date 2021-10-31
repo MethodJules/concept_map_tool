@@ -26,9 +26,13 @@ const actions = {
                 dispatch("addConceptMapToUser", response.data.data)
                 conceptMap.id = response.data.data.id;
                 await rootState.conceptMap.concept_maps.push(conceptMap);
+                // rootState.drupal_api.user.concept_maps.push(conceptMap);
                 let index = rootState.conceptMap.concept_maps.indexOf(conceptMap);
                 rootState.conceptMap.index = index;
+
                 (index) ? rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[index] : rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[0];
+                // when the concept map created, if it is the first one we need to change isThereAnyConceptMap to true to show the main page.
+                (rootState.drupal_api.user.concept_maps.length <= 0) ? rootState.drupal_api.isThereAnyConceptMap = true : "";
             })
             .catch((error) => {
                 console.log(error)
@@ -40,6 +44,7 @@ const actions = {
     * @param {object} conceptMap, the concept map to save to user in database. 
     */
     addConceptMapToUser({ rootState }, conceptMap) {
+
         let userId = rootState.drupal_api.user.id;
         var data = `{
             "data": [{
@@ -59,6 +64,7 @@ const actions = {
         loginAxios(config)
             .then(function (response) {
                 console.log(response);
+
             })
             .catch(function (error) {
                 console.log(error)
@@ -75,8 +81,10 @@ const actions = {
     */
     deleteConceptMapFromUser({ rootState }, payload) {
         rootState.conceptMap.concept_maps.splice(payload.index, 1);
+        rootState.drupal_api.user.concept_maps.splice(payload.index, 1);
         rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[0];
-        console.log(rootState.conceptMap)
+        // If there is no concept map, we need to change isThereAnyConceptMap to false to show the opening card to add first concept map
+        (rootState.conceptMap.concept_maps.length <= 0) ? rootState.drupal_api.isThereAnyConceptMap = false : "";
         var data = `{
             "data" : [{
                 "type": "node--concept_map",
@@ -108,8 +116,17 @@ const actions = {
     * @param {object} state as parameter to access and manipulation of state data 
     * @param {object} conceptMap concept map that we are going to delete from database.  
     */
-    deleteConceptMapFromDatabase({ state }, conceptMap) {
-        console.log(state);
+    deleteConceptMapFromDatabase({ dispatch }, conceptMap) {
+        console.log(conceptMap);
+        let nodes = conceptMap.nodes;
+        let links = conceptMap.links;
+        nodes.forEach(node => {
+            dispatch("deleteConcept", node)
+        });
+        links.forEach(link => {
+            dispatch("deleteLinkFromRelationsTable", link.id);
+        });
+
         var data = `{"data": {"type": "node--concept_map",
         "id": ${conceptMap.id}}}`;
         var config = {
@@ -123,6 +140,53 @@ const actions = {
             console.log(error)
         })
     },
+
+    /** Deletes the link from relations table.
+  * @param {object} state it allows access to the state. We dont need it here. 
+  * Because of es lint I cannot send an empty variable to the action. Thats why I need to send something with { }
+  * @param {string} linkId The id of the link, to be deleted from relations table
+  */
+    deleteLinkFromRelationsTable({ state }, linkId) {
+        // NEED TO REMOVE
+        console.log(state);
+
+        var data = `{"data": [{
+            "type": "node--relationship",
+            "id": "${linkId}" 
+            
+        }]}`;
+        var config = {
+            method: 'delete',
+            url: `relationship/${linkId}`,
+
+            data: data
+        };
+        axios(config).then((response) => {
+            console.log(response);
+        }).catch((error) => {
+            console.log(error);
+        })
+    },
+
+    /**
+* Deletes concept from Database and trigger mutation in order to delete it from state.
+* @param {object} commit we need it for mutation 
+* @param {object} concept that we are going to delete from both database and state 
+*/
+    deleteConcept({ state }, concept) {
+        console.log(state)
+        // Deletes it from database
+        var config = {
+            method: 'delete',
+            url: `concept/${concept.id}`,
+        };
+        axios(config)
+
+    },
+
+
+
+
 
     /** Changes the name of concept map in database. 
     * @param {commit} commit to call mutation 
@@ -138,15 +202,7 @@ const actions = {
         };
         axios(config)
     },
-    /** 
-     * Loads concept map from backend. 
-    * It takes the concept map from backend and this concept maps stores the ids of nodes and links.
-    * It calls another actions to take the datas of the nodes and links. 
-    * Then it makes them together and sends it to mutation to save it in state.
-    *  @param {*} commit, it is being used to call a mutation
-    *  @param {*} rootState, it allows access to states of other modules in store.
-    *  @param {*} dispatch, it is being used to call an action
-    */
+
 
     /**
      * Adds tag to concept map. 
@@ -193,7 +249,12 @@ const actions = {
                 console.log(error)
             })
 
-    }
+    },
+
+
+
+
+
 }
 
 

@@ -19,14 +19,15 @@
                 <input
                     type="text"
                     @keydown.enter="addTag(newTag)"
-                    @keydown.backspace="deleteLastTag()"
                     v-model="newTag"
                 />
+                <!-- @keydown.backspace="deleteTag(tag)" removed, users will likely delete their tags by accident -->
             </span>
             <b-button size="sm" variant="primary" @click="addTag(newTag)">
                 <b-icon icon="plus-circle" sm aria-hidden="true"></b-icon>
             </b-button>
         </div>
+
         <b-dropdown
             id="dropdown-1"
             :text="activeConceptMap.title"
@@ -39,7 +40,7 @@
             <div class="dropdown-input">
                 <b-form-input
                     size="sm"
-                    placeholder="Neu Concept Map"
+                    placeholder="Neue Concept Map"
                     v-model="newConceptMapName"
                     @keydown.enter="createConceptMap(newConceptMapName)"
                 >
@@ -69,7 +70,7 @@
             >
                 <div class="conceptMapBar-editModal-container">
                     <div class="conceptMapBar-editModal-header">
-                        <h3>Concept Map Edit</h3>
+                        <h3>Concept Map-Namen ändern</h3>
                     </div>
                     <div class="conceptMapBar-editModal-content">
                         <b-input-group
@@ -107,7 +108,7 @@
                             size="sm"
                             block
                             @click="toggleConceptMapEditModal()"
-                            >Close Me</b-button
+                            >Schließen</b-button
                         >
                     </div>
                 </div>
@@ -142,7 +143,6 @@
  *
  */
 import { mapGetters } from "vuex";
-
 export default {
     data() {
         return {
@@ -233,6 +233,7 @@ export default {
                 title: newConceptMapName,
                 nodes: [],
                 links: [],
+                tags: [],
             };
             this.$store.dispatch(
                 "conceptMapBar/createConceptMap",
@@ -244,26 +245,44 @@ export default {
         /**
          * Controls if the given tag is exists.
          * @param {string} newTag, the tag name is going to be controlled if it exists
+         * @return {object} payload, it consist if tag is valid and a message when there is a problem.
          */
-        tagExists(newTag) {
-            let tagExists = false;
+        tagValidation(newTag) {
+            let isValid = false;
+            let errorMessage = "";
+            console.log(this.activeConceptMap);
             let tags = this.activeConceptMap.tags;
-            tags.forEach((tag) => {
-                if (tag == newTag) tagExists = true;
-            });
-            return tagExists;
+            console.log(tags);
+            if (newTag.length <= 0) {
+                isValid = true;
+                errorMessage = "Tag Name ist leer.";
+            }
+            if (tags.length > 0) {
+                tags.forEach((tag) => {
+                    if (tag == newTag) {
+                        isValid = true;
+                        errorMessage = "Tag name steht schon.";
+                    }
+                });
+            }
+            let payload = {
+                isValid,
+                errorMessage,
+            };
+            return payload;
         },
         /**
          * Adds new tag.
          * @param {string} newTag, the new tag is going to ne added.
          */
         addTag(newTag) {
-            if (!this.tagExists(newTag)) {
+            let auth = this.tagValidation(newTag);
+            if (!auth.isValid) {
                 let tags = this.activeConceptMap.tags;
                 tags.push(newTag);
                 this.$store.dispatch("conceptMapBar/addTagToConceptMap", tags);
             } else {
-                alert("Tag name steht schon.");
+                alert(auth.errorMessage);
             }
             this.newTag = "";
         },

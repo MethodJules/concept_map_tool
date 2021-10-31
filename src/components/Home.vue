@@ -1,21 +1,37 @@
 <template>
     <b-row class="pageContainer">
-        <b-col md="2" class="pageContainer-sidebar">
-            <Sidebar />
-        </b-col>
-        <b-col md="10" class="pageContainer-mapContainer">
-            <ConceptMap />
-        </b-col>
+        <b-row v-if="isThereAnyConceptMap">
+            <b-col md="2" class="pageContainer-sidebar">
+                <Sidebar />
+            </b-col>
+            <b-col md="10" class="pageContainer-mapContainer">
+                <ConceptMap />
+            </b-col>
+        </b-row>
+        <b-row v-if="!isThereAnyConceptMap" class="noMapContainer">
+            <NoConceptMap />
+        </b-row>
     </b-row>
 </template>
 <script>
 import ConceptMap from "@/components/ConceptMap.vue";
 import Sidebar from "@/components/Sidebar.vue";
-
+import NoConceptMap from "@/components/NoConceptMap.vue";
+import { mapGetters } from "vuex";
 export default {
+    data() {
+        return {};
+    },
     components: {
         ConceptMap,
         Sidebar,
+        NoConceptMap,
+    },
+    computed: {
+        ...mapGetters({
+            isThereAnyConceptMap: "drupal_api/getIsThereAnyConceptMap",
+            // finishedLoading: "conceptMap/getFinishedLoading",
+        }),
     },
 };
 </script>
@@ -33,6 +49,12 @@ export default {
 }
 .pageContainer-mapContainer {
     height: 90vh;
+}
+.noMapContainer {
+    display: flex;
+    align-items: center;
+    height: 90vh;
+    padding: 0 5%;
 }
 </style>
 

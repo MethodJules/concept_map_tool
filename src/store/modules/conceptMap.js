@@ -101,6 +101,9 @@ const actions = {
     */
     async addConceptToConceptMap({ commit, state }, payload) {
         let id = state.activeConceptMap.id;
+
+        console.log(payload)
+
         let concept = payload.concept;
         let nodesInMap = state.activeConceptMap.nodes;
         let isMapConsist = false;
@@ -205,7 +208,6 @@ const actions = {
         };
         axios(config).then((response) => {
             console.log(response);
-            console.log("deleted from relations table")
         }).catch((error) => {
             console.log(error);
         })
@@ -219,14 +221,15 @@ const actions = {
     */
     addRelationshipToDatabase({ commit, state }, payload) {
 
-        console.log(payload)
+
         commit('ADD_RELATIONSHIP_TO_STATE', payload)
         var data = `{"data":{
             "type": "node--relationship", 
             "attributes":{"title": "${payload.relationship[0].name}", 
             "field_sid": "${payload.relationship[0].sid}", 
             "field_tid": "${payload.relationship[0].tid}",
-            "field_marker": "${payload.relationship[0].marker}" 
+            "field_marker_start": "${payload.relationship[0].marker_start}", 
+            "field_marker_end": "${payload.relationship[0].marker_end}" 
         }}}`;
         var config = {
             method: 'post',
@@ -285,6 +288,7 @@ const actions = {
                 });
         }
         await commit("INITIALIZE_AKTIVE_CONCEPT_MAP");
+
     },
 
     /**
@@ -326,8 +330,9 @@ const actions = {
                     const id = response.data.data.id;
                     const sid = response.data.data.attributes.field_sid;
                     const tid = response.data.data.attributes.field_tid;
-                    const marker = response.data.data.attributes.field_marker;
-                    relationships.push({ id: id, sid: sid, tid: tid, _color: '#c93e37', name: label, marker: marker })
+                    const marker_start = response.data.data.attributes.field_marker_start;
+                    const marker_end = response.data.data.attributes.field_marker_end;
+                    relationships.push({ id, sid, tid, _color: '#c93e37', name: label, marker_start, marker_end })
                 })
         })
         return relationships;
@@ -339,7 +344,6 @@ const actions = {
     * @returns 
     */
     async loadConceptMap({ commit }, conceptMap) {
-
         return await commit('INITIALIZE_CONCEPT_MAP', conceptMap);
     },
 }
@@ -362,14 +366,11 @@ const mutations = {
     * @param {object} payload stores the concept data for adding it to concept map. 
     */
     ADD_CONCEPT_TO_CONCEPT_MAP(state, payload) {
-        console.log("state.index");
-        console.log(state.index);
         state.concept_maps[state.index].nodes.push({
             id: payload.concept.id,
             name: payload.concept.name,
             uuid: payload.concept.id,
         })
-        console.log("COncept added")
     },
     /**
     * Adds relationships to the concept map in state . 
@@ -383,9 +384,9 @@ const mutations = {
             tid: payload.relationship[0].tid,
             _color: 'red',
             name: payload.relationship[0].name,
-            marker: payload.relationship[0].marker,
+            marker_start: payload.relationship[0].marker_start,
+            marker_end: payload.relationship[0].marker_end,
         })
-        console.log("rel added to state")
     },
 
     /**
@@ -404,9 +405,6 @@ const mutations = {
     *  
     */
     DELETE_LINK_FROM_STATE(state, payload) {
-        console.log(payload)
-        console.log(state.concept_maps)
-        console.log(state.index)
         state.concept_maps[state.index].links.forEach(link => {
             if (link.id == payload.linkId) {
                 state.concept_maps[state.index].links.splice(state.concept_maps[state.index].links.indexOf(link), 1);
@@ -439,9 +437,11 @@ const mutations = {
     * @returns state.activeConceptMap
     */
     INITIALIZE_AKTIVE_CONCEPT_MAP(state) {
+        console.log(state.concept_maps)
         state.activeConceptMap = state.concept_maps[0];
         state.finishedLoading = true;
         return state.activeConceptMap
+
     },
     /**
     * Updates the active concept map in state.

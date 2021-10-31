@@ -8,27 +8,32 @@ const state = () => ({
     logout_token: null,
     validCredential: false,
     authToken: null,
-    concept_map_ids: null
+    concept_map_ids: null,
+    isThereAnyConceptMap: false,
 
 
 })
 
 const getters = {
+    /**
+     * Getter for user datas. 
+     * @param {object} state, to allow access to the state values 
+     * @returns user, the values of user as object
+     */
     getUser(state) {
         return state.user;
     },
-    getValidCredential(state) {
-        return state.validCredential;
-    }
 
+    getIsThereAnyConceptMap(state) {
+        // how can I check the concept maps of user. 
+        // user.concept_maps is changing when it is empty and when it contains something
+        console.log(state.user.concept_maps.length);
+        (state.user.concept_maps.length > 0) ? state.isThereAnyConceptMap = true : "";
+        console.log(state.isThereAnyConceptMap)
+        return state.isThereAnyConceptMap;
+    }
 }
 const actions = {
-    //TO DO: Check if a user already exists
-
-    /*1. session token von drupal holen
-    2. user json bauen -> mit feldern wie namen, sparky id, matrikelnummer etc
-    3. user json mit token an drupal um user zu registrierenn -> response ist user objekt mit uuid, namen, felder etc
-    */
 
     /**
     * gets a session token which is used for subsequent registration of a user
@@ -136,7 +141,13 @@ const actions = {
             });
     },
 
+    /**
+     * Loads user datas from backend.
+     * @param {object} state, to allow access to state values
+     * @param {object} commit, is being used to call a mutation.  
+     */
     async loadUserFromBackend({ commit, state }) {
+        console.log("load user")
         var config = {
             method: 'get',
             url: `jsonapi/user/user?filter[drupal_internal__uid]=${state.user.uid}`,
@@ -148,7 +159,7 @@ const actions = {
 
         await axios(config)
             .then(function (response) {
-                // console.log(response)
+                console.log(response)
                 // We need for now only concept map id, but I am saving the other values in case we use them later. 
                 let user = {
                     id: response.data.data[0].id,
@@ -166,12 +177,18 @@ const actions = {
             })
 
     },
-
+    /**
+     * Loads tolen called valid_credientials from session storage. 
+     * @param {object} commit, to call a mutation
+     * @param {object} dispatch, to call an action
+     * @returns 
+     */
     async loadTokensfromSessionStorage({ commit, dispatch }) {
         if (sessionStorage.getItem("valid_credentials") == "true") {
             await commit('LOAD_TOKEN_SESSION_STORAGE');
             await dispatch('loadUserFromBackend');
-            await router.push("/")
+            // router.push("/")
+            // console.log("hello")
         } else {
             console.log("session token")
             router.push("/Login");
@@ -182,6 +199,9 @@ const actions = {
     /**
     * Connects to the Drupal Backend and request a login
     * The Backend will give csrf_token a logout token and a current_user object
+    * @param {object} commit to call a mutation
+    * @param {object} state allows access to state values
+    * @param {object} rootState allows access to rootState values
     */
     async logoutDrupal({ commit, rootState, state }) {
 
@@ -204,7 +224,11 @@ const actions = {
                 console.log(error)
             });
     },
-
+    /**
+     * Sends a mutation to save authorization token to the state.
+     * @param {object} commit to call a mutation 
+     * @param {string} authorization_token token for access
+     */
     saveBasicAuth({ commit }, authorization_token) {
         commit('SAVE_BASIC_AUTH_TOKEN', authorization_token)
     }
@@ -259,6 +283,7 @@ const mutations = {
 
 
     LOAD_TOKEN_SESSION_STORAGE(state) {
+        console.log("load token session storage")
         state.validCredential = true;
         state.csrf_token = sessionStorage.getItem("csrf_token");
         state.logout_token = sessionStorage.getItem("logout_token");
@@ -277,6 +302,7 @@ const mutations = {
         sessionStorage.removeItem("auth_token");
     },
     SAVE_USER(state, user) {
+        console.log(user)
         state.user.id = user.id;
         state.user.mail = user.mail;
         state.user.matrikelnummer = user.matrikelnummer;

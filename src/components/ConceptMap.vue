@@ -10,13 +10,14 @@
                 @click="showAnyModal('add-first-concept-modal')"
             >
                 <b-card-text
-                    >No concept in map. Click here to add first
-                    one..</b-card-text
+                    >Noch kein Konzept vorhanden. Klicke hier, um das erste
+                    hinzuzufügen.</b-card-text
                 >
             </b-card>
         </div>
 
         <d3-network
+            id="map"
             v-if="finishedLoading"
             :net-nodes="activeConceptMap.nodes"
             :net-links="activeConceptMap.links"
@@ -63,25 +64,27 @@
             <b-modal id="add-parent-modal" hide-footer hide-header hide-title>
                 <div class="modal-container">
                     <h5 class="modal-title">
-                        Add a parent to
-                        <strong> {{ clickedNode.name }} !</strong>
+                        Füge ein übergeordnetes Konzept zu
+                        <strong> {{ clickedNode.name }}</strong>
+                        hinzu!
                     </h5>
                     <div class="modal-body">
                         <p>
-                            Choose one of the below
+                            Wähle eines der folgenden Konzepte
                             <b-button
                                 variant="secondary"
                                 size="sm"
                                 @click="clearOptions()"
-                                >Clear Options</b-button
+                                >Auswahl zurücksetzen</b-button
                             >
                         </p>
                         <select v-model="targetConcept">
                             <option value="" disabled selected hidden>
-                                Choose Concept...
+                                Konzept auswählen...
                             </option>
                             <option
                                 v-for="(concept, i) in filteredConcepts"
+                                :disabled="isLinkExists(clickedNode, concept)"
                                 :key="i"
                                 :value="concept"
                             >
@@ -94,12 +97,13 @@
                                 type="radio"
                                 name="relationType"
                                 id="bidirectional"
-                                value="m-start"
+                                value="bidirectional"
                                 v-model="relationType"
                                 checked
                             />
                             <label class="form-check-label" for="bidirectional">
-                                Bidirectional
+                                Bidirektional: {{ clickedNode.name }} ⇔
+                                {{ targetConcept.name }}
                             </label>
                         </div>
                         <div class="form-check">
@@ -107,31 +111,46 @@
                                 class="form-check-input"
                                 type="radio"
                                 name="relationType"
-                                id="unidirectional"
-                                value="null"
+                                id="unidirectionalPT"
+                                value="unidirectionalPT"
                                 v-model="relationType"
                             />
                             <label
                                 class="form-check-label"
-                                for="unidirectional"
+                                for="unidirectionalPT"
                             >
                                 Unidirectional
+                                <strong v-if="targetConcept">
+                                    {{ clickedNode.name }} -->
+                                    {{ targetConcept.name }}
+                                </strong>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                name="relationType"
+                                id="unidirectionalTP"
+                                value="unidirectionalTP"
+                                v-model="relationType"
+                            />
+                            <label
+                                class="form-check-label"
+                                for="unidirectionalTP"
+                            >
+                                Unidirectional
+                                <strong v-if="targetConcept">
+                                    {{ targetConcept.name }}
+                                    -->
+                                    {{ clickedNode.name }}
+                                </strong>
                             </label>
                         </div>
                         <label for="linkNameInput">Link Name: </label>
                         <b-input id="linkNameInput" v-model="linkName">
                         </b-input>
                         <div class="modal-buttons">
-                            <b-button
-                                @click="deleteNode(clickedNode)"
-                                variant="danger"
-                                size="sm"
-                            >
-                                <!-- <b-icon icon="trash" size="sm"></b-icon> -->
-                                Delete
-                                <strong> {{ clickedNode.name }} !</strong>
-                            </b-button>
-
                             <b-button
                                 variant="primary"
                                 :disabled="isSelectBoxOrRadioButtonFull"
@@ -146,14 +165,25 @@
                                 "
                             >
                                 <!-- <b-icon icon="plus-circle" size="sm"></b-icon> -->
-                                Hinzufügen
-                                <strong>{{ targetConcept.name }} </strong>
+                                Füge hinzu
+                                <strong> {{ targetConcept.name }} </strong>
                             </b-button>
+
+                            <b-button
+                                @click="deleteNode(clickedNode)"
+                                variant="danger"
+                                size="sm"
+                            >
+                                <!-- <b-icon icon="trash" size="sm"></b-icon> -->
+                                Lösche
+                                <strong> {{ clickedNode.name }} </strong>
+                            </b-button>
+
                             <b-button
                                 @click="hideModal('add-parent-modal')"
                                 variant="danger"
                                 size="sm"
-                                >Close Me
+                                >Schließen
                             </b-button>
                         </div>
                     </div>
@@ -163,16 +193,29 @@
             <b-modal
                 centered
                 id="add-first-concept-modal"
-                title="Add Your First Concept"
+                title="Füge dein erstes Konzept hinzu"
                 hide-footer
+                hide-header-close
             >
+                <b-card
+                    v-if="filteredConcepts.length <= 0"
+                    bg-variant="warning"
+                    text-variant="white"
+                    class="text-center"
+                >
+                    <b-card-text
+                        >Sie müssen zuerst ein Konzept erstellen..</b-card-text
+                    >
+                </b-card>
                 <b-form-group v-for="(concept, i) in filteredConcepts" :key="i">
                     <b-form-radio
                         v-model="selectedNode"
                         name="some-radios"
                         :value="concept"
                     >
-                        {{ concept.name }}
+                        <span>
+                            {{ concept.name }}
+                        </span>
                     </b-form-radio>
                 </b-form-group>
 
@@ -190,7 +233,7 @@
                         @click="hideModal('add-first-concept-modal')"
                         variant="danger"
                         size="sm"
-                        >Close Me
+                        >Schließen
                     </b-button>
                 </div>
             </b-modal>
@@ -208,7 +251,7 @@ import D3Network from "vue-d3-network";
 import ConceptMapBar from "@/components/ConceptMapBar.vue";
 
 import { mapGetters } from "vuex";
-
+import { gsap } from "gsap";
 export default {
     data() {
         return {
@@ -272,8 +315,9 @@ export default {
          */
         lcb(link) {
             link._svgAttrs = {
-                "marker-end": `url(#m-end)`,
-                "marker-start": `url(#${link.marker})`,
+                // "marker-end": `url(#m-end)`,
+                "marker-start": `url(#${link.marker_start})`,
+                "marker-end": `url(#${link.marker_end})`,
             };
             return link;
         },
@@ -317,6 +361,7 @@ export default {
             this.targetConcept = "";
             this.linkName = "";
             this.relationType = "";
+            this.selectedNode = "";
         },
         /**
          * Adds the given concept to the concept map.
@@ -326,6 +371,50 @@ export default {
             this.$store.dispatch("conceptMap/addConceptToConceptMap", {
                 concept: concept,
             });
+            this.hideModal("add-first-concept-modal");
+        },
+
+        /**
+         * Controls if there is a link between the selected node and clicked node.
+         * It also controls if the selected node and clicked node is the same.
+         * @param {object} clickedNode, the node that user has clicked
+         * @param {object} nodeInOption, the node in the option
+         */
+        isLinkExists(clickedNode, nodeInOption) {
+            let isLinkExists = false;
+            let links = this.activeConceptMap.links;
+
+            clickedNode.name == nodeInOption.name ? (isLinkExists = true) : "";
+            links.forEach((link) => {
+                link.sid == clickedNode.id && link.tid == nodeInOption.id
+                    ? (isLinkExists = true)
+                    : "";
+                link.tid == clickedNode.id && link.sid == nodeInOption.id
+                    ? (isLinkExists = true)
+                    : "";
+            });
+            return isLinkExists;
+        },
+
+        /**
+         * creates the marker by checking the relation type
+         * @param {string} relationType, the type of the relation which comes from the modal
+         * @returns {object} markers, the object for marker type, at the end and start of the link
+         * unidirectionalPT : from parent concept to target concept
+         * unidirectionalTP : from parent target to parent concept
+         * bidirectional: there are arrows both side of the link
+         */
+        createMarkers(relationType) {
+            console.log(relationType);
+            let markers = {
+                start: "m-start",
+                end: "m-end",
+            };
+
+            relationType == "unidirectionalPT" ? (markers.start = "null") : "";
+            relationType == "unidirectionalTP" ? (markers.end = "null") : "";
+
+            return markers;
         },
         /**
          * Adds given concept to concept map.
@@ -355,33 +444,29 @@ export default {
                       " zu " +
                       targetConcept.name);
             // We need to add the ids of the source and target concept to relationship array.
+            let markers = this.createMarkers(relationType);
+
             relationship.push({
-                name: name,
+                name,
                 tid: targetConcept.id,
                 sid: sourceConcept.id,
-                marker: relationType,
+                marker_start: markers.start,
+                marker_end: markers.end,
             });
-            let isConceptInMap = false;
+
             // We need to send the source concept as an object to this methode
-            isConceptInMap = await this.$store.dispatch(
-                "conceptMap/addConceptToConceptMap",
-                {
-                    concept: sourceConcept,
-                }
-            );
+            this.$store.dispatch("conceptMap/addConceptToConceptMap", {
+                concept: sourceConcept,
+            });
             // we need to send target concept as an object to this methode
-            isConceptInMap = await this.$store.dispatch(
-                "conceptMap/addConceptToConceptMap",
-                {
-                    concept: targetConcept,
-                }
-            );
-            if (!isConceptInMap) {
-                // We need to send the relationship as an array
-                this.$store.dispatch("conceptMap/addRelationshipToDatabase", {
-                    relationship: relationship,
-                });
-            }
+            this.$store.dispatch("conceptMap/addConceptToConceptMap", {
+                concept: targetConcept,
+            });
+
+            // We need to send the relationship as an array
+            this.$store.dispatch("conceptMap/addRelationshipToDatabase", {
+                relationship: relationship,
+            });
         },
 
         /**
@@ -455,9 +540,46 @@ export default {
     async created() {
         await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
     },
+    watch: {
+        /**
+         * To make transition when switching concept maps.
+         * Actually we are changing the activeConceptMap when we change the concept maps from dropdown
+         * So we are applying transition whenever we change the value of activeConceptMap
+         */
+        activeConceptMap: () => {
+            const map = document.querySelector("#map");
+            const body = document.querySelector("body");
+            body.style.overflow = "hidden";
+            const tl = gsap.timeline({
+                defaults: {
+                    duration: 0.6,
+                    ease: "ease-out",
+                },
+            });
+            if (map) {
+                tl.from(
+                    map,
+                    { translateX: 1000, clearProps: "all", duration: 1 },
+                    0.3
+                );
+            }
+        },
+    },
 };
 </script>
 <style scoped >
+.map-enter {
+    opacity: 0;
+}
+.map-enter-active {
+    transition: opacity 0.3s ease-out;
+}
+
+.map-leave-active {
+    transition: opacity 0.3s ease-out;
+    opacity: 0;
+}
+
 .emptyMap {
     display: flex;
     justify-content: center;
@@ -514,6 +636,10 @@ button {
     justify-content: flex-end;
 }
 .modal-buttons * {
+    margin-left: 0.5rem;
+}
+
+#add-first-concept-modal span {
     margin-left: 0.5rem;
 }
 

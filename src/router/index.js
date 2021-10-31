@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import store from "@/store/store"
 
 import Home from "@/components/Home"
 import Login from "@/components/Login"
@@ -24,17 +23,10 @@ const router = new VueRouter({
 
 
 router.beforeEach((to, from, next) => {
-    let isAuthenticated = store.getters["drupal_api/getValidCredential"];
-    // console.log(isAuthenticated)
+    let isAuthenticated = Boolean(sessionStorage.getItem("valid_credentials"));
 
-    if (to.name !== 'Login' && !isAuthenticated) {
-        console.log("before each")
-        next({ name: 'Login' })
-    }
-    else {
-        console.log("before each else")
-        next()
-    }
+    if (to.name !== 'Login' && !isAuthenticated) next({ name: 'Login' })
+    else next()
 })
 
 export default router
