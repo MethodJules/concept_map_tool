@@ -2,11 +2,11 @@
     <div id="app">
         <div
             class="app-loading-bar"
-            v-if="!finishedLoading && !finishedActiveConceptMapLoading"
+            v-if="!(finishedLoading && finishedActiveConceptMapLoading)"
         >
-            <b-spinner label="Loading..."></b-spinner>
+            <b-spinner></b-spinner>
         </div>
-        <div class="app-container" v-if="finishedLoading">
+        <div id="appContainer" class="app-container" v-if="finishedLoading">
             <div class="loading" v-if="buttonClicked">
                 <div class="lds-ripple">
                     <div></div>
@@ -26,6 +26,7 @@
 <script>
 import Header from "./components/shared/Header.vue";
 import { mapGetters } from "vuex";
+
 export default {
     data() {
         return {
@@ -47,6 +48,15 @@ export default {
         // await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
         await this.$store.dispatch("drupal_api/loadTokensfromSessionStorage");
         this.finishedLoading = true;
+        console.log(this.finishedActiveConceptMapLoading);
+        console.log(this.finishedLoading);
+        console.log(
+            !this.finishedLoading && !this.finishedActiveConceptMapLoading
+        );
+        if (this.finishedActiveConceptMapLoading) {
+            const appContainer = document.querySelector("#appContainer");
+            console.log(appContainer);
+        }
     },
 };
 </script>
@@ -81,5 +91,9 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+}
+
+.hide {
+    display: none;
 }
 </style>

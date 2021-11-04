@@ -295,7 +295,7 @@ export default {
                 nodeLabels: true,
                 nodeSize: 30,
                 linkWidth: 3,
-                force: 20000,
+                force: 40000,
                 fontSize: 15,
                 strLinks: true,
                 linkLabels: true,
@@ -556,10 +556,22 @@ export default {
                     ease: "ease-out",
                 },
             });
+
             if (map) {
                 tl.from(
                     map,
                     { translateX: 1000, clearProps: "all", duration: 1 },
+                    0.6
+                );
+
+                tl.from(
+                    body,
+                    {
+                        opacity: 0,
+                        clearProps: "all",
+                        duration: 1.5,
+                        ease: "ease-out",
+                    },
                     0.3
                 );
             }

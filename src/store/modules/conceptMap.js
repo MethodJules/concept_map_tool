@@ -272,8 +272,23 @@ const actions = {
     async loadConceptMapFromBackend({ commit, rootState, dispatch }) {
         let conceptMaps = rootState.drupal_api.user.concept_maps;
 
-        for (const conceptMap of conceptMaps) {
+        // for (const conceptMap of conceptMaps) {
 
+        //     await axios.get(`concept_map/${conceptMap.id}`)
+        //         .then(async (response) => {
+        //             const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
+        //             const links = response.data.data.relationships.field_conceptmap_relationships.data;
+        //             const tags = response.data.data.attributes.field_conceptmap_tags;
+        //             let newNodes = await dispatch("loadNodesOfConceptMap", nodes);
+        //             let newLinks = await dispatch("loadLinksOfConceptMap", links);
+        //             await dispatch("loadConceptMap", { conceptMapCredientials: response.data.data, nodes: newNodes, links: newLinks, tags: tags });
+        //         })
+        //         .catch(error => {
+        //             throw new Error(`API ${error}`);
+        //         });
+        // }
+
+        await Promise.all(conceptMaps.map(async conceptMap => {
             await axios.get(`concept_map/${conceptMap.id}`)
                 .then(async (response) => {
                     const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
@@ -286,7 +301,8 @@ const actions = {
                 .catch(error => {
                     throw new Error(`API ${error}`);
                 });
-        }
+        }))
+
         await commit("INITIALIZE_AKTIVE_CONCEPT_MAP");
 
     },
@@ -301,8 +317,8 @@ const actions = {
         console.log(state);
 
         let concepts = [];
-        await nodes.forEach(element => {
-            axios.get(`concept/${element.id}`)
+        await Promise.all(nodes.map(async element => {
+            await axios.get(`concept/${element.id}`)
                 .then((response) => {
                     const title = response.data.data.attributes.title;
                     const uuid = response.data.data.id;
@@ -310,7 +326,7 @@ const actions = {
                     concepts.push({ id: uuid, name: title, uuid: uuid, conceptMapId });
                     nodes.push({ id: uuid, name: title, uuid: uuid, conceptMapId });
                 })
-        });
+        }));
         return concepts;
     },
     /**
@@ -323,8 +339,8 @@ const actions = {
         // NEED TO REMOVE
         console.log(state)
         let relationships = [];
-        await links.forEach(link => {
-            axios.get(`relationship/${link.id}`)
+        await Promise.all(links.map(async link => {
+            await axios.get(`relationship/${link.id}`)
                 .then((response) => {
                     const label = response.data.data.attributes.title;
                     const id = response.data.data.id;
@@ -334,7 +350,7 @@ const actions = {
                     const marker_end = response.data.data.attributes.field_marker_end;
                     relationships.push({ id, sid, tid, _color: '#c93e37', name: label, marker_start, marker_end })
                 })
-        })
+        }))
         return relationships;
     },
     /**
