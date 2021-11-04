@@ -272,22 +272,6 @@ const actions = {
     async loadConceptMapFromBackend({ commit, rootState, dispatch }) {
         let conceptMaps = rootState.drupal_api.user.concept_maps;
 
-        // for (const conceptMap of conceptMaps) {
-
-        //     await axios.get(`concept_map/${conceptMap.id}`)
-        //         .then(async (response) => {
-        //             const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
-        //             const links = response.data.data.relationships.field_conceptmap_relationships.data;
-        //             const tags = response.data.data.attributes.field_conceptmap_tags;
-        //             let newNodes = await dispatch("loadNodesOfConceptMap", nodes);
-        //             let newLinks = await dispatch("loadLinksOfConceptMap", links);
-        //             await dispatch("loadConceptMap", { conceptMapCredientials: response.data.data, nodes: newNodes, links: newLinks, tags: tags });
-        //         })
-        //         .catch(error => {
-        //             throw new Error(`API ${error}`);
-        //         });
-        // }
-
         await Promise.all(conceptMaps.map(async conceptMap => {
             await axios.get(`concept_map/${conceptMap.id}`)
                 .then(async (response) => {

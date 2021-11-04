@@ -44,19 +44,8 @@ export default {
         }),
     },
     async mounted() {
-        // await this.$store.dispatch("loadConceptListFromDb");
-        // await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
         await this.$store.dispatch("drupal_api/loadTokensfromSessionStorage");
         this.finishedLoading = true;
-        console.log(this.finishedActiveConceptMapLoading);
-        console.log(this.finishedLoading);
-        console.log(
-            !this.finishedLoading && !this.finishedActiveConceptMapLoading
-        );
-        if (this.finishedActiveConceptMapLoading) {
-            const appContainer = document.querySelector("#appContainer");
-            console.log(appContainer);
-        }
     },
 };
 </script>
