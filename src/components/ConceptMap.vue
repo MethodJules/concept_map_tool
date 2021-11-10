@@ -563,17 +563,6 @@ export default {
                     { translateX: 1000, clearProps: "all", duration: 1 },
                     0.6
                 );
-
-                tl.from(
-                    body,
-                    {
-                        opacity: 0,
-                        clearProps: "all",
-                        duration: 1.5,
-                        ease: "ease-out",
-                    },
-                    0.3
-                );
             }
         },
     },

@@ -1,11 +1,5 @@
 <template>
     <div id="app">
-        <div
-            class="app-loading-bar"
-            v-if="!(finishedLoading && finishedActiveConceptMapLoading)"
-        >
-            <b-spinner></b-spinner>
-        </div>
         <div id="appContainer" class="app-container" v-if="finishedLoading">
             <div class="loading" v-if="buttonClicked">
                 <div class="lds-ripple">
@@ -40,7 +34,6 @@ export default {
     computed: {
         ...mapGetters({
             buttonClicked: "getButtonClicked",
-            finishedActiveConceptMapLoading: "conceptMap/getFinishedLoading",
         }),
     },
     async mounted() {
