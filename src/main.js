@@ -3,6 +3,7 @@ import App from './App.vue'
 import Vuex from 'vuex'
 import router from './router'
 import store from './store/store'
+import Vuetify from 'vuetify'
 
 
 
@@ -16,6 +17,7 @@ import 'vue-d3-network/dist/vue-d3-network.css'
 Vue.config.productionTip = false
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
+Vue.use(Vuetify)
 
 
 

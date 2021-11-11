@@ -100,6 +100,31 @@
                 </b-form-group>
             </b-card>
         </div>
+            <div>
+      <v-footer padless>
+        <v-card class="flat tile text-center" color="#6c757d">
+          <v-card-title>
+            Concept Mapping Tool - Intelligentes Concept Mapping
+          </v-card-title>
+          <v-card-subtitle>
+            Dieses OpenSource-Projekt wurde im Rahmen der Ausschreibung
+            "Qualität Plus" des MWK Niedersachsen erstellt. Näheres dazu finden
+            Sie
+            <a class="footer-link"
+              href="https://www.uni-hildesheim.de/fb4/institute/bwl/informationssysteme-und-unternehmensmodellierung/projekte/qualitaet-plus/" target="_blank" rel="noopener noreferrer"
+              >hier</a
+            >.
+          </v-card-subtitle>
+          <v-divider></v-divider>
+          <v-card-text class="pb-3">
+            <img src="../assets/logo.svg" width="24px" height="24px" />
+            <a class="footer-link" href="https://www.uni-hildesheim.de/impressum/" target="_blank" rel="noopener noreferrer">
+            Universität Hildesheim
+            </a> - {{ new Date().getFullYear() }}
+          </v-card-text>
+        </v-card>
+      </v-footer>
+    </div>
     </div>
 </template>
 <script>
@@ -185,6 +210,17 @@ export default {
 };
 </script>
 <style scoped>
+.footer-link {
+    color: #48c9b0;
+    text-decoration: none;
+}
+
+.v-card__title,
+.v-card__subtitle,
+.v-card__text {
+  color: white;
+}
+
 .container {
     display: grid;
     grid-template-rows: repeat(3, 1fr);
