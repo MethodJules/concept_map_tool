@@ -1,111 +1,106 @@
 <template>
-    <div>
-        <Gdpr v-on:gdprAccepted="enableButtons" />
-        <div class="container">
-            <b-card class="container-form">
-                <b-form-group>
-                    <b-tabs>
-                        <!-- Class name is automatically "tabs" -->
-                        <!-- Tab 1 -->
-                        <b-tab title="Login">
-                            <div class="login-header">
-                                <h5>Melde dich hier mit deinem Uni-Account an.</h5>
-                                <p>
-                                    Wenn du dich noch nicht registriert hast,
-                                    registriere dich bitte mit deinem Uni-Account.
-                                </p>
-                            </div>
-                            <table>
-                                <tr>
-                                    <td>
-                                        <label for="zugangsKennung"
-                                            >Zugangskennung</label
-                                        >
-                                    </td>
-                                    <td>
-                                        <input
-                                            v-model="zugangsKennung"
-                                            id="zugangskennung"
-                                            type="text"
-                                            placeholder=""
-                                            class="form-control"
-                                        />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <label for="password">Passwort</label>
-                                    </td>
-                                    <td>
-                                        <input
-                                            v-model="passwort"
-                                            id="password"
-                                            type="password"
-                                            placeholder=""
-                                            class="form-control"
-                                        />
-                                    </td>
-                                </tr>
-                            </table>
+    <div class="container">
+        <b-card class="container-form">
+            <b-form-group>
+                <b-tabs>
+                    <!-- Class name is automatically "tabs" -->
+                    <!-- Tab 1 -->
+                    <b-tab title="Login">
+                        <div class="login-header">
+                            <h5>Melde dich hier mit deinem Uni-Account an.</h5>
+                            <p>
+                                Wenn du dich noch nicht registriert hast,
+                                registriere dich bitte mit deinem Uni-Account.
+                            </p>
+                        </div>
+                        <table>
+                            <tr>
+                                <td>
+                                    <label for="zugangsKennung"
+                                        >Zugangskennung</label
+                                    >
+                                </td>
+                                <td>
+                                    <input
+                                        v-model="zugangsKennung"
+                                        id="zugangskennung"
+                                        type="text"
+                                        placeholder=""
+                                        class="form-control"
+                                    />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="password">Passwort</label>
+                                </td>
+                                <td>
+                                    <input
+                                        v-model="passwort"
+                                        id="password"
+                                        type="password"
+                                        placeholder=""
+                                        class="form-control"
+                                    />
+                                </td>
+                            </tr>
+                        </table>
 
-                            <b-button :disabled="!gdprAccepted" @click="login()">Login</b-button>
-                        </b-tab>
-                        <b-tab title="Registrierung">
-                            <div class="registrierung-header">
-                                <h5>
-                                    Registriere dich hier mit deinem Uni-Account.
-                                </h5>
-                                <p>
-                                    Falls du Hilfe benötigst, wende dich an
-                                    maren.stadtlaender@uni-hildesheim.de.
-                                </p>
-                            </div>
-                            <table>
-                                <tr>
-                                    <td>
-                                        <label for="zugangsKennung"
-                                            >Zugangskennung</label
-                                        >
-                                    </td>
-                                    <td>
-                                        <input
-                                            v-model="registrierungsKennung"
-                                            id="registrierungsKennung"
-                                            type="text"
-                                            placeholder=""
-                                            class="form-control"
-                                        />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <label for="password">Passwort</label>
-                                    </td>
-                                    <td>
-                                        <input
-                                            v-model="registrierungsPasswort"
-                                            id="registrierungsPasswort"
-                                            type="password"
-                                            placeholder=""
-                                            class="form-control"
-                                        />
-                                    </td>
-                                </tr>
-                            </table>
-                            <b-button :disabled="!gdprAccepted" @click="registrieren()"
-                                >Registrieren</b-button
-                            >
-                        </b-tab>
-                    </b-tabs>
-                </b-form-group>
-            </b-card>
-        </div>
+                        <b-button @click="login()">Login</b-button>
+                    </b-tab>
+                    <b-tab title="Registrierung">
+                        <div class="registrierung-header">
+                            <h5>
+                                Registriere dich hier mit deinem Uni-Account.
+                            </h5>
+                            <p>
+                                Falls du Hilfe benötigst, wende dich an
+                                maren.stadtlaender@uni-hildesheim.de.
+                            </p>
+                        </div>
+                        <table>
+                            <tr>
+                                <td>
+                                    <label for="zugangsKennung"
+                                        >Zugangskennung</label
+                                    >
+                                </td>
+                                <td>
+                                    <input
+                                        v-model="registrierungsKennung"
+                                        id="registrierungsKennung"
+                                        type="text"
+                                        placeholder=""
+                                        class="form-control"
+                                    />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="password">Passwort</label>
+                                </td>
+                                <td>
+                                    <input
+                                        v-model="registrierungsPasswort"
+                                        id="registrierungsPasswort"
+                                        type="password"
+                                        placeholder=""
+                                        class="form-control"
+                                    />
+                                </td>
+                            </tr>
+                        </table>
+                        <b-button @click="registrieren()"
+                            >Registrieren</b-button
+                        >
+                    </b-tab>
+                </b-tabs>
+            </b-form-group>
+        </b-card>
     </div>
 </template>
 <script>
-import Gdpr from "@/components/Gdpr.vue";
 export default {
-    components: { Gdpr },
     data() {
         return {
             zugangsKennung: "",
@@ -113,7 +108,6 @@ export default {
             registrierungsKennung: "",
             registrierungsPasswort: "",
             matrikelnummer: "",
-            gdprAccepted: false,
         };
     },
     computed: {
@@ -128,9 +122,6 @@ export default {
         },
     },
     methods: {
-        enableButtons() {
-            this.gdprAccepted = true;
-        },
         registrieren() {
             this.$store.dispatch("sparky_api/registrate", {
                 username: this.registrierungsKennung,
@@ -181,7 +172,7 @@ export default {
             var base64 = btoa(creds);
             return "Basic " + base64;
         },
-    }
+    },
 };
 </script>
 <style scoped>
