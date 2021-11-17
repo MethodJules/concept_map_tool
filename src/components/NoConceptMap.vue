@@ -4,7 +4,7 @@
             <b-card-title>Concept Mapping Tool</b-card-title>
 
             <b-card-text>
-                Es gibt keinen Konzept Map. Möchten Sie erste Konzept Map
+                Es gibt noch keine Concept Map. Möchtest du deine erste Concept Map
                 erstellen?
             </b-card-text>
 
@@ -20,7 +20,7 @@
                     @click="createConceptMap(newConceptMapName)"
                     class="card-button"
                 >
-                    Erstelle Erste Konzept Map
+                    Erstelle deine erste Concept Map
                 </b-button>
             </b-row>
         </b-card-body>
