@@ -11,8 +11,6 @@ const routes = [
     { path: "/concept-map-page", name: "concept-map-page", component: Home },
     { path: "/login", name: "Login", component: Login },
     { path: "*", redirect: "/" }
-
-
 ];
 
 
@@ -24,7 +22,7 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
     let isAuthenticated = Boolean(sessionStorage.getItem("valid_credentials"));
-
+    
     if (to.name !== 'Login' && !isAuthenticated) next({ name: 'Login' })
     else next()
 })

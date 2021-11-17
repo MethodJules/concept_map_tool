@@ -27,11 +27,10 @@ const getters = {
     getIsThereAnyConceptMap(state) {
         // how can I check the concept maps of user. 
         // user.concept_maps is changing when it is empty and when it contains something
-        console.log(state.user.concept_maps.length);
         (state.user.concept_maps.length > 0) ? state.isThereAnyConceptMap = true : "";
-        console.log(state.isThereAnyConceptMap)
         return state.isThereAnyConceptMap;
-    }
+    },
+
 }
 const actions = {
 
@@ -147,7 +146,6 @@ const actions = {
      * @param {object} commit, is being used to call a mutation.  
      */
     async loadUserFromBackend({ commit, state }) {
-        console.log("load user")
         var config = {
             method: 'get',
             url: `jsonapi/user/user?filter[drupal_internal__uid]=${state.user.uid}`,
@@ -159,8 +157,6 @@ const actions = {
 
         await axios(config)
             .then(function (response) {
-                console.log(response)
-                // We need for now only concept map id, but I am saving the other values in case we use them later. 
                 let user = {
                     id: response.data.data[0].id,
                     name: response.data.data[0].attributes.name,
@@ -283,7 +279,6 @@ const mutations = {
 
 
     LOAD_TOKEN_SESSION_STORAGE(state) {
-        console.log("load token session storage")
         state.validCredential = true;
         state.csrf_token = sessionStorage.getItem("csrf_token");
         state.logout_token = sessionStorage.getItem("logout_token");
@@ -302,7 +297,6 @@ const mutations = {
         sessionStorage.removeItem("auth_token");
     },
     SAVE_USER(state, user) {
-        console.log(user)
         state.user.id = user.id;
         state.user.mail = user.mail;
         state.user.matrikelnummer = user.matrikelnummer;

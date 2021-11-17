@@ -1,16 +1,24 @@
 <template>
     <b-row class="pageContainer">
-        <b-row v-if="isThereAnyConceptMap">
-            <b-col md="2" class="pageContainer-sidebar">
-                <Sidebar />
-            </b-col>
-            <b-col md="10" class="pageContainer-mapContainer">
-                <ConceptMap />
-            </b-col>
-        </b-row>
-        <b-row v-if="!isThereAnyConceptMap" class="noMapContainer">
-            <NoConceptMap />
-        </b-row>
+        <div
+            class="app-loading-bar"
+            v-if="!finishedActiveConceptMapLoading & isThereAnyConceptMap"
+        >
+            <b-spinner></b-spinner>
+        </div>
+        <div>
+            <b-row v-if="isThereAnyConceptMap">
+                <b-col md="2" class="pageContainer-sidebar">
+                    <Sidebar />
+                </b-col>
+                <b-col md="10" class="pageContainer-mapContainer">
+                    <ConceptMap />
+                </b-col>
+            </b-row>
+            <b-row v-if="!isThereAnyConceptMap" class="noMapContainer">
+                <NoConceptMap />
+            </b-row>
+        </div>
     </b-row>
 </template>
 <script>
@@ -31,6 +39,7 @@ export default {
         ...mapGetters({
             isThereAnyConceptMap: "drupal_api/getIsThereAnyConceptMap",
             // finishedLoading: "conceptMap/getFinishedLoading",
+            finishedActiveConceptMapLoading: "conceptMap/getFinishedLoading",
         }),
     },
 };

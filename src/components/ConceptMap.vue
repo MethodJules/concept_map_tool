@@ -119,7 +119,7 @@
                                 class="form-check-label"
                                 for="unidirectionalPT"
                             >
-                                Unidirectional
+                                Unidirektional
                                 <strong v-if="targetConcept">
                                     {{ clickedNode.name }} -->
                                     {{ targetConcept.name }}
@@ -139,7 +139,7 @@
                                 class="form-check-label"
                                 for="unidirectionalTP"
                             >
-                                Unidirectional
+                                Unidirektional
                                 <strong v-if="targetConcept">
                                     {{ targetConcept.name }}
                                     -->
@@ -147,7 +147,7 @@
                                 </strong>
                             </label>
                         </div>
-                        <label for="linkNameInput">Link Name: </label>
+                        <label for="linkNameInput">Bezeichnung Relation: </label>
                         <b-input id="linkNameInput" v-model="linkName">
                         </b-input>
                         <div class="modal-buttons">
@@ -165,8 +165,8 @@
                                 "
                             >
                                 <!-- <b-icon icon="plus-circle" size="sm"></b-icon> -->
-                                Füge hinzu
                                 <strong> {{ targetConcept.name }} </strong>
+                                hinzufügen
                             </b-button>
 
                             <b-button
@@ -175,8 +175,8 @@
                                 size="sm"
                             >
                                 <!-- <b-icon icon="trash" size="sm"></b-icon> -->
-                                Lösche
                                 <strong> {{ clickedNode.name }} </strong>
+                                löschen
                             </b-button>
 
                             <b-button
@@ -204,7 +204,7 @@
                     class="text-center"
                 >
                     <b-card-text
-                        >Sie müssen zuerst ein Konzept erstellen..</b-card-text
+                        >Du musst zuerst ein Konzept erstellen.</b-card-text
                     >
                 </b-card>
                 <b-form-group v-for="(concept, i) in filteredConcepts" :key="i">
@@ -295,7 +295,7 @@ export default {
                 nodeLabels: true,
                 nodeSize: 30,
                 linkWidth: 3,
-                force: 20000,
+                force: 40000,
                 fontSize: 15,
                 strLinks: true,
                 linkLabels: true,
@@ -556,11 +556,12 @@ export default {
                     ease: "ease-out",
                 },
             });
+
             if (map) {
                 tl.from(
                     map,
                     { translateX: 1000, clearProps: "all", duration: 1 },
-                    0.3
+                    0.6
                 );
             }
         },
