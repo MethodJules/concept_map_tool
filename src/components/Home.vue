@@ -1,6 +1,9 @@
 <template>
     <b-row class="pageContainer">
-        <div class="app-loading-bar" v-if="!finishedActiveConceptMapLoading">
+        <div
+            class="app-loading-bar"
+            v-if="!finishedActiveConceptMapLoading & isThereAnyConceptMap"
+        >
             <b-spinner></b-spinner>
         </div>
         <div>

@@ -270,8 +270,12 @@ const actions = {
     *  @param {*} dispatch, it is being used to call an action
     */
     async loadConceptMapFromBackend({ commit, rootState, dispatch }) {
+        console.log("hello")
         let conceptMaps = rootState.drupal_api.user.concept_maps;
-
+        console.log(conceptMaps)
+        if (!conceptMaps) {
+            console.log(conceptMaps)
+        }
         await Promise.all(conceptMaps.map(async conceptMap => {
             await axios.get(`concept_map/${conceptMap.id}`)
                 .then(async (response) => {
@@ -437,7 +441,6 @@ const mutations = {
     * @returns state.activeConceptMap
     */
     INITIALIZE_AKTIVE_CONCEPT_MAP(state) {
-        console.log(state.concept_maps)
         state.activeConceptMap = state.concept_maps[0];
         state.finishedLoading = true;
         return state.activeConceptMap
