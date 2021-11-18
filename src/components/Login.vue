@@ -187,15 +187,12 @@ export default {
         },
 
         validCredential() {
-            // return true;
-            // return this.$store.state.sparky_api.validCredential;
             return this.$store.state.drupal_api.validCredential;
         },
     },
     methods: {
         copyMail() {
             let mail = document.querySelector(".mail").innerText;
-            console.log(mail);
             navigator.clipboard.writeText(mail);
             this.copyIcon = "clipboard-check";
             setTimeout(() => {
@@ -225,7 +222,6 @@ export default {
             const md5sum = crypto.createHash("md5");
             let str = username;
             const res = md5sum.update(str).digest("hex");
-            console.log(res);
             return res;
         },
         async login() {
