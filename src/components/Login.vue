@@ -71,6 +71,14 @@
                                             maren.stadtlaender@uni-hildesheim.de </span
                                         >.
                                         <b-icon
+                                            v-b-tooltip="{
+                                                title: 'Copied to clipboard ',
+                                                placement: 'bottom',
+                                                variant: 'dark',
+                                                id: 'tooltip',
+                                                animation: 'true',
+                                                trigger: 'click',
+                                            }"
                                             @click="copyMail()"
                                             :icon="copyIcon"
                                         ></b-icon>
@@ -190,6 +198,10 @@ export default {
             console.log(mail);
             navigator.clipboard.writeText(mail);
             this.copyIcon = "clipboard-check";
+            setTimeout(() => {
+                this.$root.$emit("bv::hide::tooltip");
+                this.copyIcon = "clipboard";
+            }, 1000);
         },
 
         enableButtons() {
