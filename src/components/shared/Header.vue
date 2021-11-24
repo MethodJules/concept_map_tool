@@ -3,9 +3,7 @@
         <b-navbar-brand to="/" class="menu-item">
             Concept Mapping Tool
         </b-navbar-brand>
-        <!-- <b-navbar-brand to="/login"> Login</b-navbar-brand> -->
         <b-row class="menu-avatar" v-if="validCredential">
-            <!-- <b-avatar variant="info" :src="user.pictureLink"></b-avatar> removed; there is no function to add/change avatar planned -->
             <span>{{ user.name }}</span>
             <b-button
                 class="menu-logoutButton"
@@ -49,25 +47,27 @@ export default {
     background-color: #6c757d !important;
     display: flex;
     justify-content: space-between;
-    padding: 0.7rem 2rem;
+    padding: 0.1rem 2rem;
+    flex-wrap: nowrap;
 }
 
 .menu-item {
-    font-size: 1.7rem;
+    margin: 0;
 }
 .menu li {
     list-style-type: none;
 }
 
 .menu-avatar {
-    min-width: 200px;
+    min-width: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0;
 }
 
 .menu-avatar span {
-    width: 25%;
+    width: 50%;
     padding: 0;
     margin-right: 0.5rem;
     color: white;

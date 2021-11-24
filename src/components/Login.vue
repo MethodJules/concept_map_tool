@@ -72,7 +72,7 @@
                                         >.
                                         <b-icon
                                             v-b-tooltip="{
-                                                title: 'Copied to clipboard ',
+                                                title: 'Erfolgreich kopiert ',
                                                 placement: 'bottom',
                                                 variant: 'dark',
                                                 id: 'tooltip',
@@ -127,49 +127,15 @@
                 </b-form-group>
             </b-card>
 
-            <v-footer padless absolute>
-                <v-card class="flat tile text-center" color="#6c757d">
-                    <v-card-title>
-                        Concept Mapping Tool - Intelligentes Concept Mapping
-                    </v-card-title>
-                    <v-card-subtitle class="footer-subtitle">
-                        Dieses OpenSource-Projekt wurde im Rahmen der
-                        Ausschreibung "Qualität Plus" des MWK Niedersachsen
-                        erstellt. Näheres dazu finden Sie
-                        <a
-                            class="footer-link"
-                            href="https://www.uni-hildesheim.de/fb4/institute/bwl/informationssysteme-und-unternehmensmodellierung/projekte/qualitaet-plus/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            >hier</a
-                        >.
-                    </v-card-subtitle>
-                    <v-divider></v-divider>
-                    <v-card-text class="pb-3">
-                        <img
-                            src="../assets/logo.svg"
-                            width="24px"
-                            height="24px"
-                        />
-                        <a
-                            class="footer-link"
-                            href="https://www.uni-hildesheim.de/impressum/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            Universität Hildesheim
-                        </a>
-                        - {{ new Date().getFullYear() }}
-                    </v-card-text>
-                </v-card>
-            </v-footer>
+            <Footer />
         </div>
     </div>
 </template>
 <script>
 import Gdpr from "@/components/Gdpr.vue";
+import Footer from "@/components/shared/Footer.vue";
 export default {
-    components: { Gdpr },
+    components: { Gdpr, Footer },
     data() {
         return {
             zugangsKennung: "",

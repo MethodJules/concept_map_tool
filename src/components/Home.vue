@@ -38,7 +38,6 @@ export default {
     computed: {
         ...mapGetters({
             isThereAnyConceptMap: "drupal_api/getIsThereAnyConceptMap",
-            // finishedLoading: "conceptMap/getFinishedLoading",
             finishedActiveConceptMapLoading: "conceptMap/getFinishedLoading",
         }),
     },
@@ -46,7 +45,7 @@ export default {
 </script>
 <style scoped>
 .pageContainer {
-    padding: 0.5rem;
+    padding-top: 0.5rem;
     margin: 0;
 }
 
@@ -54,15 +53,11 @@ export default {
     display: flex;
     justify-content: flex-start;
     flex-direction: column;
-    height: 90vh;
 }
-.pageContainer-mapContainer {
-    height: 90vh;
-}
+
 .noMapContainer {
     display: flex;
     align-items: center;
-    height: 90vh;
     padding: 0 5%;
 }
 </style>
