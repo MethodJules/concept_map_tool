@@ -13,8 +13,8 @@
                     <router-view v-if="finishedLoading"></router-view>
                 </transition>
             </div>
-            <Footer />
         </div>
+        <Footer />
     </div>
 </template>
 
@@ -53,6 +53,7 @@ html {
 }
 body {
     min-height: 100%;
+    overflow: visible !important;
 }
 #app {
     -webkit-font-smoothing: antialiased;

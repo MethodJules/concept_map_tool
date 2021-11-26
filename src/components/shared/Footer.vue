@@ -34,10 +34,21 @@
 </template>
 
 <style scoped>
+@media only screen and (max-width: 400px) {
+    .v-card__title,
+    .v-card__subtitle,
+    .v-divider {
+        display: none !important;
+    }
+    .v-card__text {
+        padding-bottom: 0;
+        padding-top: 1rem;
+    }
+}
+
 footer {
     position: fixed;
     bottom: 0pt;
-    background-position: 0% 0%;
     width: 100% !important;
 }
 
