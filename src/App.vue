@@ -48,17 +48,18 @@ export default {
 
 <style>
 @import "assets/loading.css";
-html {
-    min-height: 100%;
-}
 body {
-    min-height: 100%;
     overflow: visible !important;
 }
 #app {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    min-height: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+.app-container {
+    flex: 1;
 }
 
 .fade-enter {
@@ -72,7 +73,6 @@ body {
     transition: opacity 0.3s ease-in-out;
     opacity: 0.05;
 }
-
 .app-loading-bar {
     display: flex;
     justify-content: center;
