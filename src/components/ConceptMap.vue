@@ -147,7 +147,9 @@
                                 </strong>
                             </label>
                         </div>
-                        <label for="linkNameInput">Bezeichnung Relation: </label>
+                        <label for="linkNameInput"
+                            >Bezeichnung Relation:
+                        </label>
                         <b-input id="linkNameInput" v-model="linkName">
                         </b-input>
                         <div class="modal-buttons">

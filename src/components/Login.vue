@@ -9,11 +9,17 @@
                         <!-- Tab 1 -->
                         <b-tab title="Login">
                             <div class="login-header">
-                                <h5>Melde dich hier mit deinem Uni-Account an.</h5>
-                                <p>
-                                    Wenn du dich noch nicht registriert hast,
-                                    registriere dich bitte mit deinem Uni-Account.
-                                </p>
+                                <span>
+                                    <h6>
+                                        Melde dich hier mit deinem Uni-Account
+                                        an.
+                                    </h6>
+                                    <p>
+                                        Wenn du dich noch nicht registriert
+                                        hast, registriere dich bitte mit deinem
+                                        Uni-Account.
+                                    </p>
+                                </span>
                             </div>
                             <table>
                                 <tr>
@@ -48,17 +54,36 @@
                                 </tr>
                             </table>
 
-                            <b-button :disabled="!gdprAccepted" @click="login()">Login</b-button>
+                            <b-button :disabled="!gdprAccepted" @click="login()"
+                                >Login</b-button
+                            >
                         </b-tab>
                         <b-tab title="Registrierung">
                             <div class="registrierung-header">
-                                <h5>
-                                    Registriere dich hier mit deinem Uni-Account.
-                                </h5>
-                                <p>
-                                    Falls du Hilfe benötigst, wende dich an
-                                    maren.stadtlaender@uni-hildesheim.de.
-                                </p>
+                                <span>
+                                    <h6>
+                                        Registriere dich hier mit deinem
+                                        Uni-Account.
+                                    </h6>
+                                    <p>
+                                        Falls du Hilfe benötigst, wende dich an
+                                        <span class="mail">
+                                            maren.stadtlaender@uni-hildesheim.de </span
+                                        >.
+                                        <b-icon
+                                            v-b-tooltip="{
+                                                title: 'Erfolgreich kopiert ',
+                                                placement: 'bottom',
+                                                variant: 'dark',
+                                                id: 'tooltip',
+                                                animation: 'true',
+                                                trigger: 'click',
+                                            }"
+                                            @click="copyMail()"
+                                            :icon="copyIcon"
+                                        ></b-icon>
+                                    </p>
+                                </span>
                             </div>
                             <table>
                                 <tr>
@@ -92,45 +117,25 @@
                                     </td>
                                 </tr>
                             </table>
-                            <b-button :disabled="!gdprAccepted" @click="registrieren()"
+                            <b-button
+                                :disabled="!gdprAccepted"
+                                @click="registrieren()"
                                 >Registrieren</b-button
                             >
                         </b-tab>
                     </b-tabs>
                 </b-form-group>
             </b-card>
+
+            <Footer />
         </div>
-            <div>
-      <v-footer padless>
-        <v-card class="flat tile text-center" color="#6c757d">
-          <v-card-title>
-            Concept Mapping Tool - Intelligentes Concept Mapping
-          </v-card-title>
-          <v-card-subtitle>
-            Dieses OpenSource-Projekt wurde im Rahmen der Ausschreibung
-            "Qualität Plus" des MWK Niedersachsen erstellt. Näheres dazu finden
-            Sie
-            <a class="footer-link"
-              href="https://www.uni-hildesheim.de/fb4/institute/bwl/informationssysteme-und-unternehmensmodellierung/projekte/qualitaet-plus/" target="_blank" rel="noopener noreferrer"
-              >hier</a
-            >.
-          </v-card-subtitle>
-          <v-divider></v-divider>
-          <v-card-text class="pb-3">
-            <img src="../assets/logo.svg" width="24px" height="24px" />
-            <a class="footer-link" href="https://www.uni-hildesheim.de/impressum/" target="_blank" rel="noopener noreferrer">
-            Universität Hildesheim
-            </a> - {{ new Date().getFullYear() }}
-          </v-card-text>
-        </v-card>
-      </v-footer>
-    </div>
     </div>
 </template>
 <script>
 import Gdpr from "@/components/Gdpr.vue";
+import Footer from "@/components/shared/Footer.vue";
 export default {
-    components: { Gdpr },
+    components: { Gdpr, Footer },
     data() {
         return {
             zugangsKennung: "",
@@ -139,6 +144,7 @@ export default {
             registrierungsPasswort: "",
             matrikelnummer: "",
             gdprAccepted: false,
+            copyIcon: "clipboard",
         };
     },
     computed: {
@@ -147,12 +153,20 @@ export default {
         },
 
         validCredential() {
-            // return true;
-            // return this.$store.state.sparky_api.validCredential;
             return this.$store.state.drupal_api.validCredential;
         },
     },
     methods: {
+        copyMail() {
+            let mail = document.querySelector(".mail").innerText;
+            navigator.clipboard.writeText(mail);
+            this.copyIcon = "clipboard-check";
+            setTimeout(() => {
+                this.$root.$emit("bv::hide::tooltip");
+                this.copyIcon = "clipboard";
+            }, 1000);
+        },
+
         enableButtons() {
             this.gdprAccepted = true;
         },
@@ -174,7 +188,6 @@ export default {
             const md5sum = crypto.createHash("md5");
             let str = username;
             const res = md5sum.update(str).digest("hex");
-            console.log(res);
             return res;
         },
         async login() {
@@ -206,10 +219,29 @@ export default {
             var base64 = btoa(creds);
             return "Basic " + base64;
         },
-    }
+    },
 };
 </script>
 <style scoped>
+@media only screen and (max-width: 400px) {
+    * {
+        font-size: 0.8rem !important;
+    }
+
+    button {
+        font-size: 1rem;
+    }
+    hr {
+        margin-top: 0.2rem;
+    }
+}
+button {
+    margin-top: 0.5rem;
+}
+footer {
+    position: absolute;
+}
+
 .footer-link {
     color: #48c9b0;
     text-decoration: none;
@@ -218,21 +250,23 @@ export default {
 .v-card__title,
 .v-card__subtitle,
 .v-card__text {
-  color: white;
+    color: white;
 }
 
 .container {
-    display: grid;
-    grid-template-rows: repeat(3, 1fr);
-    grid-template-columns: repeat(5, 1fr);
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.container-form {
-    grid-row: 2 / 3;
-    grid-column: 2 / 5;
-}
 .login-header,
 .registrierung-header {
     margin-top: 20px;
+}
+
+.login-header,
+.registrierung-header span {
+    font-size: 0.9rem;
 }
 </style>

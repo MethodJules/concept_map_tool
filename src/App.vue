@@ -14,11 +14,13 @@
                 </transition>
             </div>
         </div>
+        <Footer />
     </div>
 </template>
 
 <script>
 import Header from "./components/shared/Header.vue";
+import Footer from "@/components/shared/Footer.vue";
 import { mapGetters } from "vuex";
 
 export default {
@@ -30,6 +32,7 @@ export default {
     name: "App",
     components: {
         Header,
+        Footer,
     },
     computed: {
         ...mapGetters({
@@ -45,17 +48,20 @@ export default {
 
 <style>
 @import "assets/loading.css";
-html {
-    height: 100vh;
-}
 body {
-    height: 100%;
+    overflow: visible !important;
 }
 #app {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    height: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
+.app-container {
+    flex: 1;
+}
+
 .fade-enter {
     opacity: 0.05;
 }
@@ -67,12 +73,11 @@ body {
     transition: opacity 0.3s ease-in-out;
     opacity: 0.05;
 }
-
 .app-loading-bar {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 .hide {
