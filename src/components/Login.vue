@@ -207,14 +207,6 @@ export default {
             let username = this.zugangsKennung;
             let password = this.passwort;
             let authorization_token = this.encodeBasicAuth(username, password);
-            // await this.$store.dispatch(
-            //     "drupal_api/saveBasicAuth",
-            //     authorization_token
-            // );
-            // await this.$store.dispatch("drupal_api/loginToDrupal", {
-            //     username,
-            //     password,
-            // });
             await this.$store.dispatch(
                 "drupal_api/saveBasicAuth",
                 authorization_token
