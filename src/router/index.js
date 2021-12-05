@@ -22,7 +22,7 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
     let isAuthenticated = Boolean(sessionStorage.getItem("valid_credentials"));
-    
+    console.log(isAuthenticated)
     if (to.name !== 'Login' && !isAuthenticated) next({ name: 'Login' })
     else next()
 })

@@ -1,174 +1,130 @@
-import axios from "@/config/login_axios";
-const baseUrl = "http://147.172.178.30:8080/"
+import axios from "@/config/sparky_axios";
+
 
 //TO DO: Coments
 const state = () => ({
-    account: null,
-    validCredential: false,
-    token: "",
     sparkyUserID: "",
-    //ganzes Object nötig?
     sparkyUserObject: null,
-    responsestate: null,
-    drupalUserID: "",
-    //ganzes Object nötig?
-    drupalUserObject: null,
-    lecturers: [],
-    lecturers2: [],
-    sparkylogin: false,
 });
 
 const mutations = {
-    
-    setAccount(state, account) {     
-        state.token = account.data.token.token
-        if (account.status == 200) {
-            state.validCredential = true
-        }
-    },
-    
-    setSparkyObject(state, response) {
+
+    /**
+  * makes  api request to sparky backend and gets user data. which is then saved in state with SET_SPARKY_OBJECT and calls getSessionToken
+  * @param state state as parameter for access and manipulation of state data
+  * @param response response from sparkyservice. includes user data
+  */
+    SET_SPARKY_OBJECT(state, response) {
         state.sparkyUserID = response.data.id
         state.sparkyUserObject = response
-        console.log("pls funze")
-        console.log(response)
-        console.log(state.sparkyUserID)
-        console.log(state.sparkyUserObject)
     },
-    sparkyLogin(state){
-        state.sparkylogin=true
-    }
 };
 
 const actions = {
-    
+
     /**
-    * waits for getWhoamI to finish getting user data from sparky backend. Then makes an api request to clr backend and gets project data of the user with the dispatch to project.js
-    * @param username username the user gives as input in App.vue
-    * @param password password the user gives as input in App.vue
+    * makes  api request to sparky backend and gets user data. which is then saved in state with SET_SPARKY_OBJECT and calls getSessionToken
+    * @param commit commit us used to call a mutation from this function
+    * @param dispatch dispatch is used to call another action from this function
+    * @param username input from user login
+    * @param password input from user login
+    * @param matrikelnummer input from user login (for students only)
+    * @param token needed for sparkyservice stmgmt authorization, so we can prove that we registered correctly with sparkyservice
     */
-    async login({ commit, dispatch }, { username, password }) {
-        await dispatch('getWhoamI', { username, password })
-        console.log(commit)
-        var config = {
-            method: 'get',
-            url: 'jsonapi/user/user',
-        };
-        axios(config)
-        .then(function (response) {
-            //console.log(response.data.data[2].attributes.field_sparky_id)
-            for (var user of response.data.data) {
-                //console.log(user.attributes.field_sparky_id)
-                if (user.attributes.field_sparky_id == state.sparkyUserID) {
-                    state.drupalUserID = user.id
-                    state.drupalUserObject = user
-                    state.validCredential = true
-                }
-            }
-        })
-        .catch(function (error) {
-            console.log(error)
-        })
-    },
-    
-    
-    /**
-    * waits for authenticate to finish authenticating with sparky backend. Then makes another api request to sparky backend and gets user data.
-    * @param username input from login
-    * @param password input from login
-    */
-    async getWhoamI({dispatch, commit }, { username, password, matrikelnummer }) {
-        //state.sparkyUserID = " response.data.id"
-        axios.get(
-            "http://147.172.178.30:3000/auth/whoAmI",
-            
-            { headers: {
-                'Accept': '*/*',
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + state.responsestate.data.token.token,
-            },
-            
-        })
-        .then(response => {
-            if (response.status === 200) {
-                //sparky user id von nutzer holen der sich bei sparky mit rz kennung anmeldet
-                commit('setSparkyObject', response); 
-                console.log(state.sparkyUserID)
-                console.log(state.sparkyUserObject)
-                dispatch("drupal_api/getSessionToken", { username, password, matrikelnummer }, { root: true })
-            }
-        })
-        .catch((error) => {
-            console.log(error)
-        });
-    },
-    
-    /**
-    * makes api request to sparky backend, authenticates user, gets user token and saves it in state.
-    * @param username input from getWhoamI
-    * @param password input from getWhoamI
-    */
-    async authenticate({ commit }, { username, password }) {
-        let dynamicUrl = "api/v1/authenticate"
-        let fullUrl = baseUrl + dynamicUrl
-        let data = await axios.post(
-            fullUrl, 
+    async getWhoamI({ dispatch, commit }, { username, password, matrikelnummer, token }) {
+        return axios.get(
+            "stmgmt/auth/whoAmI",
             {
-                "username": username,
-                "password": password
-            },
-            { headers: {
-                'Accept': '*/*',
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => {
-            if (response.status === 200) {
-                commit('sparkyLogin');
-                state.responsestate = response
-                console.log(data)
-                console.log(response)
-                //dispatch ist hier störend, wenn nur authenticate benötigt wird, vorher mit await dispatch besser gewesen
-                //dispatch('getWhoamI', { username, password })
+                headers: {
+                    'Accept': '*/*',
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token,
+                },
             }
-        })
-        .catch((error) => {
-            commit('setAccount', error);
-        });
-        //console.log(data)
+        )
+            .then(response => {
+                if (response.status === 200) {
+                    commit('SET_SPARKY_OBJECT', response);
+                    dispatch("drupal_api/getSessionToken", { username, password, matrikelnummer }, { root: true })
+                }
+            })
+            .catch(() => {
+                alert("Die Authentifizierung mit dem SparkyService ist leider fehlgeschlagen. Wenn dieses Problem bestehen bleibt, wende dich an deinen betreuenden Dozenten oder schreibe eine Email an stadtlaender@uni-hildesheim.de")
+            });
     },
-    
+
     /**
     * makes api request to sparky backend, authenticates user, gets user token and saves it in state.
-    * @param username input from getWhoamI
-    * @param password input from getWhoamI
+    * @param dispatch dispatch is used to call another action from this function
+    * @param username input from Login.vue
+    * @param password input from Login.vue
     */
-    async registrate({ commit, dispatch }, { username, password, matrikelnummer }) {
-        let dynamicUrl = "api/v1/authenticate"
-        let fullUrl = baseUrl + dynamicUrl
-        let data = await axios.post(
-            fullUrl, {
-                "username": username,
-                "password": password
-            },
-            { headers: {
-                'Accept': '*/*',
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => {
-            if (response.status === 200) {
-                state.responsestate = response
-                console.log(data)
-                console.log(response)
-                //dispatch ist hier störend, wenn nur authenticate benötigt wird, vorher mit await dispatch besser gewesen
-                dispatch('getWhoamI', { username, password, matrikelnummer })
+    async authenticate({ dispatch }, { username, password }) {
+        return await axios.post(
+            "api/v1/authenticate", {
+            "username": username,
+            "password": password
+        },
+            {
+                headers: {
+                    'Accept': '*/*',
+                    'Content-Type': 'application/json',
+                },
             }
-        })
-        .catch((error) => {
-            commit('setAccount', error);
-        });
+        )
+            .then(response => {
+                if (response.status === 200) {
+                    return dispatch("drupal_api/loginToDrupal", { username, password }, { root: true })
+                }
+            })
+            .catch((error) => {
+                //if there is an error, we check, if the error status is 401 which means the user is not authorized
+                //if the error code is something else, we presume the SparkyService might not be functioning correctly, thus another error message with contact details is given
+                if (error.response.status == 401) {
+                    alert("Du konntest nicht authorisiert werden. Bitte gib deine korrekte Rechenzentrumskennung ein")
+                } else {
+                    alert("Die Authentifizierung mit dem SparkyService ist leider fehlgeschlagen. Wenn dieses Problem bestehen bleibt, wende dich an deinen betreuenden Dozenten oder schreibe eine Email an stadtlaender@uni-hildesheim.de")
+                }
+            });
         //console.log(data)
+    },
+
+    /**
+* makes api request to sparky backend, authenticates user, gets user token and saves it in state.
+* @param dispatch dispatch is used to call another action from this function
+* @param username  input from user login
+* @param password  input from user login
+* @param matrikelnummer input from user login (for students only)
+
+*/
+    async registrate({ dispatch }, { username, password, matrikelnummer }) {
+        return axios.post(
+            "api/v1/authenticate", {
+            "username": username,
+            "password": password
+        },
+            {
+                headers: {
+                    'Accept': '*/*',
+                    'Content-Type': 'application/json',
+                },
+            }
+        )
+            .then(response => {
+                if (response.status === 200) {
+                    const token = response.data.token.token
+                    dispatch('getWhoamI', { username, password, matrikelnummer, token })
+                }
+            })
+            .catch((error) => {
+                if (error.response.status == 401) {
+                    //in this case we throw the error again, it will be catched in the calling method "registrieren". We do this because the ".then" part of the method "registrieren" in "Login.vue" should not be executed. otherwise it would call "sendEmail" when the registering user is a lecturer, which should only happen if it is successful
+                    alert("Du konntest nicht authorisiert werden. Bitte gib deine korrekte Rechenzentrumskennung ein")
+                    throw error;
+                } else {
+                    alert("Die Authentifizierung mit dem SparkyService ist leider fehlgeschlagen. Wenn dieses Problem bestehen bleibt, wende dich an deinen betreuenden Dozenten oder schreibe eine Email an stadtlaender@uni-hildesheim.de")
+                }
+            });
     },
 };
 
