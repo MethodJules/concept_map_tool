@@ -116,6 +116,22 @@
                                         />
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>
+                                        <label for="matrikelnummer"
+                                            >matrikelnummer</label
+                                        >
+                                    </td>
+                                    <td>
+                                        <input
+                                            v-model="matrikelnummer"
+                                            id="matrikelnummer"
+                                            type="text"
+                                            placeholder=""
+                                            class="form-control"
+                                        />
+                                    </td>
+                                </tr>
                             </table>
                             <b-button
                                 :disabled="!gdprAccepted"
@@ -126,16 +142,13 @@
                     </b-tabs>
                 </b-form-group>
             </b-card>
-
-            <Footer />
         </div>
     </div>
 </template>
 <script>
 import Gdpr from "@/components/Gdpr.vue";
-import Footer from "@/components/shared/Footer.vue";
 export default {
-    components: { Gdpr, Footer },
+    components: { Gdpr },
     data() {
         return {
             zugangsKennung: "",
@@ -193,21 +206,22 @@ export default {
         async login() {
             let username = this.zugangsKennung;
             let password = this.passwort;
-
             let authorization_token = this.encodeBasicAuth(username, password);
-
-            // HUGE PROBLEM: They are not working one by one.
-
             await this.$store.dispatch(
                 "drupal_api/saveBasicAuth",
                 authorization_token
             );
-            await this.$store.dispatch("drupal_api/loginToDrupal", {
-                username,
-                password,
-            });
 
-            await this.$router.push("concept-map-page");
+            this.$store
+                //TODO: uncomment next line and comment out the line after, when project goes in production -> authenticate with sparkyservice
+                //.dispatch("drupal_api/loginToDrupal", {
+                .dispatch("sparky_api/authenticate", {
+                    username,
+                    password,
+                })
+                .then(() => {
+                    this.$router.push("concept-map-page");
+                });
 
             this.username = "";
             this.password = "";

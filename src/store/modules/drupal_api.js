@@ -183,10 +183,8 @@ const actions = {
         if (sessionStorage.getItem("valid_credentials") == "true") {
             await commit('LOAD_TOKEN_SESSION_STORAGE');
             await dispatch('loadUserFromBackend');
-            // router.push("/")
-            // console.log("hello")
         } else {
-            console.log("session token")
+
             router.push("/Login");
             return false
         }

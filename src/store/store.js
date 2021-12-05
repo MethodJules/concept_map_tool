@@ -11,17 +11,12 @@ import * as actions from "./actions"
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-
     state: {
         concept_map: {
-
         },
         concepts: [],
         buttonClicked: false,
         deleteMode: false,
-
-
-
     },
     getters,
     mutations,

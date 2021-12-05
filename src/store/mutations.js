@@ -17,20 +17,39 @@ export const triggerLoading = (state) => {
  * @param {object} concepts concept to save. 
  */
 export const SAVE_CONCEPTS = (state, concepts) => {
-
     state.concepts = concepts;
 }
 
 
 /**
  * Updates the name of the concept.
- * @param {*} state 
+ * @param {object} state, to reach and manipulate the state  
  * @param {object} payload includes concept as an object and new concept name as string 
  */
 export const UPDATE_CONCEPT = (state, payload) => {
+    console.log(state)
     let index = state.concepts.indexOf(payload.concept);
-    // State update
     state.concepts[index].name = payload.neuConceptName;
+}
+/**
+ * Changes the name of the concept in concept map.
+ * It looks for the index of the concept in concept map first. 
+ * After finding it, changes the name.  
+ * @param {object} state, to reach and manipulate the state
+ * @param {object} payload, consist new concept name and concept   
+ */
+export const UPDATE_CONCEPT_IN_MAP = (state, payload) => {
+    let conceptMaps = state.conceptMap.concept_maps;
+    conceptMaps.forEach(map => {
+        if (map.id == payload.concept.conceptMapId) {
+            let nodes = map.nodes;
+            let index;
+            nodes.forEach(node => {
+                (node.id == payload.concept.id) ? index = node.index : "";
+            })
+            nodes[index].name = payload.concept.name;
+        }
+    });
 }
 /**
  * Saves concept name to database.

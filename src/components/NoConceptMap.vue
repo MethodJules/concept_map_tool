@@ -4,8 +4,8 @@
             <b-card-title>Concept Mapping Tool</b-card-title>
 
             <b-card-text>
-                Es gibt noch keine Concept Map. Möchtest du deine erste Concept Map
-                erstellen?
+                Es gibt noch keine Concept Map. Möchtest du deine erste Concept
+                Map erstellen?
             </b-card-text>
 
             <b-row class="buttons">
@@ -40,19 +40,22 @@ export default {
          * @param {string} newConceptMapName, the name of the new concept map.
          */
         createConceptMap(newConceptMapName) {
-            console.log(newConceptMapName);
-            let newConceptMap = {
-                title: newConceptMapName,
-                nodes: [],
-                links: [],
-                tags: [],
-            };
-            this.$store.dispatch(
-                "conceptMapBar/createConceptMap",
-                newConceptMap
-            );
+            if (newConceptMapName.length > 0) {
+                let newConceptMap = {
+                    title: newConceptMapName,
+                    nodes: [],
+                    links: [],
+                    tags: [],
+                };
+                this.$store.dispatch(
+                    "conceptMapBar/createConceptMap",
+                    newConceptMap
+                );
 
-            this.newConceptMapName = "";
+                this.newConceptMapName = "";
+            } else {
+                alert("Sie müssen eine Concept Map Name eingeben..");
+            }
         },
     },
 };

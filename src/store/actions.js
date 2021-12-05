@@ -93,7 +93,9 @@ export const deleteConcept = ({ commit }, concept) => {
 * @param {object} payload includes concept as an object and new concept name as string 
 */
 export const updateConcept = ({ commit }, payload) => {
+    console.log(payload)
     commit("UPDATE_CONCEPT", payload);
+    commit("UPDATE_CONCEPT_IN_MAP", payload);
     var data = `{"data":{"type":"node--concept", "id": "${payload.concept.id}", "attributes": {"title": "${payload.neuConceptName}"}}}`;
 
     var config = {
