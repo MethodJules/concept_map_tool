@@ -207,12 +207,16 @@ export default {
             );
 
             let links = conceptMap.links;
+            let nodes = conceptMap.nodes;
 
             links.forEach((link) => {
                 this.$store.dispatch(
                     "conceptMap/deleteLinkFromRelationsTable",
                     link.id
                 );
+            });
+            nodes.forEach((node) => {
+                this.$store.dispatch("deleteConcept", node);
             });
         },
         /**

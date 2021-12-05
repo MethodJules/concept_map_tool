@@ -101,9 +101,6 @@ const actions = {
     */
     async addConceptToConceptMap({ commit, state }, payload) {
         let id = state.activeConceptMap.id;
-
-        console.log(payload)
-
         let concept = payload.concept;
         let nodesInMap = state.activeConceptMap.nodes;
         let isMapConsist = false;
