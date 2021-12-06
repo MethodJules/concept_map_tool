@@ -119,7 +119,7 @@
                                 <tr>
                                     <td>
                                         <label for="matrikelnummer"
-                                            >matrikelnummer</label
+                                            >Matrikelnummer</label
                                         >
                                     </td>
                                     <td>
