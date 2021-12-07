@@ -259,13 +259,13 @@ export default {
             console.log(tags);
             if (newTag.length <= 0) {
                 isValid = true;
-                errorMessage = "Tag Name ist leer.";
+                errorMessage = "Tag-Name ist leer.";
             }
             if (tags.length > 0) {
                 tags.forEach((tag) => {
                     if (tag == newTag) {
                         isValid = true;
-                        errorMessage = "Tag name steht schon.";
+                        errorMessage = "Tag-Name wird bereits verwendet.";
                     }
                 });
             }

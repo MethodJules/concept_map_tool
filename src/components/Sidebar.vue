@@ -246,7 +246,7 @@ export default {
             let data = this.isConceptInMap(concept);
             if (data.inMap) {
                 alert(
-                    `Diese Konzept ist in ${data.consistingMapName}, Bitte löschen Sie von der Konzept Map zuerst.`
+                    `Dieses Konzept befindet sich noch auf der Concept Map ${data.consistingMapName}. Bitte lösche es zuerst dort, bevor du es aus der Merkliste löscht.`
                 );
             } else {
                 this.$store.dispatch("deleteConcept", concept);
