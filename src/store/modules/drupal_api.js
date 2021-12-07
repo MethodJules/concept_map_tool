@@ -25,8 +25,6 @@ const getters = {
     },
 
     getIsThereAnyConceptMap(state) {
-        // how can I check the concept maps of user. 
-        // user.concept_maps is changing when it is empty and when it contains something
         (state.user.concept_maps.length > 0) ? state.isThereAnyConceptMap = true : "";
         return state.isThereAnyConceptMap;
     },
@@ -44,10 +42,7 @@ const actions = {
     * @param state state as parameter for access and manipulation of state data
     * @param dispatch dispatch is used to call another action from this function
     */
-    async getSessionToken({ commit, state, dispatch }, { username, password, matrikelnummer }) {
-
-        //eigtl csrf token, nicht sessiontoken
-        console.log(state)
+    async getSessionToken({ commit, dispatch }, { username, password, matrikelnummer }) {
         await axios.get('rest/session/token')
             .then((response) => {
                 const token = response.data;
@@ -70,30 +65,15 @@ const actions = {
     * @param dispatch dispatch is used to call another action from this function
     * @param rootState rootState allows access to states of other modules in store
     */
-    async createUser({ state, commit, rootState }, { username, password, matrikelnummer }) {
-        //await dispatch("sparky_api/getWhoamI", { username, password }, { root: true })
+    async createUser({ state, commit, rootState }, { password, matrikelnummer }) {
         var sparkyUserObject = rootState.sparky_api.sparkyUserObject
-        console.log(rootState.sparky_api.sparkyUserID)
-        console.log(rootState.sparky_api.sparkyUserObject)
-        console.log(username)
-        console.log(sparkyUserObject)
-        //console.log(generatedPassword)
-
-
-        //TODO: Fehlerbehandlung: matrikelnummer ist bei mir null -> dann funzt das alles nicht -> wieso ist null, muss man so einen sonderfall normalerweise beachten
-        // TODO: unnötige felder sparky_id, evtl. fullname  entfernen
         const data = JSON.stringify({
             'name': { 'value': `${sparkyUserObject.data.username}` },
-            //'name': {'value': `${username}`},
             'mail': { 'value': `${sparkyUserObject.data.email}` },
             'pass': { 'value': `${password}` },
-            //'field_sparky_id': {'value': `${sparkyUserObject.data.id}`},
             'field_fullname': { 'value': `${sparkyUserObject.data.displayName}` },
             'field_matrikelnummer': { 'value': `${matrikelnummer}` },
-            //'field_matrikelnummer': {'value': `12345`},
-            //'field_matrikelnummer': {'value': `${sparkyUserObject.data.matrNr}`},
         })
-        //TODO: state.csrf_token testen und evtl gegen rootState.drupal_api.csrf_token austauschen
         var config = {
             method: 'post',
             url: 'user/register?_format=json',
@@ -103,10 +83,8 @@ const actions = {
             },
             data: data
         };
-        console.log(config)
         axios(config)
             .then((response) => {
-                console.log(response.data);
                 const user = response.data;
                 commit('SAVE_CREATED_USER', user);
 
@@ -120,7 +98,6 @@ const actions = {
     */
     async loginToDrupal({ commit, dispatch }, { username, password }) {
         //authenticate with sparky_api at sparky backend is commented out for development purposes. thus testaccounts can be used without the need of real user data
-        //TODO: uncomment sparky_api/authenticate to authenticate real users when development is finished 
         //await dispatch("sparky_api/authenticate", { username, password }, { root: true })
         const data = `{"name": "${username}", "pass": "${password}"}`;
         const config = {
@@ -135,9 +112,7 @@ const actions = {
                 commit('SAVE_LOGIN_USER', response.data);
                 return dispatch("loadUserFromBackend");
             })
-            .catch((error) => {
-                console.log(error)
-            });
+
     },
 
     /**
@@ -168,10 +143,6 @@ const actions = {
                 }
                 return commit('SAVE_USER', user);
             })
-            .catch(function (error) {
-                console.log(error)
-            })
-
     },
     /**
      * Loads tolen called valid_credientials from session storage. 
@@ -184,7 +155,6 @@ const actions = {
             await commit('LOAD_TOKEN_SESSION_STORAGE');
             await dispatch('loadUserFromBackend');
         } else {
-
             router.push("/Login");
             return false
         }
@@ -208,14 +178,13 @@ const actions = {
         };
 
         await axios(config)
-            .then((response) => {
-                console.log(response)
+            .then(() => {
                 commit('SAVE_LOGOUT_USER')
                 router.go("login");
             })
             .catch((error) => {
-                state.validCredential = false;
                 console.log(error)
+                state.validCredential = false;
             });
     },
     /**
@@ -243,7 +212,6 @@ const mutations = {
     */
     SAVE_SESSION_TOKEN(state, token) {
         state.csrf_token = token
-        console.log(state.csrf_token)
     },
 
     /**
@@ -253,9 +221,6 @@ const mutations = {
     */
     SAVE_CREATED_USER(state, user) {
         state.user = user
-        console.log("jetzt csrf und user")
-        console.log(state.user)
-        console.log(state.csrf_token)
     },
 
     /**

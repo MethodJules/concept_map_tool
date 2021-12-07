@@ -10,7 +10,7 @@ import * as actions from "./actions"
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
     state: {
         concept_map: {
         },
@@ -30,3 +30,5 @@ export default new Vuex.Store({
     }
 
 });
+
+export default store;

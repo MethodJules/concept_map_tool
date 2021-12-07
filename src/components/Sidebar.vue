@@ -243,7 +243,6 @@ export default {
          * @param {object} concept concept to delete
          */
         deleteConcept(concept) {
-            alert("Are you sure??");
             let data = this.isConceptInMap(concept);
             if (data.inMap) {
                 alert(

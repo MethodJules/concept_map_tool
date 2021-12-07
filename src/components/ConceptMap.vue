@@ -407,7 +407,6 @@ export default {
          * bidirectional: there are arrows both side of the link
          */
         createMarkers(relationType) {
-            console.log(relationType);
             let markers = {
                 start: "m-start",
                 end: "m-end",
