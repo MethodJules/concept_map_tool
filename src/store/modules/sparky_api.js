@@ -86,7 +86,6 @@ const actions = {
                     alert("Die Authentifizierung mit dem SparkyService ist leider fehlgeschlagen. Wenn dieses Problem bestehen bleibt, wende dich an deinen betreuenden Dozenten oder schreibe eine Email an stadtlaender@uni-hildesheim.de")
                 }
             });
-        //console.log(data)
     },
 
     /**

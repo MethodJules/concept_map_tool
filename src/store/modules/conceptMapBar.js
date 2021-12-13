@@ -19,23 +19,23 @@ const actions = {
         var config = {
             method: 'post',
             url: 'concept_map',
-            data: data
+            data: data,
+            headers: {
+                'Authorization': rootState.drupal_api.authToken,
+                'X-CSRF-Token': rootState.drupal_api.csrf_token
+            },
         };
         axios(config)
             .then(async (response) => {
                 dispatch("addConceptMapToUser", response.data.data)
                 conceptMap.id = response.data.data.id;
                 await rootState.conceptMap.concept_maps.push(conceptMap);
-                // rootState.drupal_api.user.concept_maps.push(conceptMap);
                 let index = rootState.conceptMap.concept_maps.indexOf(conceptMap);
                 rootState.conceptMap.index = index;
 
                 (index) ? rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[index] : rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[0];
                 // when the concept map created, if it is the first one we need to change isThereAnyConceptMap to true to show the main page.
                 (rootState.drupal_api.user.concept_maps.length <= 0) ? rootState.drupal_api.isThereAnyConceptMap = true : "";
-            })
-            .catch((error) => {
-                console.log(error)
             })
     },
 
@@ -57,18 +57,11 @@ const actions = {
             url: `jsonapi/user/user/${userId}/relationships/field_concept_maps`,
             headers: {
                 'Authorization': rootState.drupal_api.authToken,
-                'X-CSRF-Token': `${rootState.drupal_api.csrf_token}`
+                'X-CSRF-Token': rootState.drupal_api.csrf_token
             },
             data: data
         };
         loginAxios(config)
-            .then(function (response) {
-                console.log(response);
-
-            })
-            .catch(function (error) {
-                console.log(error)
-            })
     },
 
 
@@ -102,22 +95,13 @@ const actions = {
         };
 
         loginAxios(config)
-            .then((response) => {
-                console.log(response);
-            })
-            .catch((error) => {
-                console.log(error);
-            })
-
-
     },
 
     /** Deletes concept map from database.
     * @param {object} state as parameter to access and manipulation of state data 
     * @param {object} conceptMap concept map that we are going to delete from database.  
     */
-    deleteConceptMapFromDatabase({ dispatch }, conceptMap) {
-        console.log(conceptMap);
+    deleteConceptMapFromDatabase({ dispatch, rootState }, conceptMap) {
         let nodes = conceptMap.nodes;
         let links = conceptMap.links;
         nodes.forEach(node => {
@@ -132,24 +116,22 @@ const actions = {
         var config = {
             method: 'delete',
             url: `concept_map/${conceptMap.id}`,
+            headers: {
+                'Authorization': rootState.drupal_api.authToken,
+                'X-CSRF-Token': rootState.drupal_api.csrf_token
+            },
             data: data
         };
-        axios(config).then((response) => {
-            console.log(response)
-        }).catch((error) => {
-            console.log(error)
-        })
+        axios(config)
+
     },
 
     /** Deletes the link from relations table.
-  * @param {object} state it allows access to the state. We dont need it here. 
-  * Because of es lint I cannot send an empty variable to the action. Thats why I need to send something with { }
-  * @param {string} linkId The id of the link, to be deleted from relations table
-  */
-    deleteLinkFromRelationsTable({ state }, linkId) {
-        // NEED TO REMOVE
-        console.log(state);
-
+      * @param {object} state it allows access to the state. We dont need it here. 
+      * Because of es lint I cannot send an empty variable to the action. Thats why I need to send something with { }
+      * @param {string} linkId The id of the link, to be deleted from relations table
+    */
+    deleteLinkFromRelationsTable({ rootState }, linkId) {
         var data = `{"data": [{
             "type": "node--relationship",
             "id": "${linkId}" 
@@ -158,14 +140,13 @@ const actions = {
         var config = {
             method: 'delete',
             url: `relationship/${linkId}`,
-
+            headers: {
+                'Authorization': rootState.drupal_api.authToken,
+                'X-CSRF-Token': rootState.drupal_api.csrf_token
+            },
             data: data
         };
-        axios(config).then((response) => {
-            console.log(response);
-        }).catch((error) => {
-            console.log(error);
-        })
+        axios(config)
     },
 
     /**
@@ -173,15 +154,17 @@ const actions = {
 * @param {object} commit we need it for mutation 
 * @param {object} concept that we are going to delete from both database and state 
 */
-    deleteConcept({ state }, concept) {
-        console.log(state)
+    deleteConcept({ rootState }, concept) {
         // Deletes it from database
         var config = {
             method: 'delete',
             url: `concept/${concept.id}`,
+            headers: {
+                'Authorization': rootState.drupal_api.authToken,
+                'X-CSRF-Token': rootState.drupal_api.csrf_token
+            },
         };
         axios(config)
-
     },
 
 
@@ -219,12 +202,6 @@ const actions = {
             data: data
         };
         axios(config)
-            .then((response) => {
-                console.log(response);
-            })
-            .catch((error) => {
-                console.log(error)
-            })
     },
     /**
      * Deletes a tag from concept map. 
@@ -234,7 +211,7 @@ const actions = {
     deleteTagFromConceptMap({ rootState }, tags) {
         let conceptMapId = rootState.conceptMap.activeConceptMap.id;
         let tagsToSend = JSON.stringify(tags);
-        console.log(tagsToSend)
+
         var data = `{"data":{"type":"node--concept-map", "id": "${conceptMapId}", "attributes": {"field_conceptmap_tags": ${tagsToSend}}}}`;
         var config = {
             method: 'patch',
@@ -242,19 +219,7 @@ const actions = {
             data: data
         };
         axios(config)
-            .then((response) => {
-                console.log(response);
-            })
-            .catch((error) => {
-                console.log(error)
-            })
-
     },
-
-
-
-
-
 }
 
 

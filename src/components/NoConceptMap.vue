@@ -54,7 +54,7 @@ export default {
 
                 this.newConceptMapName = "";
             } else {
-                alert("Sie müssen eine Concept Map Name eingeben..");
+                alert("Bitte gib einen Namen für deine Concept Map ein.");
             }
         },
     },

@@ -27,7 +27,6 @@ const getters = {
     */
     getIsConceptMapEmpty(state) {
         let result = false;
-        // console.log(state.activeConceptMap.nodes);
         (state.activeConceptMap.nodes.length == 0) ? result = true : result = false;
         return result;
     },
@@ -87,23 +86,14 @@ const actions = {
             data: data
         };
         loginAxios(config)
-            .then(function (response) {
-                console.log(response);
-            })
-            .catch(function (error) {
-                console.log(error)
-            })
     },
 
     /** Saves concept to the concept map in database 
     * commits to save concepts to the concept map in state.
     * @param {object} concept the concept that will be added to concept map 
     */
-    async addConceptToConceptMap({ commit, state }, payload) {
+    async addConceptToConceptMap({ commit, state, rootState }, payload) {
         let id = state.activeConceptMap.id;
-
-        console.log(payload)
-
         let concept = payload.concept;
         let nodesInMap = state.activeConceptMap.nodes;
         let isMapConsist = false;
@@ -119,19 +109,15 @@ const actions = {
             var config = {
                 method: 'post',
                 url: `concept_map/${id}/relationships/field_conceptmap_concepts`,
+                data: data,
+                headers: {
+                    'Authorization': rootState.drupal_api.authToken,
+                    'X-CSRF-Token': `${rootState.drupal_api.csrf_token}`
+                },
 
-                data: data
             };
             axios(config)
-                .then((response) => {
-                    console.log(response);
-                })
-                .catch((error) => {
-                    console.log(error)
-                })
-
         }
-
         return isMapConsist;
 
     },
@@ -140,7 +126,7 @@ const actions = {
     * commits to delete node from concept map in state. 
     * @param {object} node the node that will be deleted from concept map.
     */
-    deleteNodeFromConceptMap({ commit, state }, payload) {
+    deleteNodeFromConceptMap({ commit, state, rootState }, payload) {
         commit('DELETE_NODE_FROM_CONCEPT_MAP', payload);
         // Deleting node from concept map in database
         var data = `{"data": [{
@@ -150,6 +136,10 @@ const actions = {
         var config = {
             method: 'delete',
             url: `concept_map/${state.activeConceptMap.id}/relationships/field_conceptmap_concepts`,
+            headers: {
+                'Authorization': rootState.drupal_api.authToken,
+                'X-CSRF-Token': rootState.drupal_api.csrf_token
+            },
             data: data
         };
         axios(config)
@@ -169,7 +159,7 @@ const actions = {
     * @param {object} linkId the id of the link to be deleted.
     * @returns 
     */
-    deleteLinkFromConceptMapTable({ state }, linkId) {
+    deleteLinkFromConceptMapTable({ state, rootState }, linkId) {
         var data = `{"data": [{
             "type": "node--relationship",
             "id": "${linkId}"             
@@ -177,12 +167,15 @@ const actions = {
         var config = {
             method: 'delete',
             url: `concept_map/${state.activeConceptMap.id}/relationships/field_conceptmap_relationships`,
-            data: data
+            headers: {
+                'Authorization': rootState.drupal_api.authToken,
+                'X-CSRF-Token': rootState.drupal_api.csrf_token
+            },
+            data: data,
+
         };
         return axios(config).then(async (response) => {
             return response;
-        }).catch((error) => {
-            console.log(error);
         })
     },
 
@@ -191,10 +184,7 @@ const actions = {
     * Because of es lint I cannot send an empty variable to the action. Thats why I need to send something with { }
     * @param {string} linkId The id of the link, to be deleted from relations table
     */
-    deleteLinkFromRelationsTable({ state }, linkId) {
-        // NEED TO REMOVE
-        console.log(state);
-
+    deleteLinkFromRelationsTable({ rootState }, linkId) {
         var data = `{"data": [{
             "type": "node--relationship",
             "id": "${linkId}" 
@@ -203,14 +193,13 @@ const actions = {
         var config = {
             method: 'delete',
             url: `relationship/${linkId}`,
-
+            headers: {
+                'Authorization': rootState.drupal_api.authToken,
+                'X-CSRF-Token': rootState.drupal_api.csrf_token
+            },
             data: data
         };
-        axios(config).then((response) => {
-            console.log(response);
-        }).catch((error) => {
-            console.log(error);
-        })
+        axios(config)
     },
 
     /** Adds link to the database.
@@ -219,9 +208,7 @@ const actions = {
     * @param {*} state, state as parameter for access and manipulation of state data
     * @param {object} payload it stores the link that will be added to the concept map 
     */
-    addRelationshipToDatabase({ commit, state }, payload) {
-
-
+    addRelationshipToDatabase({ commit, state, rootState }, payload) {
         commit('ADD_RELATIONSHIP_TO_STATE', payload)
         var data = `{"data":{
             "type": "node--relationship", 
@@ -234,6 +221,10 @@ const actions = {
         var config = {
             method: 'post',
             url: 'relationship',
+            headers: {
+                'Authorization': rootState.drupal_api.authToken,
+                'X-CSRF-Token': rootState.drupal_api.csrf_token
+            },
             data: data
         };
         axios(config)
@@ -253,12 +244,13 @@ const actions = {
                 var config = {
                     method: 'post',
                     url: `concept_map/${state.activeConceptMap.id}/relationships/field_conceptmap_relationships`,
+                    headers: {
+                        'Authorization': rootState.drupal_api.authToken,
+                        'X-CSRF-Token': rootState.drupal_api.csrf_token
+                    },
                     data: data
                 };
                 axios(config)
-            })
-            .catch(function (error) {
-                console.log(error)
             })
     },
     /** Loads concept map from backend. 
@@ -270,12 +262,7 @@ const actions = {
     *  @param {*} dispatch, it is being used to call an action
     */
     async loadConceptMapFromBackend({ commit, rootState, dispatch }) {
-        console.log("hello")
         let conceptMaps = rootState.drupal_api.user.concept_maps;
-        console.log(conceptMaps)
-        if (!conceptMaps) {
-            console.log(conceptMaps)
-        }
         await Promise.all(conceptMaps.map(async conceptMap => {
             await axios.get(`concept_map/${conceptMap.id}`)
                 .then(async (response) => {
@@ -303,7 +290,6 @@ const actions = {
     */
     async loadNodesOfConceptMap({ state }, nodes) {
         console.log(state);
-
         let concepts = [];
         await Promise.all(nodes.map(async element => {
             await axios.get(`concept/${element.id}`)
@@ -324,7 +310,6 @@ const actions = {
     * @returns {object} concepts, it stores the links ids, names,source ids(sid) and target ids(tid)
     */
     async loadLinksOfConceptMap({ state }, links) {
-        // NEED TO REMOVE
         console.log(state)
         let relationships = [];
         await Promise.all(links.map(async link => {

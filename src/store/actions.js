@@ -55,6 +55,10 @@ export const addConceptToDb = ({ commit, rootState }, conceptName) => {
     var config = {
         method: 'post',
         url: 'concept',
+        headers: {
+            'Authorization': rootState.drupal_api.authToken,
+            'X-CSRF-Token': rootState.drupal_api.csrf_token
+        },
         data: data
     };
 
@@ -67,9 +71,6 @@ export const addConceptToDb = ({ commit, rootState }, conceptName) => {
                 conceptMapId: rootState.conceptMap.activeConceptMap.id
             });
         })
-        .catch(function (error) {
-            console.log(error);
-        });
 }
 
 /**
@@ -77,11 +78,15 @@ export const addConceptToDb = ({ commit, rootState }, conceptName) => {
 * @param {commit} commit we need it for mutation 
 * @param {object} concept that we are going to delete from both database and state 
 */
-export const deleteConcept = ({ commit }, concept) => {
+export const deleteConcept = ({ commit, rootState }, concept) => {
     // Deletes it from database
     var config = {
         method: 'delete',
         url: `concept/${concept.id}`,
+        headers: {
+            'Authorization': rootState.drupal_api.authToken,
+            'X-CSRF-Token': rootState.drupal_api.csrf_token
+        },
     };
     axios(config)
     // send it to mutation to save it in state
@@ -92,15 +97,17 @@ export const deleteConcept = ({ commit }, concept) => {
 * @param {*} commit 
 * @param {object} payload includes concept as an object and new concept name as string 
 */
-export const updateConcept = ({ commit }, payload) => {
-    console.log(payload)
+export const updateConcept = ({ commit, rootState }, payload) => {
     commit("UPDATE_CONCEPT", payload);
     commit("UPDATE_CONCEPT_IN_MAP", payload);
     var data = `{"data":{"type":"node--concept", "id": "${payload.concept.id}", "attributes": {"title": "${payload.neuConceptName}"}}}`;
-
     var config = {
         method: 'patch',
         url: `concept/${payload.concept.id}`,
+        headers: {
+            'Authorization': rootState.drupal_api.authToken,
+            'X-CSRF-Token': rootState.drupal_api.csrf_token
+        },
         data: data
     };
     axios(config)

@@ -407,7 +407,6 @@ export default {
          * bidirectional: there are arrows both side of the link
          */
         createMarkers(relationType) {
-            console.log(relationType);
             let markers = {
                 start: "m-start",
                 end: "m-end",
@@ -500,6 +499,7 @@ export default {
                     linkId
                 );
             }
+            this.hideModal("add-parent-modal");
         },
 
         /**
@@ -634,12 +634,13 @@ button {
 }
 .modal-buttons {
     display: flex;
+    flex-wrap: wrap;
     margin-top: 1rem;
     width: 100%;
     justify-content: flex-end;
 }
 .modal-buttons * {
-    margin-left: 0.5rem;
+    margin: 0.2rem 0.3rem;
 }
 
 #add-first-concept-modal span {
