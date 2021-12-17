@@ -43,7 +43,7 @@ const actions = {
     * @param dispatch dispatch is used to call another action from this function
     */
     async getSessionToken({ commit, dispatch }, { username, password, matrikelnummer }) {
-        await axios.get('rest/session/token')
+        await axios.get('session/token')
             .then((response) => {
                 const token = response.data;
                 commit('SAVE_SESSION_TOKEN', token);
