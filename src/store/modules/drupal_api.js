@@ -112,6 +112,32 @@ const actions = {
                 commit('SAVE_LOGIN_USER', response.data);
                 return dispatch("loadUserFromBackend");
             })
+            .catch(error => {
+                //if the user was authorized by the SparkyService (this must be true if this method was called) and could not be authorized, 
+                // and status is x -> this must mean he has not registered at the backend
+                if (error.response.status == 400) {
+                    alert("Du konntest nicht authentifiziert werden. Registriere dich bitte, falls dies nicht bereits geschehen ist.")
+                    //console.log(error.response.data.message)
+                }
+                //error 403 -> requested resource is forbidden for user(role) user who logs in should be either lecturer or student. 
+                // if one of those tries to log in (uses log in resource), while already logged in 
+                //-> user cant get the user data in state so frontend "thinks" he is logged in, but he is logged in at the backend via a cookie
+                //cookie is only seen in web storage, while at the drupal backend site (https://clr-backend.x-navi.de/) but cant be seen while on frontend site.
+                //user could be authenticated automatically, when this error message comes, but this might be too insecure (there might be some other cases where 
+                // this error could happen)
+                //a logout button which could appear at the login page appears to be not possible as well. because csrf token and logout token are missing
+                //therefore the user receives a message, which tells him to log out manually at the backend
+                else if (error.response.status == 403) {
+
+                    alert("Du konntest nicht authentifiziert werden. Bitte logge dich das nächste mal aus, bevor du die Seite verlässt, um diesen Fehler zu vermeiden. Versuche nun dich erneut einzuloggen. ")
+                    dispatch('logoutDrupal')
+                }
+                //if the user gets another status, it most likely means there is an error on the backend side -> the user is informed of contact emails for further help
+                else {
+                    alert("Die Authentifizierung mit dem Backend ist leider fehlgeschlagen. Wenn dieses Problem bestehen bleiben sollte, wende dich an deinen betreuenden Dozenten oder schreibe eine Email an stadtlaender@uni-hildesheim.de")
+                    //console.log(error.response.data.message)
+                }
+            })
 
     },
 

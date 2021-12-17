@@ -411,10 +411,8 @@ export default {
                 start: "m-start",
                 end: "m-end",
             };
-
             relationType == "unidirectionalPT" ? (markers.start = "null") : "";
             relationType == "unidirectionalTP" ? (markers.end = "null") : "";
-
             return markers;
         },
         /**
