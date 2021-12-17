@@ -29,13 +29,23 @@
                                         >
                                     </td>
                                     <td>
-                                        <input
+                                        <b-form-input
                                             v-model="zugangsKennung"
+                                            v-on:input="
+                                                $v.zugangsKennung.$touch
+                                            "
+                                            v-bind:class="{
+                                                error: $v.zugangsKennung.$error,
+                                                valid:
+                                                    $v.zugangsKennung.$dirty &&
+                                                    !$v.zugangsKennung.$invalid,
+                                            }"
                                             id="zugangskennung"
                                             type="text"
                                             placeholder=""
                                             class="form-control"
-                                        />
+                                        >
+                                        </b-form-input>
                                     </td>
                                 </tr>
                                 <tr>
@@ -43,13 +53,21 @@
                                         <label for="password">Passwort</label>
                                     </td>
                                     <td>
-                                        <input
+                                        <b-form-input
                                             v-model="passwort"
+                                            v-on:input="$v.passwort.$touch"
+                                            v-bind:class="{
+                                                error: $v.passwort.$error,
+                                                valid:
+                                                    $v.passwort.$dirty &&
+                                                    !$v.passwort.$invalid,
+                                            }"
                                             id="password"
                                             type="password"
                                             placeholder=""
                                             class="form-control"
-                                        />
+                                        >
+                                        </b-form-input>
                                     </td>
                                 </tr>
                             </table>
@@ -68,11 +86,11 @@
                                     <p>
                                         Falls du Hilfe benötigst, wende dich an
                                         <span class="mail">
-                                            maren.stadtlaender@uni-hildesheim.de </span
+                                            maren.stadtlaender@uni-hildesheim.de</span
                                         >.
                                         <b-icon
                                             v-b-tooltip="{
-                                                title: 'Erfolgreich kopiert ',
+                                                title: 'Erfolgreich kopiert',
                                                 placement: 'bottom',
                                                 variant: 'dark',
                                                 id: 'tooltip',
@@ -93,13 +111,26 @@
                                         >
                                     </td>
                                     <td>
-                                        <input
+                                        <b-form-input
                                             v-model="registrierungsKennung"
+                                            v-on:input="
+                                                $v.registrierungsKennung.$touch
+                                            "
+                                            v-bind:class="{
+                                                error: $v.registrierungsKennung
+                                                    .$error,
+                                                valid:
+                                                    $v.registrierungsKennung
+                                                        .$dirty &&
+                                                    !$v.registrierungsKennung
+                                                        .$invalid,
+                                            }"
                                             id="registrierungsKennung"
                                             type="text"
                                             placeholder=""
                                             class="form-control"
-                                        />
+                                        >
+                                        </b-form-input>
                                     </td>
                                 </tr>
                                 <tr>
@@ -107,29 +138,53 @@
                                         <label for="password">Passwort</label>
                                     </td>
                                     <td>
-                                        <input
+                                        <b-form-input
                                             v-model="registrierungsPasswort"
+                                            v-on:input="
+                                                $v.registrierungsPasswort.$touch
+                                            "
+                                            v-bind:class="{
+                                                error: $v.registrierungsPasswort
+                                                    .$error,
+                                                valid:
+                                                    $v.registrierungsPasswort
+                                                        .$dirty &&
+                                                    !$v.registrierungsPasswort
+                                                        .$invalid,
+                                            }"
                                             id="registrierungsPasswort"
                                             type="password"
                                             placeholder=""
                                             class="form-control"
-                                        />
+                                        >
+                                        </b-form-input>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <label for="matrikelnummer"
+                                        <label
+                                            for="matrikelnummer"
                                             >Matrikelnummer</label
                                         >
                                     </td>
                                     <td>
-                                        <input
+                                        <b-form-input
                                             v-model="matrikelnummer"
+                                            v-on:input="
+                                               $v.matrikelnummer.$touch
+                                            "
+                                            v-bind:class="{
+                                                error: $v.matrikelnummer.$error,
+                                                valid:
+                                                    $v.matrikelnummer.$dirty &&
+                                                    !$v.matrikelnummer.$invalid,
+                                            }"
                                             id="matrikelnummer"
                                             type="text"
                                             placeholder=""
                                             class="form-control"
-                                        />
+                                        >
+                                        </b-form-input>
                                     </td>
                                 </tr>
                             </table>
@@ -147,6 +202,13 @@
 </template>
 <script>
 import Gdpr from "@/components/Gdpr.vue";
+import {
+    requiredIf,
+    minLength,
+    integer,
+    minValue,
+    maxLength,
+} from "vuelidate/lib/validators";
 export default {
     components: { Gdpr },
     data() {
@@ -160,6 +222,42 @@ export default {
             copyIcon: "clipboard",
         };
     },
+    validations: {
+        zugangsKennung: {
+            required: requiredIf(function () {
+                return this.validate_login();
+            }),
+            minLength: minLength(1),
+        },
+        passwort: {
+            required: requiredIf(function () {
+                return this.validate_login();
+            }),
+            minLength: minLength(1),
+        },
+        registrierungsKennung: {
+            required: requiredIf(function () {
+                return this.validate_login();
+            }),
+            minLength: minLength(1),
+        },
+        registrierungsPasswort: {
+            required: requiredIf(function () {
+                return this.validate_login();
+            }),
+            minLength: minLength(1),
+        },
+        matrikelnummer: {
+            required: requiredIf(function () {
+                return !this.getIsLecturer && this.tabIndex == 1;
+            }),
+            integer,
+            minLength: minLength(1),
+            minValue: minValue(0),
+            maxLength: maxLength(10),
+        },
+    },
+
     computed: {
         account() {
             return this.$store.state.sparky_api.account;
@@ -183,17 +281,43 @@ export default {
         enableButtons() {
             this.gdprAccepted = true;
         },
-        registrieren() {
-            this.$store.dispatch("sparky_api/registrate", {
-                username: this.registrierungsKennung,
-                password: this.registrierungsPasswort,
-                matrikelnummer: this.matrikelnummer,
-            });
 
-            //remove so username and password arent saved after login
-            this.registrierungsKennung = "";
-            this.registrierungsPasswort = "";
-            this.matrikelnummer = "";
+        validate_login() {
+            let ausgabe = false;
+            if (this.tabIndex == 0) {
+                if (this.passwort == "" || this.zugangsKennung == "") {
+                    ausgabe = true;
+                }
+            } else {
+                if (
+                    this.registrierungsKennung == "" ||
+                    this.registrierungsPasswort == ""
+                ) {
+                    ausgabe = true;
+                }
+            }
+            return ausgabe;
+        },
+
+        registrieren() {
+            this.$v.$touch();
+            if (!this.$v.$invalid) {
+                this.$store.dispatch("sparky_api/registrate", {
+                    username: this.registrierungsKennung,
+                    password: this.registrierungsPasswort,
+                    matrikelnummer: this.matrikelnummer,
+                })
+                .then(() => {
+                //remove so username and password arent saved after login
+                this.registrierungsKennung = "";
+                this.registrierungsPasswort = "";
+                this.matrikelnummer = "";
+                })
+                .catch((error) => {alert(error)});
+            } else {
+                alert("Bitte gib deine Daten ein.");
+            }
+
         },
 
         generatePassword(username) {
@@ -204,15 +328,19 @@ export default {
             return res;
         },
         async login() {
-            let username = this.zugangsKennung;
-            let password = this.passwort;
-            let authorization_token = this.encodeBasicAuth(username, password);
-            await this.$store.dispatch(
-                "drupal_api/saveBasicAuth",
-                authorization_token
-            );
+            this.$v.$touch();
 
-            this.$store
+            if (!this.$v.$invalid) {
+                let username = this.zugangsKennung;
+                let password = this.passwort;
+                let authorization_token = this.encodeBasicAuth(username, password);
+
+                await this.$store.dispatch(
+                    "drupal_api/saveBasicAuth",
+                    authorization_token
+                );
+
+                this.$store
                 //TODO: uncomment next line and comment out the line after, when project goes in production -> authenticate with sparkyservice
                 //.dispatch("drupal_api/loginToDrupal", {
                 .dispatch("sparky_api/authenticate", {
@@ -222,10 +350,12 @@ export default {
                 .then(() => {
                     this.$router.push("concept-map-page");
                 });
-
-            this.username = "";
-            this.password = "";
-            return authorization_token;
+                this.username = "";
+                this.password = "";
+                return authorization_token;
+            } else {
+                alert("Bitte gib deine Rechenzentrumskennung und dein Passwort ein"); 
+            }
         },
 
         encodeBasicAuth(user, password) {
@@ -282,5 +412,29 @@ footer {
 .login-header,
 .registrierung-header span {
     font-size: 0.9rem;
+}
+
+/*css for form validation*/
+.error {
+    border-color: red;
+    background: #fdd;
+}
+
+.error:focus {
+    outline-color: #f99;
+}
+
+.valid {
+    border-color: #5a5;
+    background: #efe;
+}
+
+.valid:focus {
+    outline-color: #8e8;
+}
+
+.alert {
+    background-color: lightgreen;
+    padding: 15px;
 }
 </style>
