@@ -18,8 +18,9 @@ export const toggleDeleteMode = ({ state }) => {
 * @param {commit}
 *  
 */
-export const loadConceptListFromDb = ({ commit }) => {
-    axios.get('concept')
+export const loadConceptListFromDb = ({ commit, rootState }) => {
+    let uid = rootState.drupal_api.user.uid
+    axios.get(`concept?filter[field_uid]=${uid}`)
         .then((response) => {
             const data = response.data.data;
             let concepts = [];
@@ -35,9 +36,11 @@ export const loadConceptListFromDb = ({ commit }) => {
         }).catch(error => {
             throw new Error(`API ${error}`);
         });
-
-
 }
+
+
+
+
 /**
 * Commits to add concepts to the database. 
 * @param {commit}  
@@ -100,7 +103,9 @@ export const deleteConcept = ({ commit, rootState }, concept) => {
 export const updateConcept = ({ commit, rootState }, payload) => {
     commit("UPDATE_CONCEPT", payload);
     commit("UPDATE_CONCEPT_IN_MAP", payload);
-    var data = `{"data":{"type":"node--concept", "id": "${payload.concept.id}", "attributes": {"title": "${payload.neuConceptName}"}}}`;
+    var data = `{"data":{"type":"node--concept", 
+    "id": "${payload.concept.id}", 
+    "attributes": {"title": "${payload.neuConceptName}", "field_concept_map_id": "${payload.conceptMapId}" }}}`;
     var config = {
         method: 'patch',
         url: `concept/${payload.concept.id}`,

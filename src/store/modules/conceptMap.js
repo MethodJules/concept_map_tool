@@ -288,21 +288,60 @@ const actions = {
     * @param {*} nodes, it stores the ids of the nodes.  
     * @returns {object} concepts, it stores the concept ids, titles and uuids.
     */
-    async loadNodesOfConceptMap({ state }, nodes) {
-        console.log(state);
+    async loadNodesOfConceptMap({ state, dispatch }, nodes) {
+        console.log(state)
         let concepts = [];
         await Promise.all(nodes.map(async element => {
             await axios.get(`concept/${element.id}`)
                 .then((response) => {
+                    console.log(response)
                     const title = response.data.data.attributes.title;
+                    const uid = response.data.data.attributes.field_uid;
                     const uuid = response.data.data.id;
                     const conceptMapId = response.data.data.attributes.field_concept_map_id;
-                    concepts.push({ id: uuid, name: title, uuid: uuid, conceptMapId });
-                    nodes.push({ id: uuid, name: title, uuid: uuid, conceptMapId });
+                    concepts.push({ id: uuid, name: title, uuid: uuid, conceptMapId, uid });
+                    // nodes.push({ id: uuid, name: title, uuid: uuid, conceptMapId });
                 })
         }));
+        console.log(concepts)
+        dispatch("addUidToConcepts", concepts)
         return concepts;
     },
+
+
+    addUidToConcepts({ rootState }, concepts) {
+        let uid = rootState.drupal_api.user.uid;
+        concepts.forEach(concept => {
+            if (concept.uid == null) {
+                var data = `{"data":{"type":"node--concept", "id": "${concept.id}", 
+            "attributes": {
+                "title": "${concept.name}",
+                "field_concept_map_id": "${concept.conceptMapId}",  
+                "field_uid" : "${uid}"}}}`;
+                var config = {
+                    method: 'patch',
+                    url: `concept/${concept.id}`,
+                    headers: {
+                        'Authorization': rootState.drupal_api.authToken,
+                        'X-CSRF-Token': rootState.drupal_api.csrf_token
+                    },
+                    data: data
+                };
+                axios(config)
+                    .then(response => {
+                        console.log(response)
+                    })
+                    .catch(error => {
+                        console.log(error)
+                    })
+            }
+
+        })
+
+
+    },
+
+
     /**
     * Loads the link data of the concept maps from database.
     * @param {*} state, state as parameter for access and manipulation of state data 

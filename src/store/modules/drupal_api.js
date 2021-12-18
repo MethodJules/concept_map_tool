@@ -128,7 +128,6 @@ const actions = {
                 //a logout button which could appear at the login page appears to be not possible as well. because csrf token and logout token are missing
                 //therefore the user receives a message, which tells him to log out manually at the backend
                 else if (error.response.status == 403) {
-
                     alert("Du konntest nicht authentifiziert werden. Bitte logge dich das nächste mal aus, bevor du die Seite verlässt, um diesen Fehler zu vermeiden. Versuche nun dich erneut einzuloggen. ")
                     dispatch('logoutDrupal')
                 }
