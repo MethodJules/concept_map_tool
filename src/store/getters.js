@@ -51,3 +51,8 @@ export const getFilteredConcepts = (state) => {
     });
     return concepts;
 }
+
+
+export const getNoConceptLoaded = (state) => {
+    return state.noConceptsLoaded;
+}

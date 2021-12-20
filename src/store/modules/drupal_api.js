@@ -129,7 +129,8 @@ const actions = {
                 //therefore the user receives a message, which tells him to log out manually at the backend
                 else if (error.response.status == 403) {
                     alert("Du konntest nicht authentifiziert werden. Bitte logge dich das nächste mal aus, bevor du die Seite verlässt, um diesen Fehler zu vermeiden. Versuche nun dich erneut einzuloggen. ")
-                    dispatch('logoutDrupal')
+                    dispatch('logoutDrupal');
+                    dispatch('loginToDrupal');
                 }
                 //if the user gets another status, it most likely means there is an error on the backend side -> the user is informed of contact emails for further help
                 else {

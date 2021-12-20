@@ -18,7 +18,7 @@ export const toggleDeleteMode = ({ state }) => {
 * @param {commit}
 *  
 */
-export const loadConceptListFromDb = ({ commit, rootState }) => {
+export const loadConceptListFromDb = ({ commit, rootState, state }) => {
     let uid = rootState.drupal_api.user.uid
     axios.get(`concept?filter[field_uid]=${uid}`)
         .then((response) => {
@@ -31,6 +31,11 @@ export const loadConceptListFromDb = ({ commit, rootState }) => {
                     id: data[i].id,
                     conceptMapId: data[i].attributes.field_concept_map_id
                 });
+            }
+            // Will be removed
+            if (concepts.length <= 0) {
+                state.noConceptsLoaded = true;
+
             }
             return commit("SAVE_CONCEPTS", concepts)
         }).catch(error => {
@@ -51,7 +56,8 @@ export const addConceptToDb = ({ commit, rootState }, conceptName) => {
         "type":"node--concept",
         "attributes": {
             "title": "${conceptName}", 
-            "field_concept_map_id": "${rootState.conceptMap.activeConceptMap.id}" 
+            "field_concept_map_id": "${rootState.conceptMap.activeConceptMap.id}",
+            "field_uid": "${rootState.drupal_api.user.uid}" 
         }
     }}`;
 
@@ -71,7 +77,8 @@ export const addConceptToDb = ({ commit, rootState }, conceptName) => {
                 name: conceptName,
                 id: response.data.data.id,
                 nid: response.data.data.attributes.drupal_internal__nid,
-                conceptMapId: rootState.conceptMap.activeConceptMap.id
+                conceptMapId: rootState.conceptMap.activeConceptMap.id,
+                uid: rootState.drupal_api.user.uid
             });
         })
 }
@@ -105,7 +112,10 @@ export const updateConcept = ({ commit, rootState }, payload) => {
     commit("UPDATE_CONCEPT_IN_MAP", payload);
     var data = `{"data":{"type":"node--concept", 
     "id": "${payload.concept.id}", 
-    "attributes": {"title": "${payload.neuConceptName}", "field_concept_map_id": "${payload.conceptMapId}" }}}`;
+    "attributes": {
+        "title": "${payload.neuConceptName}", 
+        "field_concept_map_id": "${payload.concept.conceptMapId}", 
+        "field_uid": "${rootState.drupal_api.user.uid}" }}}`;
     var config = {
         method: 'patch',
         url: `concept/${payload.concept.id}`,
@@ -115,6 +125,10 @@ export const updateConcept = ({ commit, rootState }, payload) => {
         },
         data: data
     };
-    axios(config)
+    axios(config).then((response) => {
+        console.log(response)
+    }).catch(error => {
+        console.log(error)
+    })
 
 }

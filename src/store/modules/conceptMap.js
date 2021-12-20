@@ -54,7 +54,6 @@ const getters = {
     getActiveConceptMap(state) {
         return state.activeConceptMap;
     },
-
     getFinishedLoading(state) {
         return state.finishedLoading;
     }
@@ -232,7 +231,12 @@ const actions = {
                 let newRelationId = response.data.data.id;
                 // update the id of the link in state
                 state.concept_maps[state.index].links.forEach(link => {
-                    if (link.name == payload.relationship[0].name) {
+                    console.log(link)
+                    console.log(payload)
+                    // if (link.name == payload.relationship[0].name) {
+                    //     link.id = response.data.data.id;
+                    // }
+                    if (link.sid == payload.relationship[0].sid && link.tid == payload.relationship[0].tid) {
                         link.id = response.data.data.id;
                     }
                 });
