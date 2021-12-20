@@ -4,7 +4,7 @@
         <div class="container">
             <b-card class="container-form">
                 <b-form-group>
-                    <b-tabs>
+                    <b-tabs v-model="tabIndex">
                         <!-- Class name is automatically "tabs" -->
                         <!-- Tab 1 -->
                         <b-tab title="Login">
@@ -40,7 +40,7 @@
                                                     $v.zugangsKennung.$dirty &&
                                                     !$v.zugangsKennung.$invalid,
                                             }"
-                                            id="zugangskennung"
+                                            id="zugangsKennung"
                                             type="text"
                                             placeholder=""
                                             class="form-control"
@@ -213,6 +213,7 @@ export default {
     components: { Gdpr },
     data() {
         return {
+            tabIndex: 0,
             zugangsKennung: "",
             passwort: "",
             registrierungsKennung: "",
@@ -249,7 +250,7 @@ export default {
         },
         matrikelnummer: {
             required: requiredIf(function () {
-                return !this.getIsLecturer && this.tabIndex == 1;
+                return this.tabIndex == 1;
             }),
             integer,
             minLength: minLength(1),
@@ -308,12 +309,14 @@ export default {
                     matrikelnummer: this.matrikelnummer,
                 })
                 .then(() => {
-                //remove so username and password arent saved after login
-                this.registrierungsKennung = "";
-                this.registrierungsPasswort = "";
-                this.matrikelnummer = "";
+                    //remove so username and password arent saved after login
+                    this.registrierungsKennung = "";
+                    this.registrierungsPasswort = "";
+                    this.matrikelnummer = "";
                 })
-                .catch((error) => {alert(error)});
+                .catch((error) => {
+                    console.log(error);
+                });
             } else {
                 alert("Bitte gib deine Daten ein.");
             }
@@ -329,7 +332,6 @@ export default {
         },
         async login() {
             this.$v.$touch();
-
             if (!this.$v.$invalid) {
                 let username = this.zugangsKennung;
                 let password = this.passwort;
@@ -354,7 +356,7 @@ export default {
                 this.password = "";
                 return authorization_token;
             } else {
-                alert("Bitte gib deine Rechenzentrumskennung und dein Passwort ein"); 
+                alert("Bitte gib deine Rechenzentrumskennung und dein Passwort ein."); 
             }
         },
 
