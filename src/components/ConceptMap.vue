@@ -297,7 +297,13 @@ export default {
                 nodeLabels: true,
                 nodeSize: 30,
                 linkWidth: 3,
-                force: 40000,
+                force: 20000,
+                // How to use this forces?
+                // forces: {
+                //     center: true,
+
+                //     link: 20000,
+                // },
                 fontSize: 15,
                 strLinks: true,
                 linkLabels: true,
@@ -411,10 +417,8 @@ export default {
                 start: "m-start",
                 end: "m-end",
             };
-
             relationType == "unidirectionalPT" ? (markers.start = "null") : "";
             relationType == "unidirectionalTP" ? (markers.end = "null") : "";
-
             return markers;
         },
         /**

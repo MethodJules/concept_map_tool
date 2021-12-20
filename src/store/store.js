@@ -17,6 +17,7 @@ const store = new Vuex.Store({
         concepts: [],
         buttonClicked: false,
         deleteMode: false,
+        noConceptsLoaded: false,
     },
     getters,
     mutations,

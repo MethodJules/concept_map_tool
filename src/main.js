@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 import router from './router'
 import store from './store/store'
 import Vuetify from 'vuetify'
+import Vuelidate from 'vuelidate'
 
 
 
@@ -18,6 +19,7 @@ Vue.config.productionTip = false
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 Vue.use(Vuetify)
+Vue.use(Vuelidate)
 
 
 
