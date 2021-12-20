@@ -87,8 +87,12 @@ const actions = {
             .then((response) => {
                 const user = response.data;
                 commit('SAVE_CREATED_USER', user);
+                alert("Dein Account wurde erfolgreich angelegt. Du kannst dich jetzt einloggen.")
 
             }).catch(error => {
+                if (error.response.status == 422) {
+                    alert("Offenbar bist du bereits registriert. Bitte versuche stattdessen dich einzuloggen.")
+                }
                 throw new Error(`API ${error}`);
             });
     },

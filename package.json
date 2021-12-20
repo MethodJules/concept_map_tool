@@ -17,6 +17,7 @@
     "vue": "^2.6.11",
     "vue-d3-network": "^0.1.28",
     "vue-router": "^3.5.1",
+    "vuelidate": "^0.7.7",
     "vuetify": "^2.6.0",
     "vuex": "^3.6.2",
     "winston": "^3.3.3"

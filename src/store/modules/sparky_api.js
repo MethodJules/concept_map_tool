@@ -118,7 +118,7 @@ const actions = {
             .catch((error) => {
                 if (error.response.status == 401) {
                     //in this case we throw the error again, it will be catched in the calling method "registrieren". We do this because the ".then" part of the method "registrieren" in "Login.vue" should not be executed. otherwise it would call "sendEmail" when the registering user is a lecturer, which should only happen if it is successful
-                    alert("Du konntest nicht authorisiert werden. Bitte gib deine korrekte Rechenzentrumskennung ein")
+                    alert("Du konntest nicht authorisiert werden. Bitte gib deine korrekte Rechenzentrumskennung ein.")
                     throw error;
                 } else {
                     alert("Die Authentifizierung mit dem SparkyService ist leider fehlgeschlagen. Wenn dieses Problem bestehen bleibt, wende dich an deinen betreuenden Dozenten oder schreibe eine Email an stadtlaender@uni-hildesheim.de")
