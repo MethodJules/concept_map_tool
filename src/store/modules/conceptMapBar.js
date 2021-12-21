@@ -181,7 +181,11 @@ const actions = {
         var config = {
             method: 'patch',
             url: `concept_map/${payload.conceptMap.id}`,
-            data: data
+            data: data,
+            headers: {
+                'Authorization': rootState.drupal_api.authToken,
+                'X-CSRF-Token': rootState.drupal_api.csrf_token
+            },
         };
         axios(config)
     },
@@ -199,7 +203,11 @@ const actions = {
         var config = {
             method: 'patch',
             url: `concept_map/${conceptMapId}`,
-            data: data
+            data: data,
+            headers: {
+                'Authorization': rootState.drupal_api.authToken,
+                'X-CSRF-Token': rootState.drupal_api.csrf_token
+            },
         };
         axios(config)
     },
@@ -216,7 +224,11 @@ const actions = {
         var config = {
             method: 'patch',
             url: `concept_map/${conceptMapId}`,
-            data: data
+            data: data,
+            headers: {
+                'Authorization': rootState.drupal_api.authToken,
+                'X-CSRF-Token': rootState.drupal_api.csrf_token
+            },
         };
         axios(config)
     },
