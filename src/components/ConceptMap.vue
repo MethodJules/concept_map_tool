@@ -23,6 +23,7 @@
       :net-links="activeConceptMap.links"
       :options="options"
       @node-click="showModal"
+      @link-click="deleteLink"
       ref="net"
       :link-cb="lcb"
     />
@@ -501,6 +502,24 @@ export default {
       });
     },
 
+    async deleteLink(event, link) {
+      if (event.altKey == true || this.deleteMode) {
+        console.log(link);
+
+        this.$store.commit("conceptMap/DELETE_LINK_FROM_STATE", {
+          linkId: link.id,
+        });
+
+        await this.$store.dispatch(
+          "conceptMap/deleteLinkFromConceptMapTable",
+          link.id
+        );
+        await this.$store.dispatch(
+          "conceptMap/deleteLinkFromRelationsTable",
+          link.id
+        );
+      }
+    },
     /**
      * Deletes Node from concept map.
      * It needs to find the related links with the node and delete them too.
@@ -578,10 +597,7 @@ export default {
     nodes.forEach((node) => {
       console.log(node);
       node.addEventListener("mousedown", this.mouseUpOnNode);
-      node.addEventListener("mouseup", this.mouseDownFromNode);
       node.addEventListener("touchstart", this.touchStartOnNode);
-      node.addEventListener("touchend", this.touchEndFromNode);
-      // node.addEventListener("touchmove", this.touchMove);
     });
   },
 
@@ -608,14 +624,10 @@ export default {
 
       // node click detect
       let nodes = document.querySelectorAll(".nodes");
-      // nodes.addEventListener("onmouseover", console.log("hi"));
-
       nodes.forEach((node) => {
         console.log(node);
         node.addEventListener("mousedown", this.mouseUpOnNode);
-        node.addEventListener("mouseup", this.mouseDownFromNode);
         node.addEventListener("touchstart", this.touchStartOnNode);
-        node.addEventListener("touchend", this.touchEndFromNode);
       });
     },
   },
