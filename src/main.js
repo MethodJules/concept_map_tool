@@ -13,6 +13,8 @@ import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'vue-d3-network/dist/vue-d3-network.css'
+import VueHtmlToPaper from 'vue-html-to-paper';
+
 
 
 Vue.config.productionTip = false
@@ -20,6 +22,7 @@ Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 Vue.use(Vuetify)
 Vue.use(Vuelidate)
+Vue.use(VueHtmlToPaper);
 
 
 

@@ -351,6 +351,7 @@ export default {
   justify-content: flex-start;
   flex-direction: column;
   margin-bottom: 1rem;
+  width: 100%;
 }
 
 .tools-buttons {

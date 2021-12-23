@@ -15,6 +15,10 @@
         >
       </b-card>
     </div>
+    <!-- <button @click="print2">print</button> -->
+    <b-button @click="print2" variant="outline-secondary"
+      ><b-icon icon="camera"></b-icon
+    ></b-button>
 
     <d3-network
       id="map"
@@ -254,6 +258,15 @@ export default {
       nodePositionY: 0,
       nodeStops: false,
       touchedNodeStops: false,
+      printOptions: {
+        name: "_blank",
+        specs: ["fullscreen=yes", "titlebar=yes", "scrollbars=yes"],
+        styles: [
+          "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css",
+          "https://unpkg.com/kidlat-css/css/kidlat.css",
+          "vue-d3-network/dist/vue-d3-network.css",
+        ],
+      },
     };
   },
   components: {
@@ -285,11 +298,13 @@ export default {
      * Or just google "vue-d3-network"
      */
     options() {
+      let nodes = this.activeConceptMap.nodes.length;
+      console.log(nodes);
       return {
         nodeLabels: true,
         nodeSize: 30,
         linkWidth: 3,
-        force: 20000,
+        force: 100000 / nodes,
         // How to use this forces?
         // forces: {
         //     center: true,
@@ -310,6 +325,38 @@ export default {
     },
   },
   methods: {
+    print() {
+      // Pass the element id here
+      this.$htmlToPaper("map", this.printOptions);
+    },
+    print2() {
+      // Get HTML to print from element
+      const prtHtml = document.getElementById("map").innerHTML;
+
+      // Get all stylesheets HTML
+      let stylesHtml = "";
+      for (const node of [
+        ...document.querySelectorAll('link[rel="stylesheet"], style'),
+      ]) {
+        stylesHtml += node.outerHTML;
+      }
+
+      // Open the print window
+      const WinPrint = window.open(
+        "",
+        "",
+        "left=0,top=0,width=1800,height=1900,toolbar=0,scrollbars=0,status=0"
+      );
+
+      WinPrint.document
+        .write(`<!DOCTYPE html><html><head>${stylesHtml}</head><body>
+                ${prtHtml}</body></html>`);
+      WinPrint.document.close();
+      WinPrint.focus();
+      WinPrint.print();
+      WinPrint.close();
+    },
+
     /**
      * It saves the position of the node when user click on it for desktop events
      * This position is being used to detect if the node is moving or not.
@@ -716,8 +763,9 @@ button {
   font-size: 0.8em;
 }
 .net {
-  width: 100%;
-  height: 70vh;
+  /* width: 100%; */
+  min-height: 70vh !important;
+  padding: 0;
 }
 
 #m-end path,

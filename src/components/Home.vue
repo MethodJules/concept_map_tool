@@ -8,10 +8,10 @@
     </div>
     <div>
       <b-row v-if="isThereAnyConceptMap">
-        <b-col md="3" class="pageContainer-sidebar">
+        <b-col md="2" class="pageContainer-sidebar">
           <Sidebar />
         </b-col>
-        <b-col md="9" class="pageContainer-mapContainer">
+        <b-col md="10" class="pageContainer-mapContainer">
           <ConceptMap />
         </b-col>
       </b-row>

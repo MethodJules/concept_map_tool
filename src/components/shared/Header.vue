@@ -1,81 +1,81 @@
 <template>
-    <b-navbar toggleable="lg" type="dark" class="menu">
-        <b-navbar-brand to="/" class="menu-item">
-            Concept Mapping Tool
-        </b-navbar-brand>
-        <b-row class="menu-avatar" v-if="validCredential">
-            <span>{{ user.name }}</span>
-            <b-button
-                class="menu-logoutButton"
-                size="sm"
-                variant="secondary"
-                @click="logout()"
-            >
-                <b-icon icon="box-arrow-right"></b-icon>
-            </b-button>
-        </b-row>
-    </b-navbar>
+  <b-navbar toggleable="lg" type="dark" class="menu">
+    <b-navbar-brand to="/" class="menu-item">
+      Concept Mapping Tool
+    </b-navbar-brand>
+    <b-row class="menu-avatar" v-if="validCredential">
+      <!-- <span>{{ user.name }}</span> -->
+      <b-button
+        class="menu-logoutButton"
+        size="sm"
+        variant="secondary"
+        @click="logout()"
+      >
+        <b-icon icon="box-arrow-right"></b-icon>
+      </b-button>
+    </b-row>
+  </b-navbar>
 </template>
 <script>
 import { mapGetters } from "vuex";
 
 export default {
-    computed: {
-        ...mapGetters({
-            user: "drupal_api/getUser", // getter to take datas of the user.
-        }),
-        account() {
-            return this.$store.state.sparky_api.account;
-        },
-
-        validCredential() {
-            // return true;
-            // return this.$store.state.sparky_api.validCredential;
-            return this.$store.state.drupal_api.validCredential;
-        },
+  computed: {
+    ...mapGetters({
+      user: "drupal_api/getUser", // getter to take datas of the user.
+    }),
+    account() {
+      return this.$store.state.sparky_api.account;
     },
 
-    methods: {
-        logout() {
-            this.$store.dispatch("drupal_api/logoutDrupal");
-        },
+    validCredential() {
+      // return true;
+      // return this.$store.state.sparky_api.validCredential;
+      return this.$store.state.drupal_api.validCredential;
     },
+  },
+
+  methods: {
+    logout() {
+      this.$store.dispatch("drupal_api/logoutDrupal");
+    },
+  },
 };
 </script>
 <style scoped>
 .menu {
-    background-color: #6c757d !important;
-    display: flex;
-    justify-content: space-between;
-    padding: 0.1rem 2rem;
-    flex-wrap: nowrap;
+  background-color: #6c757d !important;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.1rem 2rem;
+  flex-wrap: nowrap;
 }
 
 .menu-item {
-    margin: 0;
+  margin: 0;
 }
 .menu li {
-    list-style-type: none;
+  list-style-type: none;
 }
 
 .menu-avatar {
-    min-width: 150px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
+  /* min-width: 150px; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
 .menu-avatar span {
-    width: 50%;
-    padding: 0;
-    margin-right: 0.5rem;
-    color: white;
+  width: 50%;
+  padding: 0;
+  margin-right: 0.5rem;
+  color: white;
 }
 .menu-logoutButton {
-    color: white;
-    border: none;
-    width: 20%;
+  color: white;
+  border: none;
+  width: 20%;
 }
 /* ::v-deep .nav-link {
     color: white !important;
