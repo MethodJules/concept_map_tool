@@ -1,6 +1,6 @@
 <template>
   <div class="conceptMapPage">
-    <ConceptMapBar />
+    <!-- <ConceptMapBar /> -->
     <div v-if="finishedLoading && isEmpty" class="emptyMap">
       <b-card
         bg-variant="info"
@@ -15,11 +15,6 @@
         >
       </b-card>
     </div>
-    <!-- <button @click="print2">print</button> -->
-    <b-button @click="print2" variant="outline-secondary"
-      ><b-icon icon="camera"></b-icon
-    ></b-button>
-
     <d3-network
       id="map"
       v-if="finishedLoading"
@@ -44,8 +39,6 @@
             orient="auto"
             markerUnits="strokeWidth"
           >
-            <!-- refX="9"
-                    refY="3" -->
             <polygon points="0 0, 10 3.5, 0 7" fill="red" />
           </marker>
           <marker
@@ -57,9 +50,6 @@
             orient="auto"
             markerUnits="strokeWidth"
           >
-            <!-- refX="-4"
-                    refY="3" -->
-            <!-- 0 0, 10 3.5, 0 7 -->
             <polygon points="10 0, 10 7, 0 3.5" fill="red" />
           </marker>
         </defs>
@@ -241,7 +231,7 @@
  *
  */
 import D3Network from "vue-d3-network";
-import ConceptMapBar from "@/components/ConceptMapBar.vue";
+// import ConceptMapBar from "@/components/ConceptMapBar.vue";
 
 import { mapGetters } from "vuex";
 import { gsap } from "gsap";
@@ -258,20 +248,11 @@ export default {
       nodePositionY: 0,
       nodeStops: false,
       touchedNodeStops: false,
-      printOptions: {
-        name: "_blank",
-        specs: ["fullscreen=yes", "titlebar=yes", "scrollbars=yes"],
-        styles: [
-          "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css",
-          "https://unpkg.com/kidlat-css/css/kidlat.css",
-          "vue-d3-network/dist/vue-d3-network.css",
-        ],
-      },
     };
   },
   components: {
     D3Network,
-    ConceptMapBar,
+    // ConceptMapBar,
   },
   computed: {
     ...mapGetters({
@@ -305,12 +286,6 @@ export default {
         nodeSize: 30,
         linkWidth: 3,
         force: 100000 / nodes,
-        // How to use this forces?
-        // forces: {
-        //     center: true,
-
-        //     link: 20000,
-        // },
         fontSize: 15,
         strLinks: true,
         linkLabels: true,
@@ -325,38 +300,6 @@ export default {
     },
   },
   methods: {
-    print() {
-      // Pass the element id here
-      this.$htmlToPaper("map", this.printOptions);
-    },
-    print2() {
-      // Get HTML to print from element
-      const prtHtml = document.getElementById("map").innerHTML;
-
-      // Get all stylesheets HTML
-      let stylesHtml = "";
-      for (const node of [
-        ...document.querySelectorAll('link[rel="stylesheet"], style'),
-      ]) {
-        stylesHtml += node.outerHTML;
-      }
-
-      // Open the print window
-      const WinPrint = window.open(
-        "",
-        "",
-        "left=0,top=0,width=1800,height=1900,toolbar=0,scrollbars=0,status=0"
-      );
-
-      WinPrint.document
-        .write(`<!DOCTYPE html><html><head>${stylesHtml}</head><body>
-                ${prtHtml}</body></html>`);
-      WinPrint.document.close();
-      WinPrint.focus();
-      WinPrint.print();
-      WinPrint.close();
-    },
-
     /**
      * It saves the position of the node when user click on it for desktop events
      * This position is being used to detect if the node is moving or not.

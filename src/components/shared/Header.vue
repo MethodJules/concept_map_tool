@@ -1,25 +1,57 @@
 <template>
-  <b-navbar toggleable="lg" type="dark" class="menu">
-    <b-navbar-brand to="/" class="menu-item">
-      Concept Mapping Tool
-    </b-navbar-brand>
-    <b-row class="menu-avatar" v-if="validCredential">
-      <!-- <span>{{ user.name }}</span> -->
-      <b-button
-        class="menu-logoutButton"
-        size="sm"
-        variant="secondary"
-        @click="logout()"
-      >
-        <b-icon icon="box-arrow-right"></b-icon>
-      </b-button>
-    </b-row>
-  </b-navbar>
+  <div>
+    <b-navbar toggleable="lg" type="dark" class="menu">
+      <b-navbar-brand to="/" class="menu-item hidden-mobile">
+        Concept Mapping Tool
+      </b-navbar-brand>
+      <div class="header-buttons">
+        <ConceptMapsDropdownButton />
+        <RecommenderButton />
+        <DeleteModeButton />
+        <PrintButton />
+        <SidebarRightButton />
+        <div class="visible-mobile">
+          <b-button
+            class="menu-logoutButton"
+            variant="secondary"
+            @click="logout()"
+          >
+            <b-icon icon="box-arrow-right"></b-icon>
+          </b-button>
+        </div>
+      </div>
+
+      <b-row class="menu-avatar hidden-mobile" v-if="validCredential">
+        <span>{{ user.name }}</span>
+
+        <b-button
+          class="menu-logoutButton"
+          variant="secondary"
+          @click="logout()"
+        >
+          <b-icon icon="box-arrow-right"></b-icon>
+        </b-button>
+      </b-row>
+    </b-navbar>
+  </div>
 </template>
 <script>
 import { mapGetters } from "vuex";
+import PrintButton from "@/components/buttons/PrintButton";
+import DeleteModeButton from "@/components/buttons/DeleteModeButton";
+import RecommenderButton from "@/components/buttons/RecommenderButton";
+import SidebarRightButton from "@/components/buttons/SidebarRightButton";
+import ConceptMapsDropdownButton from "@/components/buttons/ConceptMapsDropdownButton";
 
 export default {
+  components: {
+    PrintButton,
+    DeleteModeButton,
+    RecommenderButton,
+    SidebarRightButton,
+    ConceptMapsDropdownButton,
+  },
+
   computed: {
     ...mapGetters({
       user: "drupal_api/getUser", // getter to take datas of the user.
@@ -43,6 +75,21 @@ export default {
 };
 </script>
 <style scoped>
+@media (max-width: 767px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+
+  .menu {
+    padding: 0 !important;
+  }
+}
+@media (min-width: 767px) {
+  .visible-mobile {
+    display: none !important;
+  }
+}
+
 .menu {
   background-color: #6c757d !important;
   display: flex;
@@ -59,7 +106,7 @@ export default {
 }
 
 .menu-avatar {
-  /* min-width: 150px; */
+  min-width: 10rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -77,6 +124,11 @@ export default {
   border: none;
   width: 20%;
 }
+
+.header-buttons {
+  display: flex !important;
+}
+
 /* ::v-deep .nav-link {
     color: white !important;
     font-size: 1.2rem;
