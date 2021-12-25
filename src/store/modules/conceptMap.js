@@ -7,6 +7,12 @@ const state = () => ({
     index: 0, // the index of concept_maps. We use it for D3-network in ConceptMap.vue
     activeConceptMap: [], // the selected concept map from radio button which are at the top right of the concept map page
     finishedLoading: false,
+    conceptMapOptions: {
+        nodeSize: 30,
+        linkWidth: 2,
+        force: 30000,
+        fontSize: 15,
+    }
 
 
 })
@@ -56,7 +62,11 @@ const getters = {
     },
     getFinishedLoading(state) {
         return state.finishedLoading;
+    },
+    getConceptMapOptions(state) {
+        return state.conceptMapOptions;
     }
+
 
 
 }

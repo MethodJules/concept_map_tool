@@ -4,33 +4,29 @@
       <b-navbar-brand to="/" class="menu-item hidden-mobile">
         Concept Mapping Tool
       </b-navbar-brand>
-      <div class="header-buttons">
+      <div class="header-buttons" v-if="validCredential">
+        <img
+          src="@/assets/favicon.png"
+          class="visible-mobile"
+          width="30"
+          height="30"
+          alt=""
+        />
+
         <ConceptMapsDropdownButton />
         <RecommenderButton />
         <DeleteModeButton />
         <PrintButton />
         <SidebarRightButton />
         <div class="visible-mobile">
-          <b-button
-            class="menu-logoutButton"
-            variant="secondary"
-            @click="logout()"
-          >
-            <b-icon icon="box-arrow-right"></b-icon>
-          </b-button>
+          <LogoutButton />
         </div>
       </div>
 
       <b-row class="menu-avatar hidden-mobile" v-if="validCredential">
         <span>{{ user.name }}</span>
 
-        <b-button
-          class="menu-logoutButton"
-          variant="secondary"
-          @click="logout()"
-        >
-          <b-icon icon="box-arrow-right"></b-icon>
-        </b-button>
+        <LogoutButton />
       </b-row>
     </b-navbar>
   </div>
@@ -42,6 +38,7 @@ import DeleteModeButton from "@/components/buttons/DeleteModeButton";
 import RecommenderButton from "@/components/buttons/RecommenderButton";
 import SidebarRightButton from "@/components/buttons/SidebarRightButton";
 import ConceptMapsDropdownButton from "@/components/buttons/ConceptMapsDropdownButton";
+import LogoutButton from "@/components/buttons/LogoutButton";
 
 export default {
   components: {
@@ -50,6 +47,7 @@ export default {
     RecommenderButton,
     SidebarRightButton,
     ConceptMapsDropdownButton,
+    LogoutButton,
   },
 
   computed: {
@@ -67,11 +65,7 @@ export default {
     },
   },
 
-  methods: {
-    logout() {
-      this.$store.dispatch("drupal_api/logoutDrupal");
-    },
-  },
+  methods: {},
 };
 </script>
 <style scoped>
@@ -83,13 +77,15 @@ export default {
   .menu {
     padding: 0 !important;
   }
+  .header-buttons {
+    width: 100%;
+  }
 }
 @media (min-width: 767px) {
   .visible-mobile {
     display: none !important;
   }
 }
-
 .menu {
   background-color: #6c757d !important;
   display: flex;
@@ -97,14 +93,12 @@ export default {
   padding: 0.1rem 2rem;
   flex-wrap: nowrap;
 }
-
 .menu-item {
   margin: 0;
 }
 .menu li {
   list-style-type: none;
 }
-
 .menu-avatar {
   min-width: 10rem;
   display: flex;
@@ -112,69 +106,15 @@ export default {
   justify-content: center;
   padding: 0;
 }
-
 .menu-avatar span {
   width: 50%;
   padding: 0;
   margin-right: 0.5rem;
   color: white;
 }
-.menu-logoutButton {
-  color: white;
-  border: none;
-  width: 20%;
-}
-
 .header-buttons {
   display: flex !important;
+  align-items: center;
+  justify-content: center;
 }
-
-/* ::v-deep .nav-link {
-    color: white !important;
-    font-size: 1.2rem;
-    padding-left: 0;
-} */
-
-/* START!! Menu items style is useless now. But I am keeping it in case we use them later or another page */
-/* .menu-items ul {
-    font-size: 1.5rem;
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-}
-.menu-items ul li {
-    margin-right: 5rem;
-}
-.menu-items ul li:last-child {
-    margin-right: 0;
-}
-.menu-items ul li a {
-    text-decoration: none;
-    position: relative;
-}
-.menu-items ul li a::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 0px;
-    height: 3px;
-    background: rgb(250, 250, 250);
-    opacity: 0;
-    -webkit-transition: width 1.5s; 
-    transition: width 1.5s;
-}
-.menu-items ul li a:hover:before {
-    opacity: 1;
-    width: 100%;
-}
-
-.menu-items ul li a {
-    color: rgb(209, 204, 204) !important;
-}
-.menu-items ul li a:hover {
-    color: rgb(250, 250, 250) !important;
-} */
-
-/* END!! Menu items style is useless now. But I am keeping it in case we use them later or another page */
 </style>

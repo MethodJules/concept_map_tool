@@ -1,6 +1,5 @@
 <template>
   <div class="conceptMapPage">
-    <!-- <ConceptMapBar /> -->
     <div v-if="finishedLoading && isEmpty" class="emptyMap">
       <b-card
         bg-variant="info"
@@ -261,6 +260,7 @@ export default {
       filteredConcepts: "getFilteredConcepts",
       finishedLoading: "conceptMap/getFinishedLoading",
       isEmpty: "conceptMap/getIsConceptMapEmpty",
+      conceptMapOptions: "conceptMap/getConceptMapOptions",
     }),
 
     /**
@@ -279,14 +279,12 @@ export default {
      * Or just google "vue-d3-network"
      */
     options() {
-      let nodes = this.activeConceptMap.nodes.length;
-      console.log(nodes);
       return {
         nodeLabels: true,
-        nodeSize: 30,
-        linkWidth: 3,
-        force: 100000 / nodes,
-        fontSize: 15,
+        nodeSize: this.conceptMapOptions.nodeSize,
+        linkWidth: this.conceptMapOptions.linkWidth,
+        force: this.conceptMapOptions.force,
+        fontSize: this.conceptMapOptions.fontSize,
         strLinks: true,
         linkLabels: true,
       };

@@ -17,35 +17,12 @@
       right
       title="Sidebar"
     >
-      <div class="tags">
-        <div class="tags-input">
-          <span>
-            <input
-              type="text"
-              @keydown.enter="addTag(newTag)"
-              v-model="newTag"
-            />
-          </span>
-          <b-button size="sm" variant="primary" @click="addTag(newTag)">
-            <b-icon icon="plus-circle" sm aria-hidden="true"></b-icon>
-          </b-button>
-        </div>
-        <div class="tags-items">
-          <span class="tag" v-for="(tag, i) in activeConceptMap.tags" :key="i">
-            <span class="tag-name">{{ tag }}</span>
-            <b-icon
-              icon="x-circle"
-              scale="1"
-              variant="secondary"
-              @click="deleteTag(tag)"
-            ></b-icon>
-          </span>
-        </div>
-      </div>
-      <template #footer="{ hide }">
-        <div class="d-flex bg-dark text-light align-items-center px-3 py-2">
-          <strong class="mr-auto">Footer</strong>
-          <b-button size="sm" @click="hide">Close</b-button>
+      <ConceptMapOptions />
+      <Tags />
+      <template #footer="{}">
+        <div class="sidebar-footer">
+          <strong class="mr-auto">{{ user.name }}</strong>
+          <LogoutButton />
         </div>
       </template>
     </b-sidebar>
@@ -53,6 +30,9 @@
 </template>
 <script>
 import { mapGetters } from "vuex";
+import LogoutButton from "@/components/buttons/LogoutButton";
+import Tags from "@/components/Tags";
+import ConceptMapOptions from "@/components/ConceptMapOptions";
 
 export default {
   data() {
@@ -60,79 +40,21 @@ export default {
       newTag: "",
     };
   },
+  components: {
+    LogoutButton,
+    Tags,
+    ConceptMapOptions,
+  },
   computed: {
     ...mapGetters({
       conceptMaps: "conceptMap/getConceptMaps",
       index: "conceptMap/getIndex",
       activeConceptMap: "conceptMap/getActiveConceptMap",
+      user: "drupal_api/getUser",
     }),
   },
-  methods: {
-    /**
-     * Controls if the given tag is exists.
-     * @param {string} newTag, the tag name is going to be controlled if it exists
-     * @return {object} payload, it consist if tag is valid and a message when there is a problem.
-     */
-    tagValidation(newTag) {
-      let isValid = false;
-      let errorMessage = "";
-      console.log(this.activeConceptMap);
-      let tags = this.activeConceptMap.tags;
-      console.log(tags);
-      if (newTag.length <= 0) {
-        isValid = true;
-        errorMessage = "Tag-Name ist leer.";
-      }
-      if (tags.length > 0) {
-        tags.forEach((tag) => {
-          if (tag == newTag) {
-            isValid = true;
-            errorMessage = "Tag-Name wird bereits verwendet.";
-          }
-        });
-      }
-      let payload = {
-        isValid,
-        errorMessage,
-      };
-      return payload;
-    },
-    /**
-     * Adds new tag.
-     * @param {string} newTag, the new tag is going to ne added.
-     */
-    addTag(newTag) {
-      let auth = this.tagValidation(newTag);
-      if (!auth.isValid) {
-        let tags = this.activeConceptMap.tags;
-        tags.push(newTag);
-        this.$store.dispatch("conceptMapBar/addTagToConceptMap", tags);
-      } else {
-        alert(auth.errorMessage);
-      }
-      this.newTag = "";
-    },
-    /**
-     * Deletes tag.
-     * @param {string} tag, the tag that is going to be deleted.
-     */
-    deleteTag(tag) {
-      let tags = this.activeConceptMap.tags;
-      let index = tags.indexOf(tag);
-      tags.splice(index, 1);
-      this.$store.dispatch("conceptMapBar/deleteTagFromConceptMap", tags);
-    },
-    /**
-     * Deletes last tag.
-     */
-    deleteLastTag() {
-      let tags = this.activeConceptMap.tags;
-      if (this.newTag.length <= 0) {
-        tags.splice(-1, 1);
-        this.$store.dispatch("conceptMapBar/deleteTagFromConceptMap", tags);
-      }
-    },
-  },
+
+  methods: {},
 };
 </script>
 <style scoped>
@@ -142,35 +64,15 @@ export default {
 ::v-deep .b-sidebar-body {
   padding: 0 0.5rem !important;
 }
-
-.tags {
+.sidebar-footer {
   display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+  background-color: #222428;
+  color: #f3f4f5;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
 }
-.tags-input {
-  margin-bottom: 0.5rem;
-}
-.tag {
-  padding: 0.4rem;
-  font-size: 14px;
-  margin-right: 0.3rem;
-  margin-top: 0.3rem;
-  border-radius: 5px;
-  color: #383d41;
-  background-color: #e2e3e5;
-  border-color: #b8daff;
-  cursor: default;
-}
-.tags svg {
-  cursor: pointer;
-}
-.tags input {
-  min-height: 2rem;
-  width: 10rem;
-  outline: none;
-  border-radius: 5px;
-  border: 1px solid gray;
+.menu-logoutButton {
+  background-color: #222428;
 }
 </style>
