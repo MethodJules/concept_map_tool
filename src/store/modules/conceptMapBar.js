@@ -94,7 +94,7 @@ const actions = {
             data: data
         };
 
-        loginAxios(config)
+        return loginAxios(config)
     },
 
     /** Deletes concept map from database.
@@ -122,7 +122,7 @@ const actions = {
             },
             data: data
         };
-        axios(config)
+        return axios(config)
 
     },
 

@@ -3,8 +3,7 @@ import App from './App.vue'
 import Vuex from 'vuex'
 import router from './router'
 import store from './store/store'
-import Vuetify from 'vuetify'
-import Vuelidate from 'vuelidate'
+
 
 
 
@@ -13,8 +12,9 @@ import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'vue-d3-network/dist/vue-d3-network.css'
-import VueHtmlToPaper from 'vue-html-to-paper';
-
+import Vuetify from 'vuetify'
+import Vuelidate from 'vuelidate'
+import VueFullscreen from 'vue-fullscreen'
 
 
 Vue.config.productionTip = false
@@ -22,7 +22,7 @@ Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 Vue.use(Vuetify)
 Vue.use(Vuelidate)
-Vue.use(VueHtmlToPaper);
+Vue.use(VueFullscreen)
 
 
 

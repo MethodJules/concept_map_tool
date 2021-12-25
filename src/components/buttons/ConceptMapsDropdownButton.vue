@@ -159,7 +159,6 @@ export default {
   computed: {
     ...mapGetters({
       conceptMaps: "conceptMap/getConceptMaps",
-      //   index: "conceptMap/getIndex",
       activeConceptMap: "conceptMap/getActiveConceptMap",
     }),
 

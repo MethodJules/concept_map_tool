@@ -14,17 +14,19 @@
         >
       </b-card>
     </div>
-    <d3-network
-      id="map"
-      v-if="finishedLoading"
-      :net-nodes="activeConceptMap.nodes"
-      :net-links="activeConceptMap.links"
-      :options="options"
-      @node-click="showModal"
-      @link-click="deleteLink"
-      ref="net"
-      :link-cb="lcb"
-    />
+    <fullscreen v-model="fullscreen">
+      <d3-network
+        id="map"
+        v-if="finishedLoading"
+        :net-nodes="activeConceptMap.nodes"
+        :net-links="activeConceptMap.links"
+        :options="options"
+        @node-click="showModal"
+        @link-click="deleteLink"
+        ref="net"
+        :link-cb="lcb"
+      />
+    </fullscreen>
 
     <div class="markers">
       <svg>
@@ -230,7 +232,6 @@
  *
  */
 import D3Network from "vue-d3-network";
-// import ConceptMapBar from "@/components/ConceptMapBar.vue";
 
 import { mapGetters } from "vuex";
 import { gsap } from "gsap";
@@ -251,7 +252,6 @@ export default {
   },
   components: {
     D3Network,
-    // ConceptMapBar,
   },
   computed: {
     ...mapGetters({
@@ -720,5 +720,17 @@ button {
   transform: translate(0, 0.5em) !important;
   font-size: 0.8 em !important;
 }
+/* ::v-deep .links,
+::v-deep .nodes,
+::v-deep .labels {
+  margin-top: 100px !important;
+}
+::v-deep .net-svg {
+  padding: 0 !important;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  height: 100%;
+} */
 </style>
 

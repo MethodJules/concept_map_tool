@@ -17,7 +17,9 @@
         <RecommenderButton />
         <DeleteModeButton />
         <PrintButton />
+        <FullScreenButton />
         <SidebarRightButton />
+
         <div class="visible-mobile">
           <LogoutButton />
         </div>
@@ -39,8 +41,12 @@ import RecommenderButton from "@/components/buttons/RecommenderButton";
 import SidebarRightButton from "@/components/buttons/SidebarRightButton";
 import ConceptMapsDropdownButton from "@/components/buttons/ConceptMapsDropdownButton";
 import LogoutButton from "@/components/buttons/LogoutButton";
+import FullScreenButton from "@/components/buttons/FullScreenButton";
 
 export default {
+  data() {
+    return {};
+  },
   components: {
     PrintButton,
     DeleteModeButton,
@@ -48,6 +54,7 @@ export default {
     SidebarRightButton,
     ConceptMapsDropdownButton,
     LogoutButton,
+    FullScreenButton,
   },
 
   computed: {
@@ -64,8 +71,6 @@ export default {
       return this.$store.state.drupal_api.validCredential;
     },
   },
-
-  methods: {},
 };
 </script>
 <style scoped>
