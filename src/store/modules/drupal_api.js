@@ -103,7 +103,7 @@ const actions = {
     async loginToDrupal({ commit, dispatch }, { username, password }) {
         //authenticate with sparky_api at sparky backend is commented out for development purposes. thus testaccounts can be used without the need of real user data
         //await dispatch("sparky_api/authenticate", { username, password }, { root: true })
-        const data = `{"name": "${username}", "pass": "${password}"}`;
+        const data = `{"name": "${username}", "pass": ${JSON.stringify(password)}}`;
         const config = {
             method: 'post',
             url: 'user/login?_format=json',
