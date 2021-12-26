@@ -16,6 +16,7 @@
     "gsap": "^3.9.0",
     "vue": "^2.6.11",
     "vue-d3-network": "^0.1.28",
+    "vue-fullscreen": "^2.6.1",
     "vue-router": "^3.5.1",
     "vuelidate": "^0.7.7",
     "vuetify": "^2.6.0",

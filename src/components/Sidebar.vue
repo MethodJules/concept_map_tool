@@ -1,31 +1,6 @@
 <template>
   <div>
     <div class="tools">
-      <div class="tools-buttons">
-        <b-button
-          class="tools-buttonsRecommender"
-          size="sm"
-          variant="warning"
-          @click="toggleRecommenderModal"
-        >
-          Recommender
-          <b-icon icon="person-lines-fill" font-scale="1"></b-icon>
-        </b-button>
-        <b-button
-          class="tools-buttonsDeleteMode"
-          size="sm"
-          variant="danger"
-          @click="toggleDeleteMode()"
-        >
-          Löschen-Modus
-          <b-icon
-            v-if="isDeleteModeOn"
-            icon="circle-fill"
-            animation="throb"
-            font-scale="1"
-          ></b-icon>
-        </b-button>
-      </div>
       <b-form-input
         class="tools-newConceptName"
         size="sm"
@@ -34,32 +9,6 @@
         @keydown.enter="addNewConcept(conceptName)"
       >
       </b-form-input>
-      <b-modal
-        ref="recommender-modal"
-        class="recommender-modal"
-        hide-footer
-        hide-header
-      >
-        <div class="recommender-modal-container">
-          <div class="recommender-modal-header">
-            <h3>Recommender</h3>
-          </div>
-          <div class="recommender-modal-content"></div>
-
-          <p v-for="(concept, i) in filteredConcepts" :key="i">
-            {{ concept.name }}
-          </p>
-          <div class="recommender-modal-footer">
-            <b-button
-              variant="danger"
-              size="sm"
-              block
-              @click="toggleRecommenderModal"
-              >Schließen</b-button
-            >
-          </div>
-        </div>
-      </b-modal>
     </div>
     <div class="tools-conceptAdding" v-if="isWriting">
       <b-button
@@ -90,13 +39,6 @@
       v-for="(concept, i) in filteredConcepts"
       :key="i"
     >
-      <!-- <div class="noConceptShown" v-if="noConceptLoaded">
-        Sehen Sie keinen Konzept obwohl Sie einige erstellt haben. Dass Clikcken
-        Sie Button. Wenn Das Problem noch liegt loggen Sie sich aus und wieder
-        login. Wenn es noch gibt melden Sie sich beim
-        <span> maren.stadtlaender@uni-hildesheim.de </span>
-      </div> -->
-
       <b-button
         class="tools-conceptButtons-deleteButton"
         size="sm"
@@ -193,31 +135,6 @@ export default {
     },
   },
   methods: {
-    /**
-     * Toggle Methode.
-     * Opens and closes the recommender modal.
-     * It may be better instead writing two methode for opening and closing.
-     */
-    toggleRecommenderModal() {
-      this.$refs["recommender-modal"].toggle();
-    },
-
-    /**
-     * When we call this method, we can click and delete nodes.
-     * It triggers the method changeNodeColor, which changes the color of node.
-     */
-    toggleDeleteMode() {
-      this.$store.dispatch("toggleDeleteMode");
-      let color = "";
-      if (this.isDeleteModeOn) {
-        color = "white";
-        this.isDeleteModeOn = !this.isDeleteModeOn;
-      } else {
-        color = "#E6F927";
-        this.isDeleteModeOn = !this.isDeleteModeOn;
-      }
-      this.changeNodeColor(color);
-    },
     /**
      * @param {string} color, the color value that we will assign to node
      * Changes the color of node with given color
@@ -351,6 +268,7 @@ export default {
   justify-content: flex-start;
   flex-direction: column;
   margin-bottom: 1rem;
+  width: 100%;
 }
 
 .tools-buttons {
