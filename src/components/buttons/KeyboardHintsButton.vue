@@ -7,7 +7,7 @@
     <b-popover
       :show.sync="show"
       target="popover-hints"
-      triggers="click"
+      triggers="hover"
       placement="bottom"
     >
       <h5>Tastatürkürzel</h5>
