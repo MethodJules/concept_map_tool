@@ -60,6 +60,7 @@ export default {
      * It may be better instead writing two methode for opening and closing.
      */
     toggleRecommenderModal() {
+      console.log(this);
       this.$refs["recommender-modal"].toggle();
     },
   },

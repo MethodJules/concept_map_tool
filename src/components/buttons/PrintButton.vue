@@ -1,5 +1,5 @@
 <template>
-  <b-button @click="print2" variant="secondary" id="printButton"
+  <b-button @click="print" variant="secondary" id="printButton"
     ><b-icon icon="camera"></b-icon>
     <b-tooltip
       target="printButton"
@@ -13,7 +13,11 @@
 <script>
 export default {
   methods: {
-    print2() {
+    /**
+     * Prints concept map.
+     * Takes the concept of the div with id map and prints it to a pdf file.
+     */
+    print() {
       // Get HTML to print from element
       const prtHtml = document.getElementById("map").innerHTML;
 

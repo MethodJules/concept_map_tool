@@ -6,6 +6,9 @@
 <script>
 export default {
   methods: {
+    /**
+     * Logout user.
+     */
     logout() {
       this.$store.dispatch("drupal_api/logoutDrupal");
     },
@@ -17,6 +20,5 @@ export default {
 .menu-logoutButton {
   color: white;
   border: none;
-  width: 20%;
 }
 </style>
