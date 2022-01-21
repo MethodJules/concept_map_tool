@@ -19,7 +19,7 @@
         <PrintButton />
         <FullScreenButton />
         <SidebarRightButton />
-
+        <KeyboardHintsButton />
         <div class="visible-mobile">
           <LogoutButton />
         </div>
@@ -41,6 +41,7 @@ import SidebarRightButton from "@/components/buttons/SidebarRightButton";
 import ConceptMapsDropdownButton from "@/components/buttons/ConceptMapsDropdownButton";
 import LogoutButton from "@/components/buttons/LogoutButton";
 import FullScreenButton from "@/components/buttons/FullScreenButton";
+import KeyboardHintsButton from "@/components/buttons/KeyboardHintsButton";
 // Modals
 // import RecommenderModal from "@/components/modals/RecommenderModal";
 
@@ -56,6 +57,7 @@ export default {
     ConceptMapsDropdownButton,
     LogoutButton,
     FullScreenButton,
+    KeyboardHintsButton,
     // RecommenderModal,
   },
 
