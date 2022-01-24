@@ -1,7 +1,7 @@
 <template>
   <div class="conceptMapOptions">
-    <h5>Concept Map Optionen</h5>
-    <label for="force" class="form-label">Force</label>
+    <h5>Concept Map-Optionen</h5>
+    <label for="force" class="form-label">Knotenabstände</label>
     <div class="conceptMapOptions-inputBox">
       <input
         type="range"
@@ -18,7 +18,7 @@
       ></b-icon>
     </div>
 
-    <label for="nodeSize" class="form-label">Node Size</label>
+    <label for="nodeSize" class="form-label">Knotengröße</label>
     <div class="conceptMapOptions-inputBox">
       <input
         type="range"
@@ -35,7 +35,7 @@
       ></b-icon>
     </div>
 
-    <label for="fontSize" class="form-label">Font Size</label>
+    <label for="fontSize" class="form-label">Schriftgröße</label>
     <div class="conceptMapOptions-inputBox">
       <input
         type="range"
@@ -56,7 +56,7 @@
         @click="allConceptMapOptionsDefault()"
         size="sm"
         variant="primary"
-        >Alle Zurücksetzen</b-button
+        >Alle zurücksetzen</b-button
       >
     </div>
   </div>

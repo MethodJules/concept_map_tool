@@ -10,12 +10,12 @@
       triggers="hover"
       placement="bottom"
     >
-      <h5>Tastatürkürzel</h5>
+      <h5>Tastenkürzel</h5>
       <div>
-        (auf Node)<strong> alt + click:</strong> <span>Node Löschen </span>
+        (auf Knoten)<strong> ALT + Klick:</strong> <span>Knoten löschen </span>
       </div>
       <div>
-        (auf Link)<strong> alt + click:</strong> <span>Link Löschen</span>
+        (auf Relation)<strong> ALT + Klick:</strong> <span>Relation löschen</span>
       </div>
     </b-popover>
   </b-button>
