@@ -720,17 +720,8 @@ button {
   transform: translate(0, 0.5em) !important;
   font-size: 0.8 em !important;
 }
-/* ::v-deep .links,
-::v-deep .nodes,
-::v-deep .labels {
-  margin-top: 100px !important;
+::v-deep #map svg {
+  height: 85vh !important;
 }
-::v-deep .net-svg {
-  padding: 0 !important;
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  height: 100%;
-} */
 </style>
 

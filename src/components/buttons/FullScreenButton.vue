@@ -24,11 +24,12 @@ export default {
     };
   },
   methods: {
+    /**
+     * Opens and closes full screen.
+     */
     toggleApi() {
       const map = document.querySelector("#map");
-      this.$fullscreen.toggle(map, {
-        background: "#FFFFFF",
-      });
+      this.$fullscreen.toggle(map);
     },
   },
 };

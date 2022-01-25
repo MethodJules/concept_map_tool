@@ -19,18 +19,17 @@
         <PrintButton />
         <FullScreenButton />
         <SidebarRightButton />
-
+        <KeyboardHintsButton />
         <div class="visible-mobile">
           <LogoutButton />
         </div>
       </div>
 
-      <b-row class="menu-avatar hidden-mobile" v-if="validCredential">
-        <span>{{ user.name }}</span>
-
+      <b-row class="hidden-mobile" v-if="validCredential">
         <LogoutButton />
       </b-row>
     </b-navbar>
+    <!-- <RecommenderModal v-model="recommenderModal" /> -->
   </div>
 </template>
 <script>
@@ -42,6 +41,9 @@ import SidebarRightButton from "@/components/buttons/SidebarRightButton";
 import ConceptMapsDropdownButton from "@/components/buttons/ConceptMapsDropdownButton";
 import LogoutButton from "@/components/buttons/LogoutButton";
 import FullScreenButton from "@/components/buttons/FullScreenButton";
+import KeyboardHintsButton from "@/components/buttons/KeyboardHintsButton";
+// Modals
+// import RecommenderModal from "@/components/modals/RecommenderModal";
 
 export default {
   data() {
@@ -55,6 +57,8 @@ export default {
     ConceptMapsDropdownButton,
     LogoutButton,
     FullScreenButton,
+    KeyboardHintsButton,
+    // RecommenderModal,
   },
 
   computed: {
@@ -104,19 +108,7 @@ export default {
 .menu li {
   list-style-type: none;
 }
-.menu-avatar {
-  min-width: 10rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-.menu-avatar span {
-  width: 50%;
-  padding: 0;
-  margin-right: 0.5rem;
-  color: white;
-}
+
 .header-buttons {
   display: flex !important;
   align-items: center;

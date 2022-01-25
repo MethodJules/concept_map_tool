@@ -3,12 +3,14 @@ import VueRouter from 'vue-router'
 
 import Home from "@/components/Home"
 import Login from "@/components/Login"
+import ConceptMapForXnavi from "@/components/ConceptMapForXnavi"
 Vue.use(VueRouter)
 
 
 const routes = [
     { path: "/", component: Home },
     { path: "/concept-map-page", name: "concept-map-page", component: Home },
+    { path: "/concept-map/:conceptMapId", name: "concept-map", component: ConceptMapForXnavi },
     { path: "/login", name: "Login", component: Login },
     { path: "*", redirect: "/" }
 ];
