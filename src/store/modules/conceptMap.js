@@ -12,7 +12,8 @@ const state = () => ({
         linkWidth: 2,
         force: 30000,
         fontSize: 15,
-    }
+    },
+    idForXNavi: ""
 
 
 })
@@ -65,13 +66,22 @@ const getters = {
     },
     getConceptMapOptions(state) {
         return state.conceptMapOptions;
+    },
+    getConceptMapById(state) {
+        let concept_map = []
+        state.concept_maps.forEach(conceptMap => {
+            console.log(conceptMap.id)
+            conceptMap.id == state.idForXNavi ? concept_map = conceptMap : ""
+        });
+        console.log(concept_map)
+        return concept_map
     }
-
-
 
 }
 
 const actions = {
+
+
 
     /** Adds concept map id to the user in database.
     * @param {rootState} rootState, it allows access to states of other modules in store
@@ -391,6 +401,14 @@ const actions = {
 }
 
 const mutations = {
+
+
+
+    setIdForXnavi(state, conceptMapId) {
+        return state.idForXNavi = conceptMapId
+    },
+
+
     /**
     * Updates the index value
     * @param {object} state, state as variable to access and manipulation of state data 
