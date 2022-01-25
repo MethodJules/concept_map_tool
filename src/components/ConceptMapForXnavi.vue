@@ -86,7 +86,7 @@ export default {
       return {
         nodeLabels: true,
         nodeSize: 25,
-        linkWidth: 3,
+        linkWidth: 2,
         force: 10000,
         fontSize: 14,
         strLinks: true,

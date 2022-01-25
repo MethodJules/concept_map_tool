@@ -11,7 +11,7 @@
           <div></div>
         </div>
       </div>
-      <Header v-if="!xNavi" />
+      <Header />
       <div class="page-container" v-if="finishedLoading && !xNavi">
         <transition name="fade" mode="out-in">
           <router-view v-if="finishedLoading"></router-view>
@@ -43,14 +43,13 @@ export default {
     ...mapGetters({
       buttonClicked: "getButtonClicked",
     }),
-  },
-  methods: {
     xNavi() {
       let result = false;
-      this.route.name === "concept-map" ? (result = true) : "";
+      this.$route.name === "concept-map" ? (result = true) : "";
       return result;
     },
   },
+
   async mounted() {
     await this.$store.dispatch("drupal_api/loadTokensfromSessionStorage");
     this.finishedLoading = true;
