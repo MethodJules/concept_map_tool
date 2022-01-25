@@ -14,6 +14,7 @@
         />
 
         <ConceptMapsDropdownButton />
+        <CopyConceptMapLinkButton />
         <RecommenderButton />
         <DeleteModeButton />
         <PrintButton />
@@ -42,6 +43,7 @@ import ConceptMapsDropdownButton from "@/components/buttons/ConceptMapsDropdownB
 import LogoutButton from "@/components/buttons/LogoutButton";
 import FullScreenButton from "@/components/buttons/FullScreenButton";
 import KeyboardHintsButton from "@/components/buttons/KeyboardHintsButton";
+import CopyConceptMapLinkButton from "@/components/buttons/CopyConceptMapLinkButton";
 // Modals
 // import RecommenderModal from "@/components/modals/RecommenderModal";
 
@@ -58,6 +60,7 @@ export default {
     LogoutButton,
     FullScreenButton,
     KeyboardHintsButton,
+    CopyConceptMapLinkButton,
     // RecommenderModal,
   },
 
