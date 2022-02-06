@@ -9,10 +9,19 @@ const state = () => ({
 
 
 const getters = {
+    /**
+     * Getter for concept map. 
+     * @param {object} state, state as parameter for access and manipulation of state data 
+     * @returns state.conceptMap 
+     */
     getConceptMap(state) {
         return state.conceptMap;
     },
-
+    /**
+     * Checks if conceptMap is loaded from the backend or not.
+     * @param {object} state, state as parameter for access and manipulation of state data 
+     * @returns state.finishedLoading
+     */
     getFinishedLoading(state) {
         return state.finishedLoading
     },
@@ -20,7 +29,7 @@ const getters = {
 
     /** Shows if there is concept in concept map or not. 
     * @param {object} state, state as parameter for access and manipulation of state data
-    * @returns result, if concept map is free, then it returns false vice versa.
+    * @returns state.isConceptMapEmpty, if concept map is free, then it returns false vice versa.
     * 
     */
     getIsConceptMapEmpty(state) {
@@ -28,6 +37,15 @@ const getters = {
     },
 }
 const actions = {
+
+    /** Loads concept map from backend. 
+    * It takes the concept map from backend and this concept maps stores the ids of nodes and links.
+    * It calls another actions to take the datas of the nodes and links. 
+    * Then it makes them together and sends it to mutation to save it in state.
+    *  @param {object} commit, it is being used to call a mutation
+    *  @param {object} state, it allows access to state
+    *  @param {object} dispatch, it is being used to call an action
+    */
     async loadConceptMapFromBackend({ state, commit, dispatch }, conceptMapId) {
         await axios.get(`concept_map/${conceptMapId}`)
             .then(async (response) => {
@@ -68,11 +86,11 @@ const actions = {
 
 
     /**
-* Loads the link data of the concept maps from database.
-* @param {*} state, state as parameter for access and manipulation of state data 
-* @param {*} links, it stores the ids of the links.  
-* @returns {object} concepts, it stores the links ids, names,source ids(sid) and target ids(tid)
-*/
+    * Loads the link data of the concept maps from database.
+    * @param {*} state, state as parameter for access and manipulation of state data 
+    * @param {*} links, it stores the ids of the links.  
+    * @returns {object} concepts, it stores the links ids, names,source ids(sid) and target ids(tid)
+    */
     async loadLinksOfConceptMap({ state }, links) {
         console.log(state)
         let relationships = [];
