@@ -312,27 +312,24 @@ const actions = {
     * @param {*} nodes, it stores the ids of the nodes.  
     * @returns {object} concepts, it stores the concept ids, titles and uuids.
     */
-    async loadNodesOfConceptMap({ state, dispatch }, nodes) {
-        console.log(state)
+    async loadNodesOfConceptMap({ dispatch }, nodes) {
+
         let concepts = [];
         await Promise.all(nodes.map(async element => {
             await axios.get(`concept/${element.id}`)
                 .then((response) => {
-                    console.log(response)
                     const title = response.data.data.attributes.title;
                     const uid = response.data.data.attributes.field_uid;
                     const uuid = response.data.data.id;
                     const conceptMapId = response.data.data.attributes.field_concept_map_id;
                     concepts.push({ id: uuid, name: title, uuid: uuid, conceptMapId, uid });
-                    // nodes.push({ id: uuid, name: title, uuid: uuid, conceptMapId });
                 })
         }));
-        console.log(concepts)
         dispatch("addUidToConcepts", concepts)
         return concepts;
     },
 
-
+    // need to be removed
     addUidToConcepts({ rootState }, concepts) {
         let uid = rootState.drupal_api.user.uid;
         concepts.forEach(concept => {
@@ -401,8 +398,6 @@ const actions = {
 }
 
 const mutations = {
-
-
 
     setIdForXnavi(state, conceptMapId) {
         return state.idForXNavi = conceptMapId

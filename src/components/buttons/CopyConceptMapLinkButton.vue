@@ -37,8 +37,10 @@ export default {
      */
     copyToClipboard() {
       let conceptMapLink =
-        "https://www.concept-mapping.uni-hildesheim.de/concept-map/" +
-        this.conceptMap.id;
+        "http://localhost:8080/concept-map/" + this.conceptMap.id;
+      // let conceptMapLink =
+      //   "https://www.concept-mapping.uni-hildesheim.de/concept-map/" +
+      //   this.conceptMap.id;
       navigator.clipboard.writeText(conceptMapLink);
       this.copyIcon = "clipboard-check";
       setTimeout(() => {

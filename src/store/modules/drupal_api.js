@@ -185,7 +185,7 @@ const actions = {
             await commit('LOAD_TOKEN_SESSION_STORAGE');
             await dispatch('loadUserFromBackend');
         } else {
-            router.push("/Login");
+            // router.push("/Login");
             return false
         }
     },

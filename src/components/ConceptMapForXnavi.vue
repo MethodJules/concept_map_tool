@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div v-if="finishedLoading && isEmpty" class="emptyMap">
+  <div v-if="finishedLoading">
+    <div v-if="isEmpty" class="emptyMap">
       <b-card
         bg-variant="info"
         text-variant="white"
@@ -12,10 +12,10 @@
     </div>
 
     <d3-network
-      id="map"
       v-if="finishedLoading"
-      :net-nodes="conceptMap.nodes"
-      :net-links="conceptMap.links"
+      id="map"
+      :net-nodes="conceptMap[0].nodes"
+      :net-links="conceptMap[0].links"
       :options="options"
       ref="net"
       :link-cb="lcb"
@@ -71,10 +71,9 @@ export default {
   },
   computed: {
     ...mapGetters({
-      activeConceptMap: "conceptMap/getActiveConceptMap",
-      finishedLoading: "conceptMap/getFinishedLoading",
-      isEmpty: "conceptMap/getIsConceptMapEmpty",
-      conceptMap: "conceptMap/getConceptMapById",
+      conceptMap: "conceptMapForXNavi/getConceptMap",
+      finishedLoading: "conceptMapForXNavi/getFinishedLoading",
+      isEmpty: "conceptMapForXNavi/getIsConceptMapEmpty",
     }),
 
     /**
@@ -108,11 +107,14 @@ export default {
     },
   },
   async created() {
-    await this.$store.commit(
-      "conceptMap/setIdForXnavi",
+    // await this.$store.commit(
+    //   "conceptMap/setIdForXnavi",
+    //   this.$route.params.conceptMapId
+    // );
+    await this.$store.dispatch(
+      "conceptMapForXNavi/loadConceptMapFromBackend",
       this.$route.params.conceptMapId
     );
-    await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
   },
 };
 </script>

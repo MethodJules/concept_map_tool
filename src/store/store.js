@@ -2,6 +2,7 @@ import Vue from "vue"
 import Vuex from "vuex"
 import conceptMap from "./modules/conceptMap"
 import conceptMapBar from "./modules/conceptMapBar"
+import conceptMapForXNavi from "./modules/conceptMapForXNavi"
 import drupal_api from "./modules/drupal_api"
 import sparky_api from "./modules/sparky_api"
 import * as getters from "./getters"
@@ -25,6 +26,7 @@ const store = new Vuex.Store({
     modules: {
         conceptMap,
         conceptMapBar,
+        conceptMapForXNavi,
         drupal_api,
         sparky_api
 
