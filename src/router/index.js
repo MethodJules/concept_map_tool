@@ -8,11 +8,31 @@ Vue.use(VueRouter)
 
 
 const routes = [
-    { path: "/", component: Home },
-    { path: "/concept-map-page", name: "concept-map-page", component: Home },
-    { path: "/concept-map/:conceptMapId", name: "concept-map", component: ConceptMapForXnavi },
-    { path: "/login", name: "Login", component: Login },
-    { path: "*", redirect: "/" }
+    {
+        path: "/", component: Home, meta: {
+            requiresAuth: true,
+        },
+    },
+    {
+        path: "/concept-map-page", name: "concept-map-page", component: Home, meta: {
+            requiresAuth: true,
+        },
+    },
+    {
+        path: "/concept-map/:conceptMapId", name: "concept-map", component: ConceptMapForXnavi, meta: {
+            requiresAuth: false,
+        },
+    },
+    {
+        path: "/login", name: "Login", component: Login, meta: {
+            requiresAuth: false,
+        },
+    },
+    {
+        path: "*", redirect: "/", meta: {
+            requiresAuth: true,
+        },
+    }
 ];
 
 
@@ -23,10 +43,14 @@ const router = new VueRouter({
 
 
 router.beforeEach((to, from, next) => {
-    let isAuthenticated = Boolean(sessionStorage.getItem("valid_credentials"));
-    console.log(isAuthenticated)
-    if (to.name !== 'Login' && !isAuthenticated) next({ name: 'Login' })
-    else next()
+    if (to.matched.some((record) => record.meta.requiresAuth)) {
+        let isAuthenticated = Boolean(sessionStorage.getItem("valid_credentials"));
+        if (to.name !== 'Login' && !isAuthenticated) next({ name: 'Login' })
+        else next()
+    } else {
+        next()
+    }
+
 })
 
 export default router
