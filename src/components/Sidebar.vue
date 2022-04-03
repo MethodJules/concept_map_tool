@@ -119,13 +119,9 @@ export default {
     };
   },
   computed: {
-    // getter for concepts
     ...mapGetters({
       concepts: "getConcepts",
-      isEmpty: "conceptMap/getIsConceptMapEmpty", // if there is no concept in map, we change the popover content
-      nodes: "conceptMap/getNodes",
       filteredConcepts: "getFilteredConcepts",
-      //   noConceptLoaded: "getNoConceptLoaded",
     }),
 
     isWriting() {

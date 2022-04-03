@@ -15,15 +15,6 @@ const state = () => ({
 })
 
 const getters = {
-    /**
-     * Getter for user datas. 
-     * @param {object} state, to allow access to the state values 
-     * @returns user, the values of user as object
-     */
-    getUser(state) {
-        return state.user;
-    },
-
     getIsThereAnyConceptMap(state) {
         (state.user.concept_maps.length > 0) ? state.isThereAnyConceptMap = true : "";
         return state.isThereAnyConceptMap;
@@ -162,6 +153,7 @@ const actions = {
 
         await axios(config)
             .then(function (response) {
+                console.log(response)
                 let user = {
                     id: response.data.data[0].id,
                     name: response.data.data[0].attributes.name,

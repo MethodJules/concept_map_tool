@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "vuex";
 export default {
   data() {
     return {
@@ -26,9 +26,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters({
-      conceptMap: "conceptMap/getActiveConceptMap",
-    }),
+    ...mapState("conceptMap", ["conceptMap"]),
   },
   methods: {
     /**

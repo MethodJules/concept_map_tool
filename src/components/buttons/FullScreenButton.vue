@@ -28,8 +28,8 @@ export default {
      * Opens and closes full screen.
      */
     toggleApi() {
-      const map = document.querySelector("#map");
-      this.$fullscreen.toggle(map);
+      // const map = document.querySelector("#map");
+      // this.$fullscreen.toggle(map);
     },
   },
 };

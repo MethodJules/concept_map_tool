@@ -1,6 +1,9 @@
 <template>
   <div class="conceptMapPage">
-    <div v-if="finishedLoading && isEmpty" class="emptyMap">
+    <div
+      v-if="finishedLoading && conceptMap.nodes.length <= 0"
+      class="emptyMap"
+    >
       <b-card
         bg-variant="info"
         text-variant="white"
@@ -14,19 +17,19 @@
         >
       </b-card>
     </div>
-    <fullscreen v-model="fullscreen">
-      <d3-network
-        id="map"
-        v-if="finishedLoading"
-        :net-nodes="activeConceptMap.nodes"
-        :net-links="activeConceptMap.links"
-        :options="options"
-        @node-click="showModal"
-        @link-click="deleteLink"
-        ref="net"
-        :link-cb="lcb"
-      />
-    </fullscreen>
+    <!-- <fullscreen v-model="fullscreen"> -->
+    <d3-network
+      id="map"
+      v-if="finishedLoading"
+      :net-nodes="conceptMap.nodes"
+      :net-links="conceptMap.links"
+      :options="options"
+      @node-click="showModal"
+      @link-click="deleteLink"
+      ref="net"
+      :link-cb="lcb"
+    />
+    <!-- </fullscreen> -->
 
     <div class="markers">
       <svg>
@@ -233,8 +236,8 @@
  */
 import D3Network from "vue-d3-network";
 
-import { mapGetters } from "vuex";
-import { gsap } from "gsap";
+import { mapGetters, mapState } from "vuex";
+// import { gsap } from "gsap";
 
 export default {
   data() {
@@ -254,13 +257,14 @@ export default {
     D3Network,
   },
   computed: {
+    ...mapState("conceptMap", [
+      "conceptMapOptions",
+      "deleteMode",
+      "finishedLoading",
+      "conceptMap",
+    ]),
     ...mapGetters({
-      deleteMode: "getDeleteMode",
-      activeConceptMap: "conceptMap/getActiveConceptMap",
       filteredConcepts: "getFilteredConcepts",
-      finishedLoading: "conceptMap/getFinishedLoading",
-      isEmpty: "conceptMap/getIsConceptMapEmpty",
-      conceptMapOptions: "conceptMap/getConceptMapOptions",
     }),
 
     /**
@@ -410,7 +414,7 @@ export default {
      */
     isLinkExists(clickedNode, nodeInOption) {
       let isLinkExists = false;
-      let links = this.activeConceptMap.links;
+      let links = this.conceptMap.links;
 
       clickedNode.name == nodeInOption.name ? (isLinkExists = true) : "";
       links.forEach((link) => {
@@ -486,7 +490,7 @@ export default {
 
       // We need to send the relationship as an array
       this.$store.dispatch("conceptMap/addRelationshipToDatabase", {
-        relationship: relationship,
+        relationship,
       });
     },
 
@@ -519,9 +523,10 @@ export default {
     async deleteNode(node) {
       let linksToDelete = await this.findLinksOfNode(node);
 
-      linksToDelete.forEach((linkId) => {
-        this.deleteLinkFromConceptMap(linkId);
-      });
+      linksToDelete.forEach(this.deleteLinkFromConceptMap);
+      // linksToDelete.forEach((linkId) => {
+      //   this.deleteLinkFromConceptMap(linkId);
+      // });
       this.deleteConceptFromConceptMap(node);
 
       for (const linkId of linksToDelete) {
@@ -565,7 +570,7 @@ export default {
      * @param {object} node The node that we are going to find the links of it.
      */
     findLinksOfNode(node) {
-      let links = this.activeConceptMap.links;
+      let links = this.conceptMap.links;
       let linksOfNode = [];
       console.log(links);
       links.forEach((link) => {
@@ -578,47 +583,46 @@ export default {
     },
   },
   async created() {
-    await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
+    await this.$store.dispatch("conceptMap/loadConceptMapsFromBackend");
 
     // node click detect
     let nodes = document.querySelectorAll(".nodes");
     nodes.forEach((node) => {
-      console.log(node);
       node.addEventListener("mousedown", this.mouseUpOnNode);
       node.addEventListener("touchstart", this.touchStartOnNode);
     });
   },
 
-  watch: {
-    /**
-     * To make transition when switching concept maps.
-     * Actually we are changing the activeConceptMap when we change the concept maps from dropdown
-     * So we are applying transition whenever we change the value of activeConceptMap
-     */
-    activeConceptMap: () => {
-      const map = document.querySelector("#map");
-      const body = document.querySelector("body");
-      body.style.overflow = "hidden";
-      const tl = gsap.timeline({
-        defaults: {
-          duration: 0.6,
-          ease: "ease-out",
-        },
-      });
+  // watch: {
+  //   /**
+  //    * To make transition when switching concept maps.
+  //    * Actually we are changing the activeConceptMap when we change the concept maps from dropdown
+  //    * So we are applying transition whenever we change the value of activeConceptMap
+  //    */
+  //   activeConceptMap: () => {
+  //     const map = document.querySelector("#map");
+  //     const body = document.querySelector("body");
+  //     body.style.overflow = "hidden";
+  //     const tl = gsap.timeline({
+  //       defaults: {
+  //         duration: 0.6,
+  //         ease: "ease-out",
+  //       },
+  //     });
 
-      if (map) {
-        tl.from(map, { translateX: 1000, clearProps: "all", duration: 1 }, 0.6);
-      }
+  //     if (map) {
+  //       tl.from(map, { translateX: 1000, clearProps: "all", duration: 1 }, 0.6);
+  //     }
 
-      // node click detect
-      let nodes = document.querySelectorAll(".nodes");
-      nodes.forEach((node) => {
-        console.log(node);
-        node.addEventListener("mousedown", this.mouseUpOnNode);
-        node.addEventListener("touchstart", this.touchStartOnNode);
-      });
-    },
-  },
+  //     // node click detect
+  //     let nodes = document.querySelectorAll(".nodes");
+  //     nodes.forEach((node) => {
+  //       console.log(node);
+  //       node.addEventListener("mousedown", this.mouseUpOnNode);
+  //       node.addEventListener("touchstart", this.touchStartOnNode);
+  //     });
+  //   },
+  // },
 };
 </script>
 <style scoped >

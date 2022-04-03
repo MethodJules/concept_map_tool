@@ -62,13 +62,15 @@
   </div>
 </template>
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "vuex";
 
 export default {
   computed: {
-    ...mapGetters({
-      conceptMapOptions: "conceptMap/getConceptMapOptions",
-    }),
+    ...mapState("conceptMap", ["conceptMapOptions"]),
+
+    // ...mapGetters({
+    //   conceptMapOptions: "conceptMap/getConceptMapOptions",
+    // }),
   },
   methods: {
     defaultConceptMapValues(attribute) {

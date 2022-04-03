@@ -22,6 +22,7 @@ export const loadConceptListFromDb = ({ commit, rootState, state }) => {
     let uid = rootState.drupal_api.user.uid
     axios.get(`concept?filter[field_uid]=${uid}`)
         .then((response) => {
+            console.log(response)
             const data = response.data.data;
             let concepts = [];
             for (var i in data) {
@@ -56,7 +57,7 @@ export const addConceptToDb = ({ commit, rootState }, conceptName) => {
         "type":"node--concept",
         "attributes": {
             "title": "${conceptName}", 
-            "field_concept_map_id": "${rootState.conceptMap.activeConceptMap.id}",
+            "field_concept_map_id": "${rootState.conceptMap.conceptMap.id}",
             "field_uid": "${rootState.drupal_api.user.uid}" 
         }
     }}`;
@@ -77,7 +78,7 @@ export const addConceptToDb = ({ commit, rootState }, conceptName) => {
                 name: conceptName,
                 id: response.data.data.id,
                 nid: response.data.data.attributes.drupal_internal__nid,
-                conceptMapId: rootState.conceptMap.activeConceptMap.id,
+                conceptMapId: rootState.conceptMap.conceptMap.id,
                 uid: rootState.drupal_api.user.uid
             });
         })

@@ -2,7 +2,7 @@
   <div>
     <b-dropdown
       id="dropdown-1"
-      :text="activeConceptMap.title"
+      :text="conceptMap.title"
       variant="secondary"
       block
       right
@@ -33,7 +33,7 @@
           <b-icon icon="pencil-square" aria-hidden="true"></b-icon>
         </b-button>
       </div>
-      <b-modal
+      <!-- <b-modal
         ref="conceptMapEdit-modal"
         class="conceptMapBar-editModal"
         hide-footer
@@ -78,10 +78,10 @@
             >
           </div>
         </div>
-      </b-modal>
+      </b-modal> -->
       <b-dropdown-item
         class="dropdown-conceptMap"
-        v-for="(conceptMap, i) in conceptMaps"
+        v-for="(conceptMap, i) in concept_maps"
         :key="i"
       >
         <span @click="conceptMapSelect(conceptMap, i)">
@@ -112,7 +112,7 @@
           <b-input-group
             class="mt-3"
             size="sm"
-            v-for="(conceptMap, index) in conceptMaps"
+            v-for="(conceptMap, index) in concept_maps"
             :key="index"
           >
             <b-form-input
@@ -147,7 +147,7 @@
   </div>
 </template>
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "vuex";
 
 export default {
   data() {
@@ -157,10 +157,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters({
-      conceptMaps: "conceptMap/getConceptMaps",
-      activeConceptMap: "conceptMap/getActiveConceptMap",
-    }),
+    ...mapState("conceptMap", ["concept_maps", "conceptMap"]),
 
     conceptNameEmpty() {
       if (this.newConceptMapName !== "") return true;
@@ -222,15 +219,20 @@ export default {
         this.$store.dispatch("deleteConcept", node);
       });
     },
+
     /**
      * Arranges the concept map that users see both on the dropdown and the page.
      * @param {object} conceptMap, concept map that is going to be shown
      * @param {integer} index, index of the concept map
      */
     conceptMapSelect(conceptMap, index) {
+      console.log(conceptMap);
+
+      this.$store.dispatch("conceptMap/fetchConceptMap", conceptMap.id);
       this.$store.state.conceptMap.index = index;
-      this.$store.state.conceptMap.activeConceptMap = conceptMap;
+      // this.$store.state.conceptMap.activeConceptMap = conceptMap;
     },
+
     /**
      * Creates new concept map.
      * @param {string} newConceptMapName, the name of the new concept map.

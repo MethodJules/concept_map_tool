@@ -1,9 +1,6 @@
 <template>
   <b-row class="pageContainer">
-    <div
-      class="app-loading-bar"
-      v-if="!finishedActiveConceptMapLoading & isThereAnyConceptMap"
-    >
+    <div class="app-loading-bar" v-if="!finishedLoading & isThereAnyConceptMap">
       <b-spinner></b-spinner>
     </div>
     <div>
@@ -25,7 +22,7 @@
 import ConceptMap from "@/components/ConceptMap.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import NoConceptMap from "@/components/NoConceptMap.vue";
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 export default {
   data() {
     return {};
@@ -38,8 +35,8 @@ export default {
   computed: {
     ...mapGetters({
       isThereAnyConceptMap: "drupal_api/getIsThereAnyConceptMap",
-      finishedActiveConceptMapLoading: "conceptMap/getFinishedLoading",
     }),
+    ...mapState("conceptMap", ["finishedLoading"]),
   },
 };
 </script>
