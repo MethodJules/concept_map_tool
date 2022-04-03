@@ -10,7 +10,7 @@
       placement="bottom"
       variant="secondary"
       noninteractive
-      >Konzept Map Link Kopieren</b-tooltip
+      >Concept Map-Link kopieren</b-tooltip
     >
     <b-icon :icon="copyIcon"></b-icon>
   </b-button>
@@ -34,11 +34,11 @@ export default {
      * It triggers the method changeNodeColor, which changes the color of node.
      */
     copyToClipboard() {
+/*       let conceptMapLink =
+        "http://localhost:8080/concept-map/" + this.conceptMap.id; */
       let conceptMapLink =
-        "http://localhost:8080/concept-map/" + this.conceptMap.id;
-      // let conceptMapLink =
-      //   "https://www.concept-mapping.uni-hildesheim.de/concept-map/" +
-      //   this.conceptMap.id;
+        "https://www.concept-mapping.uni-hildesheim.de/concept-map/" +
+        this.conceptMap.id;
       navigator.clipboard.writeText(conceptMapLink);
       this.copyIcon = "clipboard-check";
       setTimeout(() => {
