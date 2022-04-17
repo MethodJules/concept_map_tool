@@ -22,7 +22,7 @@
 
     <b-dropdown
       id="dropdown-1"
-      :text="activeConceptMap.title"
+      :text="conceptMap.title"
       variant="secondary"
       block
       size="sm"
@@ -129,7 +129,7 @@
  * A good example: https://emiliorizzo.github.io/vue-d3-network/
  *
  */
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 export default {
   data() {
     return {
@@ -145,6 +145,7 @@ export default {
       index: "conceptMap/getIndex",
       activeConceptMap: "conceptMap/getActiveConceptMap",
     }),
+    ...mapState("conceptMap", ["conceptMap"]),
 
     conceptNameEmpty() {
       if (this.newConceptMapName !== "") return true;
@@ -214,6 +215,7 @@ export default {
     conceptMapSelect(conceptMap, index) {
       this.$store.state.conceptMap.index = index;
       this.$store.state.conceptMap.activeConceptMap = conceptMap;
+      this.$store.dispatch("conceptMap/fetchConceptMap", conceptMap.id);
     },
     /**
      * Creates new concept map.

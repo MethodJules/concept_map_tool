@@ -253,7 +253,7 @@ const actions = {
                 });
         }))
         await commit("INITIALIZE_CONCEPT_MAP");
-
+        console.log("concept map loaf")
     },
 
 
@@ -271,7 +271,7 @@ const actions = {
             .catch(error => {
                 throw new Error(`API ${error}`);
             });
-
+        console.log("hello");
 
 
     },
