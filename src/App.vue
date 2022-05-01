@@ -18,7 +18,7 @@
         </transition>
       </div>
     </div>
-    <Footer v-if="!xNavi" />
+    <Footer v-if="finishedLoading && !xNavi" />
     <router-view v-if="finishedLoading && xNavi"></router-view>
   </div>
 </template>
@@ -59,6 +59,7 @@ export default {
 
 <style>
 @import "assets/loading.css";
+
 body {
   overflow: visible !important;
 }
@@ -93,5 +94,12 @@ body {
 
 .hide {
   display: none;
+}
+
+/* To print in landscape. It does not work */
+@media print {
+  @page {
+    size: landscape;
+  }
 }
 </style>

@@ -18,17 +18,19 @@
       </b-card>
     </div>
     <!-- <fullscreen v-model="fullscreen"> -->
-    <d3-network
-      id="map"
-      v-if="finishedLoading"
-      :net-nodes="conceptMap.nodes"
-      :net-links="conceptMap.links"
-      :options="options"
-      @node-click="showModal"
-      @link-click="deleteLink"
-      ref="net"
-      :link-cb="lcb"
-    />
+    <Transition name="fade">
+      <d3-network
+        id="map"
+        v-if="finishedLoading"
+        :net-nodes="conceptMap.nodes"
+        :net-links="conceptMap.links"
+        :options="options"
+        @node-click="showModal"
+        @link-click="deleteLink"
+        ref="net"
+        :link-cb="lcb"
+      />
+    </Transition>
     <!-- </fullscreen> -->
 
     <div class="markers">
@@ -727,5 +729,22 @@ button {
 ::v-deep #map svg {
   height: 85vh !important;
 }
-</style>
 
+/* Transition classes */
+
+.fade-enter-active {
+  transition: opacity 3s ease;
+}
+.fade-leave-active {
+  transition: opacity 1s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-to {
+  opacity: 1;
+}
+</style>

@@ -33,58 +33,13 @@
           <b-icon icon="pencil-square" aria-hidden="true"></b-icon>
         </b-button>
       </div>
-      <!-- <b-modal
-        ref="conceptMapEdit-modal"
-        class="conceptMapBar-editModal"
-        hide-footer
-        hide-header
-      >
-        <div class="conceptMapBar-editModal-container">
-          <div class="conceptMapBar-editModal-header">
-            <h3>Concept Map-Namen ändern</h3>
-          </div>
-          <div class="conceptMapBar-editModal-content">
-            <b-input-group
-              class="mt-3"
-              size="sm"
-              v-for="(conceptMap, index) in conceptMaps"
-              :key="index"
-            >
-              <b-form-input
-                size="sm"
-                :placeholder="conceptMap.title"
-                v-model="newName[index]"
-                @keydown.enter="changeConceptMapName(conceptMap, index)"
-              ></b-form-input>
-              <b-input-group-append class="d-flex">
-                <b-button
-                  variant="outline-primary"
-                  size="md"
-                  @click="changeConceptMapName(conceptMap, index)"
-                >
-                  <b-icon icon="arrow-repeat" size="md"> </b-icon>
-                </b-button>
-              </b-input-group-append>
-            </b-input-group>
-          </div>
 
-          <div class="conceptMapBar-editModal-footer">
-            <b-button
-              variant="danger"
-              size="sm"
-              block
-              @click="toggleConceptMapEditModal()"
-              >Schließen</b-button
-            >
-          </div>
-        </div>
-      </b-modal> -->
       <b-dropdown-item
         class="dropdown-conceptMap"
         v-for="(conceptMap, i) in concept_maps"
         :key="i"
       >
-        <span @click="conceptMapSelect(conceptMap, i)">
+        <span @click="conceptMapSelect(conceptMap)">
           {{ conceptMap.title }}
         </span>
 
@@ -225,12 +180,13 @@ export default {
      * @param {object} conceptMap, concept map that is going to be shown
      * @param {integer} index, index of the concept map
      */
-    conceptMapSelect(conceptMap, index) {
-      console.log(conceptMap);
-
+    conceptMapSelect(conceptMap) {
       this.$store.dispatch("conceptMap/fetchConceptMap", conceptMap.id);
-      this.$store.state.conceptMap.index = index;
-      // this.$store.state.conceptMap.activeConceptMap = conceptMap;
+      // this.$store.state.conceptMap.index = index;
+      // this.$store.commit("conceptMap/SET_TRANSITION", {
+      //   status: false,
+      //   time: 0,
+      // });
     },
 
     /**

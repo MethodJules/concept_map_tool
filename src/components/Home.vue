@@ -9,7 +9,7 @@
           <Sidebar />
         </b-col>
         <b-col md="10" class="pageContainer-mapContainer">
-          <ConceptMap />
+          <AsyncComponent />
         </b-col>
       </b-row>
       <b-row v-if="!isThereAnyConceptMap" class="noMapContainer">
@@ -19,18 +19,34 @@
   </b-row>
 </template>
 <script>
-import ConceptMap from "@/components/ConceptMap.vue";
+// import ConceptMap from "@/components/ConceptMap.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import NoConceptMap from "@/components/NoConceptMap.vue";
+import LoadingComponent from "@/components/LoadingComponent.vue";
 import { mapGetters, mapState } from "vuex";
+
+const AsyncComponent = () => ({
+  // The component to load (should be a Promise)
+  component: import("@/components/ConceptMap.vue"),
+  // A component to use while the async component is loading
+  loading: LoadingComponent,
+  // A component to use if the load fails
+  error: LoadingComponent,
+  // Delay before showing the loading component. Default: 200ms.
+  delay: 200,
+  // The error component will be displayed if a timeout is
+  // provided and exceeded. Default: Infinity.
+  timeout: 3000,
+});
 export default {
   data() {
     return {};
   },
   components: {
-    ConceptMap,
+    // ConceptMap,
     Sidebar,
     NoConceptMap,
+    AsyncComponent,
   },
   computed: {
     ...mapGetters({

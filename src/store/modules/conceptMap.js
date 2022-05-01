@@ -15,7 +15,8 @@ const state = () => ({
     },
     idForXNavi: "",
     test: 12,
-    conceptMap: {}
+    conceptMap: {},
+    deleteMode: false
 
 
 })
@@ -238,7 +239,6 @@ const actions = {
         await Promise.all(conceptMaps.map(async conceptMap => {
             await axios.get(`concept_map/${conceptMap.id}`)
                 .then(async (response) => {
-                    console.log(response)
                     const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
                     const links = response.data.data.relationships.field_conceptmap_relationships.data;
                     const tags = response.data.data.attributes.field_conceptmap_tags;
@@ -253,7 +253,6 @@ const actions = {
                 });
         }))
         await commit("INITIALIZE_CONCEPT_MAP");
-        console.log("concept map loaf")
     },
 
 
@@ -266,12 +265,10 @@ const actions = {
                 let newNodes = await dispatch("loadNodesOfConceptMap", nodes);
                 let newLinks = await dispatch("loadLinksOfConceptMap", links);
                 await commit("SAVE_CONCEPTMAP_IN_STATE", { id: response.data.data.id, title: response.data.data.attributes.title, nodes: newNodes, links: newLinks, tags: tags });
-
             })
             .catch(error => {
                 throw new Error(`API ${error}`);
             });
-        console.log("hello");
 
 
     },
@@ -416,6 +413,9 @@ const mutations = {
     INITIALIZE_CONCEPT_MAP(state) {
         state.conceptMap = state.concept_maps[0]
         state.finishedLoading = true;
+    },
+    TOGGLE_DELETE_MODE(state) {
+        state.deleteMode = !state.deleteMode;
     },
 
 }

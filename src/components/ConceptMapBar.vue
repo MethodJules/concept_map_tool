@@ -214,7 +214,8 @@ export default {
      */
     conceptMapSelect(conceptMap, index) {
       this.$store.state.conceptMap.index = index;
-      this.$store.state.conceptMap.activeConceptMap = conceptMap;
+      // this.$store.state.conceptMap.activeConceptMap = conceptMap;
+      this.$store.commit("conceptMap/SET_FINISHED_LOADING", false, 0);
       this.$store.dispatch("conceptMap/fetchConceptMap", conceptMap.id);
     },
     /**
