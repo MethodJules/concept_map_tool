@@ -40,8 +40,7 @@ const actions = {
      * @param {*} nodes, it stores the ids of the nodes.  
      * @returns {object} concepts, it stores the concept ids, titles and uuids.
      */
-    async loadNodesOfConceptMap({ state }, nodes) {
-        console.log(state)
+    async loadNodesOfConceptMap(ctx, nodes) {
         let concepts = [];
         await Promise.all(nodes.map(async element => {
             await axios.get(`concept/${element.id}`)
@@ -63,8 +62,8 @@ const actions = {
     * @param {*} links, it stores the ids of the links.  
     * @returns {object} concepts, it stores the links ids, names,source ids(sid) and target ids(tid)
     */
-    async loadLinksOfConceptMap({ state }, links) {
-        console.log(state)
+    async loadLinksOfConceptMap(ctx, links) {
+
         let relationships = [];
         await Promise.all(links.map(async link => {
             await axios.get(`relationship/${link.id}`)

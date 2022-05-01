@@ -25,7 +25,6 @@ const getters = {
     getConceptMapById(state) {
         let concept_map = []
         state.concept_maps.forEach(conceptMap => {
-            console.log(conceptMap.id)
             conceptMap.id == state.idForXNavi ? concept_map = conceptMap : ""
         });
         return concept_map
@@ -235,6 +234,8 @@ const actions = {
     *  @param {*} dispatch, it is being used to call an action
     */
     async loadConceptMapsFromBackend({ commit, rootState, dispatch }) {
+
+
         let conceptMaps = rootState.drupal_api.user.concept_maps;
         await Promise.all(conceptMaps.map(async conceptMap => {
             await axios.get(`concept_map/${conceptMap.id}`)
@@ -257,6 +258,7 @@ const actions = {
 
 
     async fetchConceptMap({ commit, dispatch }, conceptMapId) {
+
         await axios.get(`concept_map/${conceptMapId}`)
             .then(async (response) => {
                 const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
@@ -307,8 +309,7 @@ const actions = {
     * @param {*} links, it stores the ids of the links.  
     * @returns {object} concepts, it stores the links ids, names,source ids(sid) and target ids(tid)
     */
-    async loadLinksOfConceptMap({ state }, links) {
-        console.log(state)
+    async loadLinksOfConceptMap(ctx, links) {
         let relationships = [];
         await Promise.all(links.map(async link => {
             await axios.get(`relationship/${link.id}`)
@@ -328,6 +329,11 @@ const actions = {
 }
 
 const mutations = {
+
+    UPDATE_FINISHED_LOADING(state, status) {
+        state.finishedLoading = status;
+    },
+
     UPDATE_ID_OF_LINK(state, payload) {
         state.conceptMap.links.forEach(link => {
             if (link.sid == payload.sid && link.tid == payload.tid) {

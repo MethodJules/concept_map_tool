@@ -22,7 +22,6 @@ export const loadConceptListFromDb = ({ commit, rootState, state }) => {
     let uid = rootState.drupal_api.user.uid
     axios.get(`concept?filter[field_uid]=${uid}`)
         .then((response) => {
-            console.log(response)
             const data = response.data.data;
             let concepts = [];
             for (var i in data) {
@@ -126,10 +125,6 @@ export const updateConcept = ({ commit, rootState }, payload) => {
         },
         data: data
     };
-    axios(config).then((response) => {
-        console.log(response)
-    }).catch(error => {
-        console.log(error)
-    })
+    axios(config)
 
 }

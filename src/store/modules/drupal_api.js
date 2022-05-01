@@ -153,7 +153,6 @@ const actions = {
 
         await axios(config)
             .then(function (response) {
-                console.log(response)
                 let user = {
                     id: response.data.data[0].id,
                     name: response.data.data[0].attributes.name,

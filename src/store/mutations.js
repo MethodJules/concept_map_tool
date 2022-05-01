@@ -27,7 +27,6 @@ export const SAVE_CONCEPTS = (state, concepts) => {
  * @param {object} payload includes concept as an object and new concept name as string 
  */
 export const UPDATE_CONCEPT = (state, payload) => {
-    console.log(state)
     let index = state.concepts.indexOf(payload.concept);
     state.concepts[index].name = payload.neuConceptName;
 }
