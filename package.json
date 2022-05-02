@@ -14,7 +14,8 @@
     "bootstrap-vue": "^2.21.2",
     "core-js": "^3.6.5",
     "gsap": "^3.9.0",
-    "vue": "^2.6.11",
+    "vue": "^3.1.0-0",
+    "@vue/compat": "^3.1.0-0",
     "vue-d3-network": "^0.1.28",
     "vue-fullscreen": "^2.6.1",
     "vue-html-to-paper": "^1.4.4",
@@ -33,7 +34,7 @@
     "eslint-plugin-vue": "^6.2.2",
     "html-loader": "^3.0.1",
     "vue-cookie-law": "^1.13.3",
-    "vue-template-compiler": "^2.6.11"
+    "@vue/compiler-sfc": "^3.1.0-0"
   },
   "eslintConfig": {
     "root": true,

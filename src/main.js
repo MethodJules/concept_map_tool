@@ -1,8 +1,9 @@
-import Vue from 'vue'
+// import Vue from 'vue'
 import App from './App.vue'
 import Vuex from 'vuex'
 import router from './router'
 import store from './store/store'
+import { createApp } from "vue";
 
 
 
@@ -18,20 +19,34 @@ import VueFullscreen from 'vue-fullscreen'
 import VueHtmlToPaper from 'vue-html-to-paper';
 
 
-Vue.use(VueHtmlToPaper);
+// Vue.use(VueHtmlToPaper);
+// Vue.config.productionTip = false
+// Vue.use(BootstrapVue)
+// Vue.use(IconsPlugin)
+// Vue.use(Vuetify)
+// Vue.use(Vuelidate)
+// Vue.use(VueFullscreen)
+// Vue.use(Vuex);
 
-Vue.config.productionTip = false
-Vue.use(BootstrapVue)
-Vue.use(IconsPlugin)
-Vue.use(Vuetify)
-Vue.use(Vuelidate)
-Vue.use(VueFullscreen)
+const app = createApp(App)
 
+app.config.globalProperties.$http = () => { }
+app.use(VueHtmlToPaper)
+app.use(BootstrapVue)
+app.use(IconsPlugin)
+app.use(Vuetify)
+app.use(Vuelidate)
+app.use(VueFullscreen)
+app.use(Vuex)
+app.use(router)
+app.use(store)
 
+app.mount('#app')
 
-Vue.use(Vuex);
-new Vue({
-  router,
-  store,
-  render: h => h(App),
-}).$mount('#app')
+// app.mount(App)
+
+// new Vue({
+//   router,
+//   store,
+//   render: h => h(App),
+// }).createApp(App).mount()
