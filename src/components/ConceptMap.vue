@@ -17,215 +17,217 @@
         >
       </b-card>
     </div>
-    <!-- <fullscreen v-model="fullscreen"> -->
-    <Transition name="fade">
-      <d3-network
-        id="map"
-        v-if="finishedLoading"
-        :net-nodes="conceptMap.nodes"
-        :net-links="conceptMap.links"
-        :options="options"
-        @node-click="showModal"
-        @link-click="deleteLink"
-        ref="net"
-        :link-cb="lcb"
-      />
-    </Transition>
-    <!-- </fullscreen> -->
+    <div v-if="conceptMap.nodes.length > 0">
+      <!-- <fullscreen v-model="fullscreen"> -->
+      <Transition name="fade">
+        <d3-network
+          id="map"
+          v-if="finishedLoading"
+          :net-nodes="conceptMap.nodes"
+          :net-links="conceptMap.links"
+          :options="options"
+          @node-click="showModal"
+          @link-click="deleteLink"
+          ref="net"
+          :link-cb="lcb"
+        />
+      </Transition>
+      <!-- </fullscreen> -->
 
-    <div class="markers">
-      <svg>
-        <defs>
-          <marker
-            id="m-end"
-            markerWidth="10"
-            markerHeight="7"
-            refX="14"
-            refY="3.5"
-            orient="auto"
-            markerUnits="strokeWidth"
-          >
-            <polygon points="0 0, 10 3.5, 0 7" fill="red" />
-          </marker>
-          <marker
-            id="m-start"
-            markerWidth="10"
-            markerHeight="7"
-            refX="-5"
-            refY="3.5"
-            orient="auto"
-            markerUnits="strokeWidth"
-          >
-            <polygon points="10 0, 10 7, 0 3.5" fill="red" />
-          </marker>
-        </defs>
-      </svg>
-    </div>
-    <div class="modals">
-      <b-modal id="add-parent-modal" hide-footer hide-header hide-title>
-        <div class="modal-container">
-          <h5 class="modal-title">
-            Füge ein übergeordnetes Konzept zu
-            <strong> {{ clickedNode.name }}</strong>
-            hinzu!
-          </h5>
-          <div class="modal-body">
-            <p>
-              Wähle eines der folgenden Konzepte
-              <b-button variant="secondary" size="sm" @click="clearOptions()"
-                >Auswahl zurücksetzen</b-button
-              >
-            </p>
-            <select v-model="targetConcept">
-              <option value="" disabled selected hidden>
-                Konzept auswählen...
-              </option>
-              <option
-                v-for="(concept, i) in filteredConcepts"
-                :disabled="isLinkExists(clickedNode, concept)"
-                :key="i"
-                :value="concept"
-              >
-                {{ concept.name }}
-              </option>
-            </select>
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="relationType"
-                id="bidirectional"
-                value="bidirectional"
-                v-model="relationType"
-                checked
-              />
-              <label class="form-check-label" for="bidirectional">
-                Bidirektional: {{ clickedNode.name }} ⇔
-                {{ targetConcept.name }}
-              </label>
-            </div>
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="relationType"
-                id="unidirectionalPT"
-                value="unidirectionalPT"
-                v-model="relationType"
-              />
-              <label class="form-check-label" for="unidirectionalPT">
-                Unidirektional
-                <strong v-if="targetConcept">
-                  {{ clickedNode.name }} -->
+      <div class="markers">
+        <svg>
+          <defs>
+            <marker
+              id="m-end"
+              markerWidth="10"
+              markerHeight="7"
+              refX="14"
+              refY="3.5"
+              orient="auto"
+              markerUnits="strokeWidth"
+            >
+              <polygon points="0 0, 10 3.5, 0 7" fill="red" />
+            </marker>
+            <marker
+              id="m-start"
+              markerWidth="10"
+              markerHeight="7"
+              refX="-5"
+              refY="3.5"
+              orient="auto"
+              markerUnits="strokeWidth"
+            >
+              <polygon points="10 0, 10 7, 0 3.5" fill="red" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
+      <div class="modals">
+        <b-modal id="add-parent-modal" hide-footer hide-header hide-title>
+          <div class="modal-container">
+            <h5 class="modal-title">
+              Füge ein übergeordnetes Konzept zu
+              <strong> {{ clickedNode.name }}</strong>
+              hinzu!
+            </h5>
+            <div class="modal-body">
+              <p>
+                Wähle eines der folgenden Konzepte
+                <b-button variant="secondary" size="sm" @click="clearOptions()"
+                  >Auswahl zurücksetzen</b-button
+                >
+              </p>
+              <select v-model="targetConcept">
+                <option value="" disabled selected hidden>
+                  Konzept auswählen...
+                </option>
+                <option
+                  v-for="(concept, i) in filteredConcepts"
+                  :disabled="isLinkExists(clickedNode, concept)"
+                  :key="i"
+                  :value="concept"
+                >
+                  {{ concept.name }}
+                </option>
+              </select>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="relationType"
+                  id="bidirectional"
+                  value="bidirectional"
+                  v-model="relationType"
+                  checked
+                />
+                <label class="form-check-label" for="bidirectional">
+                  Bidirektional: {{ clickedNode.name }} ⇔
                   {{ targetConcept.name }}
-                </strong>
-              </label>
-            </div>
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="relationType"
-                id="unidirectionalTP"
-                value="unidirectionalTP"
-                v-model="relationType"
-              />
-              <label class="form-check-label" for="unidirectionalTP">
-                Unidirektional
-                <strong v-if="targetConcept">
-                  {{ targetConcept.name }}
-                  -->
-                  {{ clickedNode.name }}
-                </strong>
-              </label>
-            </div>
-            <label for="linkNameInput">Bezeichnung Relation: </label>
-            <b-input id="linkNameInput" v-model="linkName"> </b-input>
-            <div class="modal-buttons">
-              <b-button
-                variant="primary"
-                :disabled="isSelectBoxOrRadioButtonFull"
-                size="sm"
-                @click="
-                  addConceptToConceptMap(
-                    clickedNode,
-                    targetConcept,
-                    linkName,
-                    relationType
-                  )
-                "
-              >
-                <!-- <b-icon icon="plus-circle" size="sm"></b-icon> -->
-                <strong> {{ targetConcept.name }} </strong>
-                hinzufügen
-              </b-button>
+                </label>
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="relationType"
+                  id="unidirectionalPT"
+                  value="unidirectionalPT"
+                  v-model="relationType"
+                />
+                <label class="form-check-label" for="unidirectionalPT">
+                  Unidirektional
+                  <strong v-if="targetConcept">
+                    {{ clickedNode.name }} -->
+                    {{ targetConcept.name }}
+                  </strong>
+                </label>
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="relationType"
+                  id="unidirectionalTP"
+                  value="unidirectionalTP"
+                  v-model="relationType"
+                />
+                <label class="form-check-label" for="unidirectionalTP">
+                  Unidirektional
+                  <strong v-if="targetConcept">
+                    {{ targetConcept.name }}
+                    -->
+                    {{ clickedNode.name }}
+                  </strong>
+                </label>
+              </div>
+              <label for="linkNameInput">Bezeichnung Relation: </label>
+              <b-input id="linkNameInput" v-model="linkName"> </b-input>
+              <div class="modal-buttons">
+                <b-button
+                  variant="primary"
+                  :disabled="isSelectBoxOrRadioButtonFull"
+                  size="sm"
+                  @click="
+                    addConceptToConceptMap(
+                      clickedNode,
+                      targetConcept,
+                      linkName,
+                      relationType
+                    )
+                  "
+                >
+                  <!-- <b-icon icon="plus-circle" size="sm"></b-icon> -->
+                  <strong> {{ targetConcept.name }} </strong>
+                  hinzufügen
+                </b-button>
 
-              <b-button
-                @click="deleteNode(clickedNode)"
-                variant="danger"
-                size="sm"
-              >
-                <!-- <b-icon icon="trash" size="sm"></b-icon> -->
-                <strong> {{ clickedNode.name }} </strong>
-                löschen
-              </b-button>
+                <b-button
+                  @click="deleteNode(clickedNode)"
+                  variant="danger"
+                  size="sm"
+                >
+                  <!-- <b-icon icon="trash" size="sm"></b-icon> -->
+                  <strong> {{ clickedNode.name }} </strong>
+                  löschen
+                </b-button>
 
-              <b-button
-                @click="hideModal('add-parent-modal')"
-                variant="danger"
-                size="sm"
-                >Schließen
-              </b-button>
+                <b-button
+                  @click="hideModal('add-parent-modal')"
+                  variant="danger"
+                  size="sm"
+                  >Schließen
+                </b-button>
+              </div>
             </div>
           </div>
-        </div>
-      </b-modal>
+        </b-modal>
 
-      <b-modal
-        centered
-        id="add-first-concept-modal"
-        title="Füge dein erstes Konzept hinzu"
-        hide-footer
-        hide-header-close
-      >
-        <b-card
-          v-if="filteredConcepts.length <= 0"
-          bg-variant="warning"
-          text-variant="white"
-          class="text-center"
+        <b-modal
+          centered
+          id="add-first-concept-modal"
+          title="Füge dein erstes Konzept hinzu"
+          hide-footer
+          hide-header-close
         >
-          <b-card-text>Du musst zuerst ein Konzept erstellen.</b-card-text>
-        </b-card>
-        <b-form-group v-for="(concept, i) in filteredConcepts" :key="i">
-          <b-form-radio
-            v-model="selectedNode"
-            name="some-radios"
-            :value="concept"
+          <b-card
+            v-if="filteredConcepts.length <= 0"
+            bg-variant="warning"
+            text-variant="white"
+            class="text-center"
           >
-            <span>
-              {{ concept.name }}
-            </span>
-          </b-form-radio>
-        </b-form-group>
+            <b-card-text>Du musst zuerst ein Konzept erstellen.</b-card-text>
+          </b-card>
+          <b-form-group v-for="(concept, i) in filteredConcepts" :key="i">
+            <b-form-radio
+              v-model="selectedNode"
+              name="some-radios"
+              :value="concept"
+            >
+              <span>
+                {{ concept.name }}
+              </span>
+            </b-form-radio>
+          </b-form-group>
 
-        <div class="modal-buttons">
-          <b-button
-            variant="primary"
-            size="sm"
-            :disabled="isSelectedNodeEmpty"
-            @click="addSingleConceptToMap(selectedNode)"
-          >
-            <!-- <b-icon icon="plus-circle" size="sm"></b-icon> -->
-            Hinzufügen
-          </b-button>
-          <b-button
-            @click="hideModal('add-first-concept-modal')"
-            variant="danger"
-            size="sm"
-            >Schließen
-          </b-button>
-        </div>
-      </b-modal>
+          <div class="modal-buttons">
+            <b-button
+              variant="primary"
+              size="sm"
+              :disabled="isSelectedNodeEmpty"
+              @click="addSingleConceptToMap(selectedNode)"
+            >
+              <!-- <b-icon icon="plus-circle" size="sm"></b-icon> -->
+              Hinzufügen
+            </b-button>
+            <b-button
+              @click="hideModal('add-first-concept-modal')"
+              variant="danger"
+              size="sm"
+              >Schließen
+            </b-button>
+          </div>
+        </b-modal>
+      </div>
     </div>
   </div>
 </template>
@@ -628,6 +630,9 @@ export default {
 };
 </script>
 <style scoped >
+.conceptMapPage {
+  height: 100%;
+}
 .map-enter {
   opacity: 0;
 }
@@ -644,7 +649,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 80vh;
+  height: 70vh;
 }
 
 .emptyMap .card {
@@ -727,7 +732,7 @@ button {
   font-size: 0.8 em !important;
 }
 ::v-deep #map svg {
-  height: 85vh !important;
+  height: 100% !important;
 }
 
 /* Transition classes */

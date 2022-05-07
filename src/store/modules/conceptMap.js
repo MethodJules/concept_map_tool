@@ -114,6 +114,9 @@ const actions = {
         axios(config)
     },
 
+
+
+
     /** Deletes the link from both state and database.
     * Deletes it in both relationships table and concept map table.
     * @param {object} payload it stores the lind ids of the links that we are going to delete from backend.

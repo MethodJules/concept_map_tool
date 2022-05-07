@@ -13,7 +13,6 @@
 
       <span>
         <input type="text" @keydown.enter="addTag(newTag)" v-model="newTag" />
-        <!-- @keydown.backspace="deleteTag(tag)" removed, users will likely delete their tags by accident -->
       </span>
       <b-button size="sm" variant="primary" @click="addTag(newTag)">
         <b-icon icon="plus-circle" sm aria-hidden="true"></b-icon>

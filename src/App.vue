@@ -70,6 +70,7 @@ body {
   display: flex;
   flex-direction: column;
 }
+
 .app-container {
   flex: 1;
 }
@@ -89,17 +90,10 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  min-height: 50vh;
 }
 
 .hide {
   display: none;
-}
-
-/* To print in landscape. It does not work */
-@media print {
-  @page {
-    size: landscape;
-  }
 }
 </style>
