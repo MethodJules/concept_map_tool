@@ -60,6 +60,7 @@ export default {
 .pageContainer {
   padding-top: 0.5rem;
   margin: 0;
+  flex: 1;
 }
 
 .pageContainer-sidebar {

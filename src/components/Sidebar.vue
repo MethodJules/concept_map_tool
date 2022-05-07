@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="sidebar-left">
     <div class="tools">
       <b-form-input
         class="tools-newConceptName"
@@ -33,57 +33,74 @@
         <b-icon icon="plus-circle" aria-hidden="true"></b-icon>
       </b-button>
     </div>
-
-    <div
-      class="tools-conceptButtons"
-      v-for="(concept, i) in filteredConcepts"
-      :key="i"
-    >
-      <b-button
-        class="tools-conceptButtons-deleteButton"
-        size="sm"
-        variant="danger"
-        @click="deleteConcept(concept)"
+    <div class="scrollable">
+      <div
+        class="tools-conceptButtons"
+        v-for="(concept, i) in filteredConcepts"
+        :key="i"
       >
-        <b-icon icon="trash" aria-hidden="true"></b-icon>
-      </b-button>
-
-      <b-row class="concept">
         <b-button
-          class="d-flex"
-          :id="createIdForButton(concept)"
+          class="tools-conceptButtons-deleteButton"
           size="sm"
-          variant="primary"
-          @dblclick="openInput(concept, $event)"
+          variant="danger"
+          @click="deleteConcept(concept)"
         >
-          {{ concept.name }}
+          <b-icon icon="trash" aria-hidden="true"></b-icon>
         </b-button>
-        <b-tooltip
-          :target="createIdForButton(concept)"
-          placement="right"
-          variant="secondary"
-          noninteractive
-          >Doppelt klicken, um den Konzept-Namen zu ändern</b-tooltip
-        >
 
-        <div :id="createIdForInput(concept)" class="concept-inputGroup hide">
-          <b-form-input
+        <b-row class="concept">
+          <b-button
+            class="d-flex"
+            :id="createIdForButton(concept)"
             size="sm"
-            type="text"
-            v-model="neuConceptName"
-            @keydown.enter="updateConcept(neuConceptName, concept)"
-            @keydown.esc="closeInput(concept)"
+            variant="primary"
+            @dblclick="openInput(concept, $event)"
           >
-          </b-form-input>
-          <div class="concept-inputGroups-buttons">
-            <b-icon @click="closeInput(concept)" icon="x-square"></b-icon>
-            <b-icon
-              @click="updateConcept(neuConceptName, concept)"
-              icon="check-square"
-            ></b-icon>
+            {{ concept.name }}
+          </b-button>
+          <b-tooltip
+            :target="createIdForButton(concept)"
+            placement="right"
+            variant="secondary"
+            noninteractive
+            >Doppelt klicken, um den Konzept-Namen zu ändern</b-tooltip
+          >
+
+          <div :id="createIdForInput(concept)" class="concept-inputGroup hide">
+            <b-form-input
+              size="sm"
+              type="text"
+              v-model="neuConceptName"
+              @keydown.enter="updateConcept(neuConceptName, concept)"
+              @keydown.esc="closeInput(concept)"
+            >
+            </b-form-input>
+            <div class="concept-inputGroups-buttons">
+              <b-icon @click="closeInput(concept)" icon="x-square"></b-icon>
+              <b-icon
+                @click="updateConcept(neuConceptName, concept)"
+                icon="check-square"
+              ></b-icon>
+            </div>
           </div>
-        </div>
-      </b-row>
+        </b-row>
+      </div>
+    </div>
+    <div class="explanation">
+      <h6 class="explanation-header">
+        Concept Mapping Tool - Intelligentes Concept Mapping
+      </h6>
+      <span class="explanation-text">
+        Dieses OpenSource-Projekt wurde im Rahmen der Ausschreibung "Qualität
+        Plus" des MWK Niedersachsen erstellt. Näheres dazu finden Sie
+        <a
+          class="footer-link"
+          href="https://www.uni-hildesheim.de/fb4/institute/bwl/informationssysteme-und-unternehmensmodellierung/projekte/qualitaet-plus/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >hier</a
+        >.
+      </span>
     </div>
   </div>
 </template>
@@ -258,6 +275,13 @@ export default {
 </script>
 
 <style scoped>
+.sidebar-left {
+  display: flex;
+  flex-direction: column;
+  min-height: 85vh;
+  flex: 1;
+}
+
 /* Tools */
 .tools {
   display: flex;
@@ -364,7 +388,22 @@ export default {
   display: flex;
   flex-direction: column;
 }
-
+.scrollable {
+  position: relative;
+  max-height: 50vh;
+  overflow-y: scroll;
+}
+@media only screen and (max-width: 600px) {
+  .scrollable {
+    height: 20vh;
+  }
+  .explanation {
+    display: none;
+  }
+  .sidebar-left {
+    min-height: 20vh;
+  }
+}
 /* Concept Buttons  */
 
 /* Recommender Modal */
@@ -378,4 +417,19 @@ export default {
 .recommender-modal-container {
   padding: 0.5rem 1rem;
 }
+
+/* Explanation */
+.explanation {
+  padding: 0.5rem;
+  margin-top: auto;
+}
+
+.explanation-header {
+  font-size: 0.8rem;
+}
+.explanation-text {
+  font-size: 0.7rem;
+  text-align: justify;
+}
+/* Explanation */
 </style>

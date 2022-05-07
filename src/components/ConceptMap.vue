@@ -642,6 +642,9 @@ export default {
 .markers {
   height: 0px;
 }
+.markers svg {
+  height: 0;
+}
 button {
   display: flex !important;
   justify-content: center !important;
@@ -694,7 +697,7 @@ button {
 }
 .net {
   /* width: 100%; */
-  min-height: 80vh !important;
+  min-height: 88vh !important;
   padding: 0;
 }
 
