@@ -239,10 +239,8 @@
  *
  */
 import D3Network from "vue-d3-network";
-
 import { mapGetters, mapState } from "vuex";
 // import { gsap } from "gsap";
-
 export default {
   data() {
     return {
@@ -270,7 +268,6 @@ export default {
     ...mapGetters({
       filteredConcepts: "getFilteredConcepts",
     }),
-
     /**
      * It controls if option or input is full or not.
      * We need this info in order to prevent sending an unfilled form
@@ -322,7 +319,6 @@ export default {
       this.nodePositionX = event.touches[0].pageX;
       this.nodePositionY = event.touches[0].pageY;
     },
-
     /**
      * Arranges the arrows on the links.
      */
@@ -341,7 +337,6 @@ export default {
     showAnyModal(modalId) {
       this.$root.$emit("bv::show::modal", modalId);
     },
-
     /**
      * Show Modal.
      * @param node The node that user clicked
@@ -380,7 +375,6 @@ export default {
         }
       }
     },
-
     /**
      * Hides Modal with the given id.
      * @param {string} modalId  the id of the modal that is being hide
@@ -409,7 +403,6 @@ export default {
       });
       this.hideModal("add-first-concept-modal");
     },
-
     /**
      * Controls if there is a link between the selected node and clicked node.
      * It also controls if the selected node and clicked node is the same.
@@ -419,7 +412,6 @@ export default {
     isLinkExists(clickedNode, nodeInOption) {
       let isLinkExists = false;
       let links = this.conceptMap.links;
-
       clickedNode.name == nodeInOption.name ? (isLinkExists = true) : "";
       links.forEach((link) => {
         link.sid == clickedNode.id && link.tid == nodeInOption.id
@@ -431,7 +423,6 @@ export default {
       });
       return isLinkExists;
     },
-
     /**
      * creates the marker by checking the relation type
      * @param {string} relationType, the type of the relation which comes from the modal
@@ -474,7 +465,6 @@ export default {
         : (name = "von " + sourceConcept.name + " zu " + targetConcept.name);
       // We need to add the ids of the source and target concept to relationship array.
       let markers = this.createMarkers(relationType);
-
       relationship.push({
         name,
         tid: targetConcept.id,
@@ -482,7 +472,6 @@ export default {
         marker_start: markers.start,
         marker_end: markers.end,
       });
-
       // We need to send the source concept as an object to this methode
       this.$store.dispatch("conceptMap/addConceptToConceptMap", {
         concept: sourceConcept,
@@ -491,21 +480,17 @@ export default {
       this.$store.dispatch("conceptMap/addConceptToConceptMap", {
         concept: targetConcept,
       });
-
       // We need to send the relationship as an array
       this.$store.dispatch("conceptMap/addRelationshipToDatabase", {
         relationship,
       });
     },
-
     async deleteLink(event, link) {
       if (event.altKey == true || this.deleteMode) {
         console.log(link);
-
         this.$store.commit("conceptMap/DELETE_LINK_FROM_STATE", {
           linkId: link.id,
         });
-
         await this.$store.dispatch(
           "conceptMap/deleteLinkFromConceptMapTable",
           link.id
@@ -526,20 +511,17 @@ export default {
      */
     async deleteNode(node) {
       let linksToDelete = await this.findLinksOfNode(node);
-
       linksToDelete.forEach(this.deleteLinkFromConceptMap);
       // linksToDelete.forEach((linkId) => {
       //   this.deleteLinkFromConceptMap(linkId);
       // });
       this.deleteConceptFromConceptMap(node);
-
       for (const linkId of linksToDelete) {
         await this.$store.dispatch(
           "conceptMap/deleteLinkFromConceptMapTable",
           linkId
         );
       }
-
       for (const linkId of linksToDelete) {
         await this.$store.dispatch(
           "conceptMap/deleteLinkFromRelationsTable",
@@ -548,7 +530,6 @@ export default {
       }
       this.hideModal("add-parent-modal");
     },
-
     /**
      * Remove Concept From Concept Map.
      * @param {object} node The node that we are going to delete from concept map.
@@ -588,7 +569,6 @@ export default {
   },
   async created() {
     await this.$store.dispatch("conceptMap/loadConceptMapsFromBackend");
-
     // node click detect
     let nodes = document.querySelectorAll(".nodes");
     nodes.forEach((node) => {
@@ -596,7 +576,6 @@ export default {
       node.addEventListener("touchstart", this.touchStartOnNode);
     });
   },
-
   // watch: {
   //   /**
   //    * To make transition when switching concept maps.
@@ -613,11 +592,9 @@ export default {
   //         ease: "ease-out",
   //       },
   //     });
-
   //     if (map) {
   //       tl.from(map, { translateX: 1000, clearProps: "all", duration: 1 }, 0.6);
   //     }
-
   //     // node click detect
   //     let nodes = document.querySelectorAll(".nodes");
   //     nodes.forEach((node) => {
@@ -629,6 +606,7 @@ export default {
   // },
 };
 </script>
+
 <style scoped >
 .conceptMapPage {
   height: 100%;
