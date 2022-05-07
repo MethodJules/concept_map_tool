@@ -22,13 +22,14 @@ const state = () => ({
 })
 
 const getters = {
-    getConceptMapById(state) {
-        let concept_map = []
-        state.concept_maps.forEach(conceptMap => {
-            conceptMap.id == state.idForXNavi ? concept_map = conceptMap : ""
-        });
-        return concept_map
-    }
+    // we dont need it. But I keep it for a while to be sure that it is really not needed.
+    // getConceptMapById(state) {
+    //     let concept_map = []
+    //     state.concept_maps.forEach(conceptMap => {
+    //         conceptMap.id == state.idForXNavi ? concept_map = conceptMap : ""
+    //     });
+    //     return concept_map
+    // }
 
 }
 
@@ -228,7 +229,7 @@ const actions = {
                 axios(config)
             })
     },
-    /** Loads concept map from backend. 
+    /** Loads all concept maps from backend. 
     * It takes the concept map from backend and this concept maps stores the ids of nodes and links.
     * It calls another actions to take the datas of the nodes and links. 
     * Then it makes them together and sends it to mutation to save it in state.
@@ -237,8 +238,6 @@ const actions = {
     *  @param {*} dispatch, it is being used to call an action
     */
     async loadConceptMapsFromBackend({ commit, rootState, dispatch }) {
-
-
         let conceptMaps = rootState.drupal_api.user.concept_maps;
         await Promise.all(conceptMaps.map(async conceptMap => {
             await axios.get(`concept_map/${conceptMap.id}`)
@@ -259,9 +258,15 @@ const actions = {
         await commit("INITIALIZE_CONCEPT_MAP");
     },
 
-
+    /** Loads a single concept map from backend. 
+    * It takes the concept map from backend and this concept maps stores the ids of nodes and links.
+    * It calls another actions to take the datas of the nodes and links. 
+    * Then it makes them together and sends it to mutation to save it in state.
+    *  @param {*} commit, it is being used to call a mutation
+    *  @param {*} dispatch, it is being used to call an action
+    *  @param {integer} conceptMapId, id of the concept map that will be downloaded
+    */
     async fetchConceptMap({ commit, dispatch }, conceptMapId) {
-
         await axios.get(`concept_map/${conceptMapId}`)
             .then(async (response) => {
                 const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
@@ -270,6 +275,7 @@ const actions = {
                 let newNodes = await dispatch("loadNodesOfConceptMap", nodes);
                 let newLinks = await dispatch("loadLinksOfConceptMap", links);
                 await commit("SAVE_CONCEPTMAP_IN_STATE", { id: response.data.data.id, title: response.data.data.attributes.title, nodes: newNodes, links: newLinks, tags: tags });
+                await commit("CHECK_FOR_OPTIONS", newNodes)
             })
             .catch(error => {
                 throw new Error(`API ${error}`);
@@ -333,10 +339,16 @@ const actions = {
 
 const mutations = {
 
-    UPDATE_FINISHED_LOADING(state, status) {
-        state.finishedLoading = status;
-    },
-
+    /**
+     * updates the if of the given link.
+     * When a link is created in webpage, it is created with a normal id. 
+     * But id of the link from backend is needed for later actions.
+     * This mutation saves the id from backend to the state.
+     * First it finds the correct link by checking source and target id, 
+     * then it updates the id of the link.
+     * @param {object} state state as parameter for access and manipulation of state data 
+     * @param {object} payload it has source and target id of the link
+     */
     UPDATE_ID_OF_LINK(state, payload) {
         state.conceptMap.links.forEach(link => {
             if (link.sid == payload.sid && link.tid == payload.tid) {
@@ -345,19 +357,39 @@ const mutations = {
         });
     },
 
-
+    /**
+     * Saves concept map in the state.
+     * @param {object} state state as parameter for access and manipulation of state data 
+     * @param {object} conceptMap concept map to save in state and show.
+     */
     SAVE_CONCEPTMAP_IN_STATE(state, conceptMap) {
-
         state.conceptMap = conceptMap
         state.finishedLoading = true;
     },
-
+    /**
+     * Changes the force option for bigger concept maps.
+     * @param {object} state state as parameter for access and manipulation of state data 
+     * @param {object} nodes nodes of the concept map 
+     */
+    CHECK_FOR_OPTIONS(state, nodes) {
+        (nodes.length > 8) ? state.conceptMapOptions.force = 10000 : state.conceptMapOptions.force = 30000;
+    },
+    /**
+     * Adds given concept map to conceptMaps array in state.
+     * @param {object} state state as parameter for access and manipulation of state data 
+     * @param {*} conceptMap concept map to save in state
+     */
     SAVE_CONCEPTMAPS_IN_STATE(state, conceptMap) {
         state.concept_maps.push(conceptMap)
     },
 
 
-
+    /**
+     * Saves the idForXNavi in state.
+     * @param {object} state state as parameter for access and manipulation of state data 
+     * @param {integer} conceptMapId id to set as idForXNavi
+     * @returns 
+     */
     setIdForXnavi(state, conceptMapId) {
         return state.idForXNavi = conceptMapId
     },
@@ -423,6 +455,11 @@ const mutations = {
         state.conceptMap = state.concept_maps[0]
         state.finishedLoading = true;
     },
+
+    /**
+     * Toggles the delete mode in state.
+     * @param {object} state, state as parameter to access and manipulation of state data 
+     */
     TOGGLE_DELETE_MODE(state) {
         state.deleteMode = !state.deleteMode;
     },

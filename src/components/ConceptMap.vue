@@ -694,7 +694,7 @@ button {
 }
 .net {
   /* width: 100%; */
-  min-height: 70vh !important;
+  min-height: 80vh !important;
   padding: 0;
 }
 
