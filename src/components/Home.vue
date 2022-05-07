@@ -1,6 +1,6 @@
 <template>
   <b-row class="pageContainer">
-    <div class="app-loading-bar" v-if="!finishedLoading & isThereAnyConceptMap">
+    <div class="app-loading-bar" v-if="!finishedLoading">
       <b-spinner></b-spinner>
     </div>
     <div>
@@ -12,7 +12,7 @@
           <AsyncComponent />
         </b-col>
       </b-row>
-      <b-row v-if="!isThereAnyConceptMap" class="noMapContainer">
+      <b-row v-else class="noMapContainer">
         <NoConceptMap />
       </b-row>
     </div>
@@ -29,7 +29,7 @@ const AsyncComponent = () => ({
   // The component to load (should be a Promise)
   component: import("@/components/ConceptMap.vue"),
   // A component to use while the async component is loading
-  loading: LoadingComponent,
+  loading: import("@/components/LoadingComponent.vue"),
   // A component to use if the load fails
   error: LoadingComponent,
   // Delay before showing the loading component. Default: 200ms.
