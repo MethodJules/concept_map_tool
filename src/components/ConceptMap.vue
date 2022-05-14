@@ -1,9 +1,6 @@
 <template>
   <div class="conceptMapPage">
-    <div
-      v-if="finishedLoading && conceptMap.nodes.length <= 0"
-      class="emptyMap"
-    >
+    <div v-if="finishedLoading && isThereAnyNodeInMap" class="emptyMap">
       <b-card
         bg-variant="info"
         text-variant="white"
@@ -22,7 +19,7 @@
       <Transition name="fade">
         <d3-network
           id="map"
-          v-if="finishedLoading"
+          v-if="finishedLoading && transition"
           :net-nodes="conceptMap.nodes"
           :net-links="conceptMap.links"
           :options="options"
@@ -62,172 +59,171 @@
           </defs>
         </svg>
       </div>
-      <div class="modals">
-        <b-modal id="add-parent-modal" hide-footer hide-header hide-title>
-          <div class="modal-container">
-            <h5 class="modal-title">
-              Füge ein übergeordnetes Konzept zu
-              <strong> {{ clickedNode.name }}</strong>
-              hinzu!
-            </h5>
-            <div class="modal-body">
-              <p>
-                Wähle eines der folgenden Konzepte
-                <b-button variant="secondary" size="sm" @click="clearOptions()"
-                  >Auswahl zurücksetzen</b-button
-                >
-              </p>
-              <select v-model="targetConcept">
-                <option value="" disabled selected hidden>
-                  Konzept auswählen...
-                </option>
-                <option
-                  v-for="(concept, i) in filteredConcepts"
-                  :disabled="isLinkExists(clickedNode, concept)"
-                  :key="i"
-                  :value="concept"
-                >
-                  {{ concept.name }}
-                </option>
-              </select>
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="relationType"
-                  id="bidirectional"
-                  value="bidirectional"
-                  v-model="relationType"
-                  checked
-                />
-                <label class="form-check-label" for="bidirectional">
-                  Bidirektional: {{ clickedNode.name }} ⇔
+    </div>
+    <div class="modals">
+      <b-modal id="add-parent-modal" hide-footer hide-header hide-title>
+        <div class="modal-container">
+          <h5 class="modal-title">
+            Füge ein übergeordnetes Konzept zu
+            <strong> {{ clickedNode.name }}</strong>
+            hinzu!
+          </h5>
+          <div class="modal-body">
+            <p>
+              Wähle eines der folgenden Konzepte
+              <b-button variant="secondary" size="sm" @click="clearOptions()"
+                >Auswahl zurücksetzen</b-button
+              >
+            </p>
+            <select v-model="targetConcept">
+              <option value="" disabled selected hidden>
+                Konzept auswählen...
+              </option>
+              <option
+                v-for="(concept, i) in filteredConcepts"
+                :disabled="isLinkExists(clickedNode, concept)"
+                :key="i"
+                :value="concept"
+              >
+                {{ concept.name }}
+              </option>
+            </select>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="relationType"
+                id="bidirectional"
+                value="bidirectional"
+                v-model="relationType"
+                checked
+              />
+              <label class="form-check-label" for="bidirectional">
+                Bidirektional: {{ clickedNode.name }} ⇔
+                {{ targetConcept.name }}
+              </label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="relationType"
+                id="unidirectionalPT"
+                value="unidirectionalPT"
+                v-model="relationType"
+              />
+              <label class="form-check-label" for="unidirectionalPT">
+                Unidirektional
+                <strong v-if="targetConcept">
+                  {{ clickedNode.name }} -->
                   {{ targetConcept.name }}
-                </label>
-              </div>
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="relationType"
-                  id="unidirectionalPT"
-                  value="unidirectionalPT"
-                  v-model="relationType"
-                />
-                <label class="form-check-label" for="unidirectionalPT">
-                  Unidirektional
-                  <strong v-if="targetConcept">
-                    {{ clickedNode.name }} -->
-                    {{ targetConcept.name }}
-                  </strong>
-                </label>
-              </div>
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="relationType"
-                  id="unidirectionalTP"
-                  value="unidirectionalTP"
-                  v-model="relationType"
-                />
-                <label class="form-check-label" for="unidirectionalTP">
-                  Unidirektional
-                  <strong v-if="targetConcept">
-                    {{ targetConcept.name }}
-                    -->
-                    {{ clickedNode.name }}
-                  </strong>
-                </label>
-              </div>
-              <label for="linkNameInput">Bezeichnung Relation: </label>
-              <b-input id="linkNameInput" v-model="linkName"> </b-input>
-              <div class="modal-buttons">
-                <b-button
-                  variant="primary"
-                  :disabled="isSelectBoxOrRadioButtonFull"
-                  size="sm"
-                  @click="
-                    addConceptToConceptMap(
-                      clickedNode,
-                      targetConcept,
-                      linkName,
-                      relationType
-                    )
-                  "
-                >
-                  <!-- <b-icon icon="plus-circle" size="sm"></b-icon> -->
-                  <strong> {{ targetConcept.name }} </strong>
-                  hinzufügen
-                </b-button>
+                </strong>
+              </label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="relationType"
+                id="unidirectionalTP"
+                value="unidirectionalTP"
+                v-model="relationType"
+              />
+              <label class="form-check-label" for="unidirectionalTP">
+                Unidirektional
+                <strong v-if="targetConcept">
+                  {{ targetConcept.name }}
+                  -->
+                  {{ clickedNode.name }}
+                </strong>
+              </label>
+            </div>
+            <label for="linkNameInput">Bezeichnung Relation: </label>
+            <b-input id="linkNameInput" v-model="linkName"> </b-input>
+            <div class="modal-buttons">
+              <b-button
+                variant="primary"
+                :disabled="isSelectBoxOrRadioButtonFull"
+                size="sm"
+                @click="
+                  addConceptToConceptMap(
+                    clickedNode,
+                    targetConcept,
+                    linkName,
+                    relationType
+                  )
+                "
+              >
+                <!-- <b-icon icon="plus-circle" size="sm"></b-icon> -->
+                <strong> {{ targetConcept.name }} </strong>
+                hinzufügen
+              </b-button>
 
-                <b-button
-                  @click="deleteNode(clickedNode)"
-                  variant="danger"
-                  size="sm"
-                >
-                  <!-- <b-icon icon="trash" size="sm"></b-icon> -->
-                  <strong> {{ clickedNode.name }} </strong>
-                  löschen
-                </b-button>
+              <b-button
+                @click="deleteNode(clickedNode)"
+                variant="danger"
+                size="sm"
+              >
+                <!-- <b-icon icon="trash" size="sm"></b-icon> -->
+                <strong> {{ clickedNode.name }} </strong>
+                löschen
+              </b-button>
 
-                <b-button
-                  @click="hideModal('add-parent-modal')"
-                  variant="danger"
-                  size="sm"
-                  >Schließen
-                </b-button>
-              </div>
+              <b-button
+                @click="hideModal('add-parent-modal')"
+                variant="danger"
+                size="sm"
+                >Schließen
+              </b-button>
             </div>
           </div>
-        </b-modal>
+        </div>
+      </b-modal>
 
-        <b-modal
-          centered
-          id="add-first-concept-modal"
-          title="Füge dein erstes Konzept hinzu"
-          hide-footer
-          hide-header-close
+      <b-modal
+        id="add-first-concept-modal"
+        title="Füge dein erstes Konzept hinzu"
+        hide-footer
+        hide-header-close
+      >
+        <b-card
+          v-if="filteredConcepts.length <= 0"
+          bg-variant="warning"
+          text-variant="white"
+          class="text-center"
         >
-          <b-card
-            v-if="filteredConcepts.length <= 0"
-            bg-variant="warning"
-            text-variant="white"
-            class="text-center"
+          <b-card-text>Du musst zuerst ein Konzept erstellen.</b-card-text>
+        </b-card>
+        <b-form-group v-for="(concept, i) in filteredConcepts" :key="i">
+          <b-form-radio
+            v-model="selectedNode"
+            name="some-radios"
+            :value="concept"
           >
-            <b-card-text>Du musst zuerst ein Konzept erstellen.</b-card-text>
-          </b-card>
-          <b-form-group v-for="(concept, i) in filteredConcepts" :key="i">
-            <b-form-radio
-              v-model="selectedNode"
-              name="some-radios"
-              :value="concept"
-            >
-              <span>
-                {{ concept.name }}
-              </span>
-            </b-form-radio>
-          </b-form-group>
+            <span>
+              {{ concept.name }}
+            </span>
+          </b-form-radio>
+        </b-form-group>
 
-          <div class="modal-buttons">
-            <b-button
-              variant="primary"
-              size="sm"
-              :disabled="isSelectedNodeEmpty"
-              @click="addSingleConceptToMap(selectedNode)"
-            >
-              <!-- <b-icon icon="plus-circle" size="sm"></b-icon> -->
-              Hinzufügen
-            </b-button>
-            <b-button
-              @click="hideModal('add-first-concept-modal')"
-              variant="danger"
-              size="sm"
-              >Schließen
-            </b-button>
-          </div>
-        </b-modal>
-      </div>
+        <div class="modal-buttons">
+          <b-button
+            variant="primary"
+            size="sm"
+            :disabled="isSelectedNodeEmpty"
+            @click="addSingleConceptToMap(selectedNode)"
+          >
+            <!-- <b-icon icon="plus-circle" size="sm"></b-icon> -->
+            Hinzufügen
+          </b-button>
+          <b-button
+            @click="hideModal('add-first-concept-modal')"
+            variant="danger"
+            size="sm"
+            >Schließen
+          </b-button>
+        </div>
+      </b-modal>
     </div>
   </div>
 </template>
@@ -240,7 +236,6 @@
  */
 import D3Network from "vue-d3-network";
 import { mapGetters, mapState } from "vuex";
-// import { gsap } from "gsap";
 export default {
   data() {
     return {
@@ -264,6 +259,7 @@ export default {
       "deleteMode",
       "finishedLoading",
       "conceptMap",
+      "transition",
     ]),
     ...mapGetters({
       filteredConcepts: "getFilteredConcepts",
@@ -301,6 +297,10 @@ export default {
       if (this.selectedNode !== "") return false;
       return true;
     },
+    isThereAnyNodeInMap() {
+      let nodes = this.conceptMap.nodes;
+      return nodes?.length > 0 ? false : true;
+    },
   },
   methods: {
     /**
@@ -330,6 +330,7 @@ export default {
       };
       return link;
     },
+
     /**
      * Shows the modal with the given id.
      * @param {string} modalId the id of the modal that is being shown
@@ -487,7 +488,6 @@ export default {
     },
     async deleteLink(event, link) {
       if (event.altKey == true || this.deleteMode) {
-        console.log(link);
         this.$store.commit("conceptMap/DELETE_LINK_FROM_STATE", {
           linkId: link.id,
         });
@@ -557,53 +557,29 @@ export default {
     findLinksOfNode(node) {
       let links = this.conceptMap.links;
       let linksOfNode = [];
-      console.log(links);
       links.forEach((link) => {
         link.sid == node.id || link.tid == node.id
           ? linksOfNode.push(link.id)
           : "";
       });
-      console.log(linksOfNode);
       return linksOfNode;
     },
+
+    addNodeEventListeners() {
+      let nodes = document.querySelectorAll(".nodes");
+      nodes.forEach((node) => {
+        node.addEventListener("mousedown", this.mouseUpOnNode);
+        node.addEventListener("touchstart", this.touchStartOnNode);
+      });
+    },
   },
-  async created() {
-    await this.$store.dispatch("conceptMap/loadConceptMapsFromBackend");
-    // node click detect
-    let nodes = document.querySelectorAll(".nodes");
-    nodes.forEach((node) => {
-      node.addEventListener("mousedown", this.mouseUpOnNode);
-      node.addEventListener("touchstart", this.touchStartOnNode);
-    });
+
+  async mounted() {
+    await this.addNodeEventListeners();
   },
-  // watch: {
-  //   /**
-  //    * To make transition when switching concept maps.
-  //    * Actually we are changing the activeConceptMap when we change the concept maps from dropdown
-  //    * So we are applying transition whenever we change the value of activeConceptMap
-  //    */
-  //   activeConceptMap: () => {
-  //     const map = document.querySelector("#map");
-  //     const body = document.querySelector("body");
-  //     body.style.overflow = "hidden";
-  //     const tl = gsap.timeline({
-  //       defaults: {
-  //         duration: 0.6,
-  //         ease: "ease-out",
-  //       },
-  //     });
-  //     if (map) {
-  //       tl.from(map, { translateX: 1000, clearProps: "all", duration: 1 }, 0.6);
-  //     }
-  //     // node click detect
-  //     let nodes = document.querySelectorAll(".nodes");
-  //     nodes.forEach((node) => {
-  //       console.log(node);
-  //       node.addEventListener("mousedown", this.mouseUpOnNode);
-  //       node.addEventListener("touchstart", this.touchStartOnNode);
-  //     });
-  //   },
-  // },
+  async updated() {
+    await this.addNodeEventListeners();
+  },
 };
 </script>
 
@@ -719,7 +695,7 @@ button {
 /* Transition classes */
 
 .fade-enter-active {
-  transition: opacity 3s ease;
+  transition: opacity 2s ease;
 }
 .fade-leave-active {
   transition: opacity 1s ease;

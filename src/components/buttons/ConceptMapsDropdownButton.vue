@@ -102,7 +102,7 @@
   </div>
 </template>
 <script>
-import { mapState } from "vuex";
+import { mapState, mapGetters } from "vuex";
 
 export default {
   data() {
@@ -112,7 +112,10 @@ export default {
     };
   },
   computed: {
-    ...mapState("conceptMap", ["concept_maps", "conceptMap"]),
+    ...mapState("conceptMap", ["concept_maps", "conceptMap", "transition"]),
+    ...mapGetters({
+      buttonClicked: "getButtonClicked",
+    }),
 
     conceptNameEmpty() {
       if (this.newConceptMapName !== "") return true;
@@ -182,7 +185,8 @@ export default {
      */
     conceptMapSelect(conceptMap) {
       this.$store.dispatch("conceptMap/fetchConceptMap", conceptMap.id);
-      // this.$store.state.conceptMap.index = index;
+      this.$store.state.conceptMap.transition = false;
+
       // this.$store.commit("conceptMap/SET_TRANSITION", {
       //   status: false,
       //   time: 0,

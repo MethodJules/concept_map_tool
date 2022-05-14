@@ -3,13 +3,14 @@
     <div class="app-loading-bar" v-if="!finishedLoading">
       <b-spinner></b-spinner>
     </div>
-    <div>
+    <div v-else>
+      <!-- <div> -->
       <b-row v-if="isThereAnyConceptMap">
         <b-col md="2" class="pageContainer-sidebar">
           <Sidebar />
         </b-col>
         <b-col md="10" class="pageContainer-mapContainer">
-          <AsyncComponent />
+          <ConceptMap />
         </b-col>
       </b-row>
       <b-row v-else class="noMapContainer">
@@ -19,40 +20,44 @@
   </b-row>
 </template>
 <script>
-// import ConceptMap from "@/components/ConceptMap.vue";
+import ConceptMap from "@/components/ConceptMap.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import NoConceptMap from "@/components/NoConceptMap.vue";
-import LoadingComponent from "@/components/LoadingComponent.vue";
+// import LoadingComponent from "@/components/LoadingComponent.vue";
 import { mapGetters, mapState } from "vuex";
-
-const AsyncComponent = () => ({
-  // The component to load (should be a Promise)
-  component: import("@/components/ConceptMap.vue"),
-  // A component to use while the async component is loading
-  loading: import("@/components/LoadingComponent.vue"),
-  // A component to use if the load fails
-  error: LoadingComponent,
-  // Delay before showing the loading component. Default: 200ms.
-  delay: 200,
-  // The error component will be displayed if a timeout is
-  // provided and exceeded. Default: Infinity.
-  timeout: 3000,
-});
+// It does not work..????
+// const AsyncComponent = () => ({
+//   // The component to load (should be a Promise)
+//   component: import("@/components/ConceptMap.vue"),
+//   // A component to use while the async component is loading
+//   loading: import("@/components/LoadingComponent.vue"),
+//   // A component to use if the load fails
+//   error: LoadingComponent,
+//   // Delay before showing the loading component. Default: 200ms.
+//   delay: 200,
+//   // The error component will be displayed if a timeout is
+//   // provided and exceeded. Default: Infinity.
+//   timeout: 3000,
+// });
 export default {
   data() {
     return {};
   },
   components: {
-    // ConceptMap,
+    ConceptMap,
     Sidebar,
     NoConceptMap,
-    AsyncComponent,
+    // AsyncComponent,
   },
   computed: {
     ...mapGetters({
       isThereAnyConceptMap: "drupal_api/getIsThereAnyConceptMap",
     }),
     ...mapState("conceptMap", ["finishedLoading"]),
+  },
+
+  async created() {
+    await this.$store.dispatch("conceptMap/loadConceptMapsFromBackend");
   },
 };
 </script>
