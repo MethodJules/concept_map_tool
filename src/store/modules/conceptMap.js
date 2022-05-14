@@ -16,7 +16,8 @@ const state = () => ({
     idForXNavi: "",
     test: 12,
     conceptMap: {},
-    deleteMode: false
+    deleteMode: false,
+    transition: true,
 
 
 })
@@ -237,25 +238,14 @@ const actions = {
     *  @param {*} rootState, it allows access to states of other modules in store.
     *  @param {*} dispatch, it is being used to call an action
     */
-    async loadConceptMapsFromBackend({ commit, rootState, dispatch }) {
+    async loadConceptMapsFromBackend({ state, commit, rootState, dispatch }) {
         let conceptMaps = rootState.drupal_api.user.concept_maps;
         await Promise.all(conceptMaps.map(async conceptMap => {
-            await axios.get(`concept_map/${conceptMap.id}`)
-                .then(async (response) => {
-                    const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
-                    const links = response.data.data.relationships.field_conceptmap_relationships.data;
-                    const tags = response.data.data.attributes.field_conceptmap_tags;
-                    let newNodes = await dispatch("loadNodesOfConceptMap", nodes);
-                    let newLinks = await dispatch("loadLinksOfConceptMap", links);
-                    await commit("SAVE_CONCEPTMAPS_IN_STATE", { id: response.data.data.id, title: response.data.data.attributes.title, nodes: newNodes, links: newLinks, tags: tags });
-
-
-                })
-                .catch(error => {
-                    throw new Error(`API ${error}`);
-                });
+            let map = await dispatch("fetchConceptMap", conceptMap.id);
+            await commit("SAVE_CONCEPTMAPS_IN_STATE", map);
         }))
         await commit("INITIALIZE_CONCEPT_MAP");
+        await commit("CHECK_FOR_OPTIONS", state.conceptMap.nodes)
     },
 
     /** Loads a single concept map from backend. 
@@ -267,6 +257,7 @@ const actions = {
     *  @param {integer} conceptMapId, id of the concept map that will be downloaded
     */
     async fetchConceptMap({ commit, dispatch }, conceptMapId) {
+        let conceptMap;
         await axios.get(`concept_map/${conceptMapId}`)
             .then(async (response) => {
                 const nodes = response.data.data.relationships.field_conceptmap_concepts.data;
@@ -274,14 +265,14 @@ const actions = {
                 const tags = response.data.data.attributes.field_conceptmap_tags;
                 let newNodes = await dispatch("loadNodesOfConceptMap", nodes);
                 let newLinks = await dispatch("loadLinksOfConceptMap", links);
-                await commit("SAVE_CONCEPTMAP_IN_STATE", { id: response.data.data.id, title: response.data.data.attributes.title, nodes: newNodes, links: newLinks, tags: tags });
+                conceptMap = { id: response.data.data.id, title: response.data.data.attributes.title, nodes: newNodes, links: newLinks, tags: tags }
+                await commit("SAVE_CONCEPTMAP_IN_STATE", conceptMap);
                 await commit("CHECK_FOR_OPTIONS", newNodes)
             })
             .catch(error => {
                 throw new Error(`API ${error}`);
             });
-
-
+        return conceptMap;
     },
 
 
@@ -305,7 +296,6 @@ const actions = {
                     concepts.push({ id: uuid, name: title, uuid: uuid, conceptMapId, uid });
                 })
         }));
-        // dispatch("addUidToConcepts", concepts)
         return concepts;
     },
 
@@ -364,7 +354,12 @@ const mutations = {
      */
     SAVE_CONCEPTMAP_IN_STATE(state, conceptMap) {
         state.conceptMap = conceptMap
+
         state.finishedLoading = true;
+        state.transition = true;
+
+
+
     },
     /**
      * Changes the force option for bigger concept maps.
@@ -454,6 +449,7 @@ const mutations = {
     INITIALIZE_CONCEPT_MAP(state) {
         state.conceptMap = state.concept_maps[0]
         state.finishedLoading = true;
+
     },
 
     /**

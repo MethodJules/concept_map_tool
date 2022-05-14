@@ -66,7 +66,7 @@ import { mapState } from "vuex";
 
 export default {
   computed: {
-    ...mapState("conceptMap", ["conceptMapOptions"]),
+    ...mapState("conceptMap", ["conceptMapOptions", "conceptMap"]),
 
     // ...mapGetters({
     //   conceptMapOptions: "conceptMap/getConceptMapOptions",
@@ -84,9 +84,10 @@ export default {
     },
 
     allConceptMapOptionsDefault() {
+      this.$store.dispatch("CHECK_FOR_OPTIONS", this.conceptMap.nodes);
       this.conceptMapOptions.fontSize = 15;
       this.conceptMapOptions.nodeSize = 30;
-      this.conceptMapOptions.force = 30000;
+      // this.conceptMapOptions.force = 30000;
     },
   },
 };

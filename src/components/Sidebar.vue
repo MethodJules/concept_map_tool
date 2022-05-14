@@ -277,6 +277,7 @@ export default {
 <style scoped>
 .sidebar-left {
   display: flex;
+  justify-content: space-between;
   flex-direction: column;
   min-height: 85vh;
   flex: 1;
@@ -391,6 +392,7 @@ export default {
 .scrollable {
   position: relative;
   max-height: 50vh;
+
   overflow-y: scroll;
 }
 @media only screen and (max-width: 600px) {

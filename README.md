@@ -6,7 +6,7 @@ npm install
 ```
 ### Install reauired packages 
 ```
-npm install --save vue-d3-network gsap
+npm install --save vue-d3-network
 npm install --save vuelidate
 ```
 ### Compiles and hot-reloads for development
