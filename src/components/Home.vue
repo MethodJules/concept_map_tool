@@ -4,7 +4,6 @@
       <b-spinner></b-spinner>
     </div>
     <div v-else>
-      <!-- <div> -->
       <b-row v-if="isThereAnyConceptMap">
         <b-col md="2" class="pageContainer-sidebar">
           <Sidebar />
@@ -25,20 +24,7 @@ import Sidebar from "@/components/Sidebar.vue";
 import NoConceptMap from "@/components/NoConceptMap.vue";
 // import LoadingComponent from "@/components/LoadingComponent.vue";
 import { mapGetters, mapState } from "vuex";
-// It does not work..????
-// const AsyncComponent = () => ({
-//   // The component to load (should be a Promise)
-//   component: import("@/components/ConceptMap.vue"),
-//   // A component to use while the async component is loading
-//   loading: import("@/components/LoadingComponent.vue"),
-//   // A component to use if the load fails
-//   error: LoadingComponent,
-//   // Delay before showing the loading component. Default: 200ms.
-//   delay: 200,
-//   // The error component will be displayed if a timeout is
-//   // provided and exceeded. Default: Infinity.
-//   timeout: 3000,
-// });
+
 export default {
   data() {
     return {};
@@ -47,7 +33,6 @@ export default {
     ConceptMap,
     Sidebar,
     NoConceptMap,
-    // AsyncComponent,
   },
   computed: {
     ...mapGetters({
