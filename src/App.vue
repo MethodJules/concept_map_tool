@@ -53,6 +53,7 @@ export default {
   async mounted() {
     await this.$store.dispatch("drupal_api/loadTokensfromSessionStorage");
     this.finishedLoading = true;
+    // this.$store.dispatch("conceptMap/fetchRecommenderLogs");
   },
 };
 </script>

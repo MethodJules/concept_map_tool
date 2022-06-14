@@ -13,6 +13,8 @@ export const toggleDeleteMode = ({ state }) => {
 }
 
 
+// When there are more than 50 concepts in db. It does not work as intended. 
+// It brings only the 50 of them.
 /**
 * Loads the concepts from database and send them to mutation with commit. 
 * @param {commit}

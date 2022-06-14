@@ -1,5 +1,6 @@
 import axios from "@/config/custom_axios";
 import loginAxios from "@/config/login_axios"
+import axiosDefault from "axios"
 
 const state = () => ({
     nodes: [], // stores the nodes of concept map
@@ -323,6 +324,20 @@ const actions = {
                 })
         }))
         return relationships;
+    },
+
+
+
+    fetchRecommenderLogs() {
+        // let logs;
+        axiosDefault.get(`https://clr-backend.x-navi.de/jsonapi/recommender_log/recommender_log`)
+            .then(async (response) => {
+                console.log(response)
+            })
+            .catch(error => {
+                throw new Error(`API ${error}`);
+            });
+
     },
 
 }
