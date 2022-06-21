@@ -12,18 +12,26 @@ export const toggleDeleteMode = ({ state }) => {
     state.deleteMode = !state.deleteMode;
 }
 
-
-// When there are more than 50 concepts in db. It does not work as intended. 
-// It brings only the 50 of them.
 /**
 * Loads the concepts from database and send them to mutation with commit. 
 * @param {commit}
 *  
 */
-export const loadConceptListFromDb = ({ commit, rootState, state }) => {
+export const loadConceptListFromDb = ({ rootState, dispatch }) => {
     let uid = rootState.drupal_api.user.uid
-    axios.get(`concept?filter[field_uid]=${uid}`)
-        .then((response) => {
+    let link = `concept?filter[field_uid]=${uid}`;
+    dispatch("fetchConceptsFromDb", link);
+}
+/**
+ * Loads concepts from database. 
+ * @param {object} commit, it is being used to call a mutation
+ * @param {object} dispatch, it is being used to call an action 
+ * @param {object} state, state as parameter for access and manipulation of state data 
+ * @param {string} link, link to make the get concepts from db
+ */
+export const fetchConceptsFromDb = ({ commit, dispatch, state }, link) => {
+    axios.get(link)
+        .then(async (response) => {
             const data = response.data.data;
             let concepts = [];
             for (var i in data) {
@@ -34,19 +42,33 @@ export const loadConceptListFromDb = ({ commit, rootState, state }) => {
                     conceptMapId: data[i].attributes.field_concept_map_id
                 });
             }
+            commit("SAVE_CONCEPTS", concepts)
+            // While olunca site patliyor. Neden?
+            if (response.data.links.next) {
+                let link = await dispatch("createLink", response.data.links.next.href);
+                await dispatch("fetchConceptsFromDb", link);
+            }
             // Will be removed
             if (concepts.length <= 0) {
                 state.noConceptsLoaded = true;
-
             }
-            return commit("SAVE_CONCEPTS", concepts)
         }).catch(error => {
             throw new Error(`API ${error}`);
         });
 }
 
-
-
+/**
+ * It changes the given link which comes from response.next to the proper form
+ * to be able to send it to axios. 
+ * @param {*} ctx 
+ * @param {string} link, link to make to proper form 
+ * @returns {string} newLink, link in proper form
+ */
+export const createLink = (ctx, link) => {
+    let index = link.indexOf("node/");
+    let newLink = link.slice(index + 5);
+    return newLink;
+}
 
 /**
 * Commits to add concepts to the database. 

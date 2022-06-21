@@ -17,7 +17,7 @@ export const triggerLoading = (state) => {
  * @param {object} concepts concept to save. 
  */
 export const SAVE_CONCEPTS = (state, concepts) => {
-    state.concepts = concepts;
+    state.concepts.push(...concepts);
 }
 
 
