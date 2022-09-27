@@ -46,3 +46,10 @@
     opacity: 0;
   }
 }
+
+
+@media print {
+  @page {
+    size: landscape;
+  }
+}

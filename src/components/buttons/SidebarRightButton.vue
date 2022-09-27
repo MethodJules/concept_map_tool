@@ -35,7 +35,7 @@
   </div>
 </template>
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "vuex";
 import LogoutButton from "@/components/buttons/LogoutButton";
 import Tags from "@/components/Tags";
 import ConceptMapOptions from "@/components/ConceptMapOptions";
@@ -58,12 +58,7 @@ export default {
     ConceptMapOptions,
   },
   computed: {
-    ...mapGetters({
-      conceptMaps: "conceptMap/getConceptMaps",
-      index: "conceptMap/getIndex",
-      activeConceptMap: "conceptMap/getActiveConceptMap",
-      user: "drupal_api/getUser",
-    }),
+    ...mapState("drupal_api", ["user"]),
   },
 
   methods: {},

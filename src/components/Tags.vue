@@ -10,7 +10,7 @@
       </b-button>
     </div>
     <div class="tags-items">
-      <span class="tag" v-for="(tag, i) in activeConceptMap.tags" :key="i">
+      <span class="tag" v-for="(tag, i) in conceptMap.tags" :key="i">
         <span class="tag-name">{{ tag }}</span>
         <b-icon
           icon="x-circle"
@@ -23,7 +23,7 @@
   </div>
 </template>
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "vuex";
 
 export default {
   data() {
@@ -32,10 +32,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters({
-      //   index: "conceptMap/getIndex",
-      activeConceptMap: "conceptMap/getActiveConceptMap",
-    }),
+    ...mapState("conceptMap", ["conceptMap"]),
   },
   methods: {
     /**
@@ -46,7 +43,7 @@ export default {
     tagValidation(newTag) {
       let isValid = false;
       let errorMessage = "";
-      let tags = this.activeConceptMap.tags;
+      let tags = this.conceptMap.tags;
       if (newTag.length <= 0) {
         isValid = true;
         errorMessage = "Tag-Name ist leer.";
@@ -72,7 +69,7 @@ export default {
     addTag(newTag) {
       let auth = this.tagValidation(newTag);
       if (!auth.isValid) {
-        let tags = this.activeConceptMap.tags;
+        let tags = this.conceptMap.tags;
         tags.push(newTag);
         this.$store.dispatch("conceptMapBar/addTagToConceptMap", tags);
       } else {
@@ -85,7 +82,7 @@ export default {
      * @param {string} tag, the tag that is going to be deleted.
      */
     deleteTag(tag) {
-      let tags = this.activeConceptMap.tags;
+      let tags = this.conceptMap.tags;
       let index = tags.indexOf(tag);
       tags.splice(index, 1);
       this.$store.dispatch("conceptMapBar/deleteTagFromConceptMap", tags);
@@ -94,7 +91,7 @@ export default {
      * Deletes last tag.
      */
     deleteLastTag() {
-      let tags = this.activeConceptMap.tags;
+      let tags = this.conceptMap.tags;
       if (this.newTag.length <= 0) {
         tags.splice(-1, 1);
         this.$store.dispatch("conceptMapBar/deleteTagFromConceptMap", tags);

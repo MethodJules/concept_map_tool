@@ -1,41 +1,13 @@
 import axios from "@/config/custom_axios";
 
 const state = () => ({
-
     conceptMap: [],
     finishedLoading: false,
     isConceptMapEmpty: true
 })
 
 
-const getters = {
-    /**
-     * Getter for concept map. 
-     * @param {object} state, state as parameter for access and manipulation of state data 
-     * @returns state.conceptMap 
-     */
-    getConceptMap(state) {
-        return state.conceptMap;
-    },
-    /**
-     * Checks if conceptMap is loaded from the backend or not.
-     * @param {object} state, state as parameter for access and manipulation of state data 
-     * @returns state.finishedLoading
-     */
-    getFinishedLoading(state) {
-        return state.finishedLoading
-    },
-
-
-    /** Shows if there is concept in concept map or not. 
-    * @param {object} state, state as parameter for access and manipulation of state data
-    * @returns state.isConceptMapEmpty, if concept map is free, then it returns false vice versa.
-    * 
-    */
-    getIsConceptMapEmpty(state) {
-        return state.isConceptMapEmpty;
-    },
-}
+const getters = {}
 const actions = {
 
     /** Loads concept map from backend. 
@@ -68,8 +40,7 @@ const actions = {
      * @param {*} nodes, it stores the ids of the nodes.  
      * @returns {object} concepts, it stores the concept ids, titles and uuids.
      */
-    async loadNodesOfConceptMap({ state }, nodes) {
-        console.log(state)
+    async loadNodesOfConceptMap(ctx, nodes) {
         let concepts = [];
         await Promise.all(nodes.map(async element => {
             await axios.get(`concept/${element.id}`)
@@ -91,8 +62,8 @@ const actions = {
     * @param {*} links, it stores the ids of the links.  
     * @returns {object} concepts, it stores the links ids, names,source ids(sid) and target ids(tid)
     */
-    async loadLinksOfConceptMap({ state }, links) {
-        console.log(state)
+    async loadLinksOfConceptMap(ctx, links) {
+
         let relationships = [];
         await Promise.all(links.map(async link => {
             await axios.get(`relationship/${link.id}`)

@@ -1,6 +1,6 @@
 <template>
   <div v-if="finishedLoading">
-    <div v-if="isEmpty" class="emptyMap">
+    <div v-if="isConceptMapEmpty" class="emptyMap">
       <b-card
         bg-variant="info"
         text-variant="white"
@@ -60,7 +60,7 @@
  */
 import D3Network from "vue-d3-network";
 
-import { mapGetters } from "vuex";
+import { mapState } from "vuex";
 
 export default {
   data() {
@@ -70,11 +70,11 @@ export default {
     D3Network,
   },
   computed: {
-    ...mapGetters({
-      conceptMap: "conceptMapForXNavi/getConceptMap",
-      finishedLoading: "conceptMapForXNavi/getFinishedLoading",
-      isEmpty: "conceptMapForXNavi/getIsConceptMapEmpty",
-    }),
+    ...mapState("conceptMapForXNavi", [
+      "finishedLoading",
+      "conceptMap",
+      "isConceptMapEmpty",
+    ]),
 
     /**
      * options of concept map.

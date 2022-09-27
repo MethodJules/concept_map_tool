@@ -1,6 +1,6 @@
 <template>
   <div class="conceptMapPage">
-    <div v-if="finishedLoading && isEmpty" class="emptyMap">
+    <div v-if="finishedLoading && isThereAnyNodeInMap" class="emptyMap">
       <b-card
         bg-variant="info"
         text-variant="white"
@@ -14,47 +14,51 @@
         >
       </b-card>
     </div>
-    <fullscreen v-model="fullscreen">
-      <d3-network
-        id="map"
-        v-if="finishedLoading"
-        :net-nodes="activeConceptMap.nodes"
-        :net-links="activeConceptMap.links"
-        :options="options"
-        @node-click="showModal"
-        @link-click="deleteLink"
-        ref="net"
-        :link-cb="lcb"
-      />
-    </fullscreen>
+    <div v-if="conceptMap.nodes.length > 0">
+      <!-- <fullscreen v-model="fullscreen"> -->
+      <Transition name="fade">
+        <d3-network
+          id="map"
+          v-if="finishedLoading && transition"
+          :net-nodes="conceptMap.nodes"
+          :net-links="conceptMap.links"
+          :options="options"
+          @node-click="showModal"
+          @link-click="deleteLink"
+          ref="net"
+          :link-cb="lcb"
+        />
+      </Transition>
+      <!-- </fullscreen> -->
 
-    <div class="markers">
-      <svg>
-        <defs>
-          <marker
-            id="m-end"
-            markerWidth="10"
-            markerHeight="7"
-            refX="14"
-            refY="3.5"
-            orient="auto"
-            markerUnits="strokeWidth"
-          >
-            <polygon points="0 0, 10 3.5, 0 7" fill="red" />
-          </marker>
-          <marker
-            id="m-start"
-            markerWidth="10"
-            markerHeight="7"
-            refX="-5"
-            refY="3.5"
-            orient="auto"
-            markerUnits="strokeWidth"
-          >
-            <polygon points="10 0, 10 7, 0 3.5" fill="red" />
-          </marker>
-        </defs>
-      </svg>
+      <div class="markers">
+        <svg>
+          <defs>
+            <marker
+              id="m-end"
+              markerWidth="10"
+              markerHeight="7"
+              refX="14"
+              refY="3.5"
+              orient="auto"
+              markerUnits="strokeWidth"
+            >
+              <polygon points="0 0, 10 3.5, 0 7" fill="red" />
+            </marker>
+            <marker
+              id="m-start"
+              markerWidth="10"
+              markerHeight="7"
+              refX="-5"
+              refY="3.5"
+              orient="auto"
+              markerUnits="strokeWidth"
+            >
+              <polygon points="10 0, 10 7, 0 3.5" fill="red" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
     </div>
     <div class="modals">
       <b-modal id="add-parent-modal" hide-footer hide-header hide-title>
@@ -177,7 +181,6 @@
       </b-modal>
 
       <b-modal
-        centered
         id="add-first-concept-modal"
         title="Füge dein erstes Konzept hinzu"
         hide-footer
@@ -232,10 +235,7 @@
  *
  */
 import D3Network from "vue-d3-network";
-
-import { mapGetters } from "vuex";
-import { gsap } from "gsap";
-
+import { mapGetters, mapState } from "vuex";
 export default {
   data() {
     return {
@@ -254,15 +254,16 @@ export default {
     D3Network,
   },
   computed: {
+    ...mapState("conceptMap", [
+      "conceptMapOptions",
+      "deleteMode",
+      "finishedLoading",
+      "conceptMap",
+      "transition",
+    ]),
     ...mapGetters({
-      deleteMode: "getDeleteMode",
-      activeConceptMap: "conceptMap/getActiveConceptMap",
       filteredConcepts: "getFilteredConcepts",
-      finishedLoading: "conceptMap/getFinishedLoading",
-      isEmpty: "conceptMap/getIsConceptMapEmpty",
-      conceptMapOptions: "conceptMap/getConceptMapOptions",
     }),
-
     /**
      * It controls if option or input is full or not.
      * We need this info in order to prevent sending an unfilled form
@@ -296,6 +297,10 @@ export default {
       if (this.selectedNode !== "") return false;
       return true;
     },
+    isThereAnyNodeInMap() {
+      let nodes = this.conceptMap.nodes;
+      return nodes?.length > 0 ? false : true;
+    },
   },
   methods: {
     /**
@@ -314,7 +319,6 @@ export default {
       this.nodePositionX = event.touches[0].pageX;
       this.nodePositionY = event.touches[0].pageY;
     },
-
     /**
      * Arranges the arrows on the links.
      */
@@ -326,6 +330,7 @@ export default {
       };
       return link;
     },
+
     /**
      * Shows the modal with the given id.
      * @param {string} modalId the id of the modal that is being shown
@@ -333,7 +338,6 @@ export default {
     showAnyModal(modalId) {
       this.$root.$emit("bv::show::modal", modalId);
     },
-
     /**
      * Show Modal.
      * @param node The node that user clicked
@@ -372,7 +376,6 @@ export default {
         }
       }
     },
-
     /**
      * Hides Modal with the given id.
      * @param {string} modalId  the id of the modal that is being hide
@@ -401,7 +404,6 @@ export default {
       });
       this.hideModal("add-first-concept-modal");
     },
-
     /**
      * Controls if there is a link between the selected node and clicked node.
      * It also controls if the selected node and clicked node is the same.
@@ -410,8 +412,7 @@ export default {
      */
     isLinkExists(clickedNode, nodeInOption) {
       let isLinkExists = false;
-      let links = this.activeConceptMap.links;
-
+      let links = this.conceptMap.links;
       clickedNode.name == nodeInOption.name ? (isLinkExists = true) : "";
       links.forEach((link) => {
         link.sid == clickedNode.id && link.tid == nodeInOption.id
@@ -423,7 +424,6 @@ export default {
       });
       return isLinkExists;
     },
-
     /**
      * creates the marker by checking the relation type
      * @param {string} relationType, the type of the relation which comes from the modal
@@ -466,7 +466,6 @@ export default {
         : (name = "von " + sourceConcept.name + " zu " + targetConcept.name);
       // We need to add the ids of the source and target concept to relationship array.
       let markers = this.createMarkers(relationType);
-
       relationship.push({
         name,
         tid: targetConcept.id,
@@ -474,7 +473,6 @@ export default {
         marker_start: markers.start,
         marker_end: markers.end,
       });
-
       // We need to send the source concept as an object to this methode
       this.$store.dispatch("conceptMap/addConceptToConceptMap", {
         concept: sourceConcept,
@@ -483,21 +481,16 @@ export default {
       this.$store.dispatch("conceptMap/addConceptToConceptMap", {
         concept: targetConcept,
       });
-
       // We need to send the relationship as an array
       this.$store.dispatch("conceptMap/addRelationshipToDatabase", {
-        relationship: relationship,
+        relationship,
       });
     },
-
     async deleteLink(event, link) {
       if (event.altKey == true || this.deleteMode) {
-        console.log(link);
-
         this.$store.commit("conceptMap/DELETE_LINK_FROM_STATE", {
           linkId: link.id,
         });
-
         await this.$store.dispatch(
           "conceptMap/deleteLinkFromConceptMapTable",
           link.id
@@ -518,19 +511,17 @@ export default {
      */
     async deleteNode(node) {
       let linksToDelete = await this.findLinksOfNode(node);
-
-      linksToDelete.forEach((linkId) => {
-        this.deleteLinkFromConceptMap(linkId);
-      });
+      linksToDelete.forEach(this.deleteLinkFromConceptMap);
+      // linksToDelete.forEach((linkId) => {
+      //   this.deleteLinkFromConceptMap(linkId);
+      // });
       this.deleteConceptFromConceptMap(node);
-
       for (const linkId of linksToDelete) {
         await this.$store.dispatch(
           "conceptMap/deleteLinkFromConceptMapTable",
           linkId
         );
       }
-
       for (const linkId of linksToDelete) {
         await this.$store.dispatch(
           "conceptMap/deleteLinkFromRelationsTable",
@@ -539,7 +530,6 @@ export default {
       }
       this.hideModal("add-parent-modal");
     },
-
     /**
      * Remove Concept From Concept Map.
      * @param {object} node The node that we are going to delete from concept map.
@@ -565,63 +555,38 @@ export default {
      * @param {object} node The node that we are going to find the links of it.
      */
     findLinksOfNode(node) {
-      let links = this.activeConceptMap.links;
+      let links = this.conceptMap.links;
       let linksOfNode = [];
-      console.log(links);
       links.forEach((link) => {
         link.sid == node.id || link.tid == node.id
           ? linksOfNode.push(link.id)
           : "";
       });
-      console.log(linksOfNode);
       return linksOfNode;
     },
-  },
-  async created() {
-    await this.$store.dispatch("conceptMap/loadConceptMapFromBackend");
 
-    // node click detect
-    let nodes = document.querySelectorAll(".nodes");
-    nodes.forEach((node) => {
-      console.log(node);
-      node.addEventListener("mousedown", this.mouseUpOnNode);
-      node.addEventListener("touchstart", this.touchStartOnNode);
-    });
-  },
-
-  watch: {
-    /**
-     * To make transition when switching concept maps.
-     * Actually we are changing the activeConceptMap when we change the concept maps from dropdown
-     * So we are applying transition whenever we change the value of activeConceptMap
-     */
-    activeConceptMap: () => {
-      const map = document.querySelector("#map");
-      const body = document.querySelector("body");
-      body.style.overflow = "hidden";
-      const tl = gsap.timeline({
-        defaults: {
-          duration: 0.6,
-          ease: "ease-out",
-        },
-      });
-
-      if (map) {
-        tl.from(map, { translateX: 1000, clearProps: "all", duration: 1 }, 0.6);
-      }
-
-      // node click detect
+    addNodeEventListeners() {
       let nodes = document.querySelectorAll(".nodes");
       nodes.forEach((node) => {
-        console.log(node);
         node.addEventListener("mousedown", this.mouseUpOnNode);
         node.addEventListener("touchstart", this.touchStartOnNode);
       });
     },
   },
+
+  async mounted() {
+    await this.addNodeEventListeners();
+  },
+  async updated() {
+    await this.addNodeEventListeners();
+  },
 };
 </script>
+
 <style scoped >
+.conceptMapPage {
+  height: 100%;
+}
 .map-enter {
   opacity: 0;
 }
@@ -638,7 +603,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 80vh;
+  height: 70vh;
 }
 
 .emptyMap .card {
@@ -652,6 +617,9 @@ export default {
 
 .markers {
   height: 0px;
+}
+.markers svg {
+  height: 0;
 }
 button {
   display: flex !important;
@@ -705,7 +673,7 @@ button {
 }
 .net {
   /* width: 100%; */
-  min-height: 70vh !important;
+  min-height: 88vh !important;
   padding: 0;
 }
 
@@ -721,7 +689,24 @@ button {
   font-size: 0.8 em !important;
 }
 ::v-deep #map svg {
-  height: 85vh !important;
+  height: 100% !important;
+}
+
+/* Transition classes */
+
+.fade-enter-active {
+  transition: opacity 2s ease;
+}
+.fade-leave-active {
+  transition: opacity 1s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-to {
+  opacity: 1;
 }
 </style>
-

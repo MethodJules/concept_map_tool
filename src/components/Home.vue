@@ -1,12 +1,9 @@
 <template>
   <b-row class="pageContainer">
-    <div
-      class="app-loading-bar"
-      v-if="!finishedActiveConceptMapLoading & isThereAnyConceptMap"
-    >
+    <div class="app-loading-bar" v-if="!finishedLoading">
       <b-spinner></b-spinner>
     </div>
-    <div>
+    <div v-else>
       <b-row v-if="isThereAnyConceptMap">
         <b-col md="2" class="pageContainer-sidebar">
           <Sidebar />
@@ -15,7 +12,7 @@
           <ConceptMap />
         </b-col>
       </b-row>
-      <b-row v-if="!isThereAnyConceptMap" class="noMapContainer">
+      <b-row v-else class="noMapContainer">
         <NoConceptMap />
       </b-row>
     </div>
@@ -25,7 +22,9 @@
 import ConceptMap from "@/components/ConceptMap.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import NoConceptMap from "@/components/NoConceptMap.vue";
-import { mapGetters } from "vuex";
+// import LoadingComponent from "@/components/LoadingComponent.vue";
+import { mapGetters, mapState } from "vuex";
+
 export default {
   data() {
     return {};
@@ -38,8 +37,12 @@ export default {
   computed: {
     ...mapGetters({
       isThereAnyConceptMap: "drupal_api/getIsThereAnyConceptMap",
-      finishedActiveConceptMapLoading: "conceptMap/getFinishedLoading",
     }),
+    ...mapState("conceptMap", ["finishedLoading"]),
+  },
+
+  async created() {
+    await this.$store.dispatch("conceptMap/loadConceptMapsFromBackend");
   },
 };
 </script>
@@ -47,6 +50,7 @@ export default {
 .pageContainer {
   padding-top: 0.5rem;
   margin: 0;
+  flex: 1;
 }
 
 .pageContainer-sidebar {

@@ -34,9 +34,6 @@ export const getButtonClicked = (state) => {
     return state.buttonClicked;
 }
 
-export const getDeleteMode = (state) => {
-    return state.deleteMode;
-}
 /**
  * Getter for the concepts of active concept map
  * @param {object} state, to reach and manipulate state 
@@ -45,14 +42,10 @@ export const getDeleteMode = (state) => {
 export const getFilteredConcepts = (state) => {
     let concepts = [];
     state.concepts.forEach(concept => {
-        if (concept.conceptMapId == state.conceptMap.activeConceptMap.id) {
+        if (concept.conceptMapId == state.conceptMap.conceptMap.id) {
             concepts.push(concept);
         }
     });
+
     return concepts;
-}
-
-
-export const getNoConceptLoaded = (state) => {
-    return state.noConceptsLoaded;
 }

@@ -18,7 +18,7 @@
         </transition>
       </div>
     </div>
-    <Footer v-if="!xNavi" />
+    <Footer v-if="finishedLoading && !xNavi" />
     <router-view v-if="finishedLoading && xNavi"></router-view>
   </div>
 </template>
@@ -53,12 +53,14 @@ export default {
   async mounted() {
     await this.$store.dispatch("drupal_api/loadTokensfromSessionStorage");
     this.finishedLoading = true;
+    // this.$store.dispatch("conceptMap/fetchRecommenderLogs");
   },
 };
 </script>
 
 <style>
 @import "assets/loading.css";
+
 body {
   overflow: visible !important;
 }
@@ -69,6 +71,7 @@ body {
   display: flex;
   flex-direction: column;
 }
+
 .app-container {
   flex: 1;
 }
@@ -88,7 +91,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  min-height: 50vh;
 }
 
 .hide {

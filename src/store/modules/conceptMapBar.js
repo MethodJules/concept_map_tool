@@ -33,7 +33,7 @@ const actions = {
                 let index = rootState.conceptMap.concept_maps.indexOf(conceptMap);
                 rootState.conceptMap.index = index;
 
-                (index) ? rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[index] : rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[0];
+                // (index) ? rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[index] : rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[0];
                 // when the concept map created, if it is the first one we need to change isThereAnyConceptMap to true to show the main page.
                 (rootState.drupal_api.user.concept_maps.length <= 0) ? rootState.drupal_api.isThereAnyConceptMap = true : "";
             })
@@ -75,7 +75,7 @@ const actions = {
     deleteConceptMapFromUser({ rootState }, payload) {
         rootState.conceptMap.concept_maps.splice(payload.index, 1);
         rootState.drupal_api.user.concept_maps.splice(payload.index, 1);
-        rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[0];
+        // rootState.conceptMap.activeConceptMap = rootState.conceptMap.concept_maps[0];
         // If there is no concept map, we need to change isThereAnyConceptMap to false to show the opening card to add first concept map
         (rootState.conceptMap.concept_maps.length <= 0) ? rootState.drupal_api.isThereAnyConceptMap = false : "";
         var data = `{
@@ -197,7 +197,7 @@ const actions = {
      * @param {array} tags, all tags on the concept map
      */
     addTagToConceptMap({ rootState }, tags) {
-        let conceptMapId = rootState.conceptMap.activeConceptMap.id;
+        let conceptMapId = rootState.conceptMap.conceptMap.id;
 
         var data = `{"data":{"type":"node--concept-map", "id": "${conceptMapId}", "attributes": {"field_conceptmap_tags": ${JSON.stringify(tags)}}}}`;
         var config = {
@@ -217,7 +217,7 @@ const actions = {
      * @param {array} tags, all tags on the concept map, without the one that we deleted.
      */
     deleteTagFromConceptMap({ rootState }, tags) {
-        let conceptMapId = rootState.conceptMap.activeConceptMap.id;
+        let conceptMapId = rootState.conceptMap.conceptMap.id;
         let tagsToSend = JSON.stringify(tags);
 
         var data = `{"data":{"type":"node--concept-map", "id": "${conceptMapId}", "attributes": {"field_conceptmap_tags": ${tagsToSend}}}}`;

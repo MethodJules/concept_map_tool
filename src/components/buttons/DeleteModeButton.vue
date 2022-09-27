@@ -13,9 +13,9 @@
       noninteractive
       >Löschen Modus</b-tooltip
     >
-    <b-icon v-if="!isDeleteModeOn" icon="trash" font-scale="1"></b-icon>
+    <b-icon v-if="!deleteMode" icon="trash" font-scale="1"></b-icon>
     <b-icon
-      v-if="isDeleteModeOn"
+      v-if="deleteMode"
       icon="circle-fill"
       animation="throb"
       font-scale="1"
@@ -24,11 +24,14 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 export default {
   data() {
-    return {
-      isDeleteModeOn: false,
-    };
+    return {};
+  },
+  computed: {
+    ...mapState("conceptMap", ["deleteMode"]),
   },
   methods: {
     /**
@@ -36,12 +39,7 @@ export default {
      * It triggers the method changeNodeColor, which changes the color of node.
      */
     toggleDeleteMode() {
-      this.$store.dispatch("toggleDeleteMode");
-      if (this.isDeleteModeOn) {
-        this.isDeleteModeOn = !this.isDeleteModeOn;
-      } else {
-        this.isDeleteModeOn = !this.isDeleteModeOn;
-      }
+      this.$store.commit("conceptMap/TOGGLE_DELETE_MODE");
     },
   },
 };

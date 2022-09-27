@@ -18,7 +18,7 @@
         <RecommenderButton />
         <DeleteModeButton />
         <PrintButton />
-        <FullScreenButton />
+        <!-- <FullScreenButton /> -->
         <SidebarRightButton />
         <KeyboardHintsButton />
         <div class="visible-mobile">
@@ -34,14 +34,14 @@
   </div>
 </template>
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "vuex";
 import PrintButton from "@/components/buttons/PrintButton";
 import DeleteModeButton from "@/components/buttons/DeleteModeButton";
 import RecommenderButton from "@/components/buttons/RecommenderButton";
 import SidebarRightButton from "@/components/buttons/SidebarRightButton";
 import ConceptMapsDropdownButton from "@/components/buttons/ConceptMapsDropdownButton";
 import LogoutButton from "@/components/buttons/LogoutButton";
-import FullScreenButton from "@/components/buttons/FullScreenButton";
+// import FullScreenButton from "@/components/buttons/FullScreenButton";
 import KeyboardHintsButton from "@/components/buttons/KeyboardHintsButton";
 import CopyConceptMapLinkButton from "@/components/buttons/CopyConceptMapLinkButton";
 // Modals
@@ -58,25 +58,14 @@ export default {
     SidebarRightButton,
     ConceptMapsDropdownButton,
     LogoutButton,
-    FullScreenButton,
+    // FullScreenButton,
     KeyboardHintsButton,
     CopyConceptMapLinkButton,
     // RecommenderModal,
   },
 
   computed: {
-    ...mapGetters({
-      user: "drupal_api/getUser", // getter to take datas of the user.
-    }),
-    account() {
-      return this.$store.state.sparky_api.account;
-    },
-
-    validCredential() {
-      // return true;
-      // return this.$store.state.sparky_api.validCredential;
-      return this.$store.state.drupal_api.validCredential;
-    },
+    ...mapState("drupal_api", ["validCredential"]),
   },
 };
 </script>

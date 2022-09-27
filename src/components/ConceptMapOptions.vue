@@ -62,13 +62,15 @@
   </div>
 </template>
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "vuex";
 
 export default {
   computed: {
-    ...mapGetters({
-      conceptMapOptions: "conceptMap/getConceptMapOptions",
-    }),
+    ...mapState("conceptMap", ["conceptMapOptions", "conceptMap"]),
+
+    // ...mapGetters({
+    //   conceptMapOptions: "conceptMap/getConceptMapOptions",
+    // }),
   },
   methods: {
     defaultConceptMapValues(attribute) {
@@ -82,9 +84,10 @@ export default {
     },
 
     allConceptMapOptionsDefault() {
+      this.$store.dispatch("CHECK_FOR_OPTIONS", this.conceptMap.nodes);
       this.conceptMapOptions.fontSize = 15;
       this.conceptMapOptions.nodeSize = 30;
-      this.conceptMapOptions.force = 30000;
+      // this.conceptMapOptions.force = 30000;
     },
   },
 };

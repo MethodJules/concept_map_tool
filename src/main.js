@@ -15,7 +15,10 @@ import 'vue-d3-network/dist/vue-d3-network.css'
 import Vuetify from 'vuetify'
 import Vuelidate from 'vuelidate'
 import VueFullscreen from 'vue-fullscreen'
+import VueHtmlToPaper from 'vue-html-to-paper';
 
+
+Vue.use(VueHtmlToPaper);
 
 Vue.config.productionTip = false
 Vue.use(BootstrapVue)
